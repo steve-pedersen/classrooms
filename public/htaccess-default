@@ -1,0 +1,16 @@
+RewriteEngine on
+Options FollowSymLinks
+
+#AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml text/css application/x-javascript
+ExpiresActive on
+ExpiresByType image/gif "access plus 1 month"
+ExpiresByType image/jpeg "access plus 1 month"
+ExpiresByType image/png "access plus 1 month"
+ExpiresByType text/css "access plus 1 month"
+ExpiresByType application/x-javascript "access plus 1 month"
+
+RewriteBase /~dkoepke/exp/diva2/
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?p=$1 [L,QSA]
