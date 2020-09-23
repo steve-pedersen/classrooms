@@ -13,6 +13,8 @@ class Classrooms_Notes_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
         switch ($fromVersion)
         {
             case 0:
+                $this->useDataSource($this->getApplication()->dataSourceManager->getDataSource('default'));
+
                 $def = $this->createEntityType('classroom_notes_entries');
                 $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
                 $def->addProperty('message', 'string');
@@ -21,8 +23,9 @@ class Classrooms_Notes_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
                 $def->addProperty('created_by', 'int');
                 $def->addProperty('created_date', 'datetime');
                 $def->addProperty('deleted', 'bool');
-                $def->addIndex(['deleted', 'path', 'created_date']);
-                $def->addIndex(['deleted', 'created_date']);
+                $def->addIndex('deleted');
+                $def->addIndex('path');
+                $def->addIndex('created_date');
                 $def->save();
 
                 break;

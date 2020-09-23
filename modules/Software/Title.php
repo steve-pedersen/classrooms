@@ -11,7 +11,7 @@
  */
 class Classrooms_Software_Title extends Bss_ActiveRecord_Base
 {
-    use Classrooms_Notes_Provider;
+    use Notes_Provider;
 
     public static function SchemaInfo ()
     {
@@ -22,6 +22,13 @@ class Classrooms_Software_Title extends Bss_ActiveRecord_Base
             'id' => 'int',
             'name' => 'string',
             'deleted' => 'bool',
+
+            'developer' => [ '1:1', 'to' => 'Classrooms_Software_Developer', 'keyMap' => [ 'developer_id' => 'id' ] ],
+            'versions' => ['1:N', 
+                'to' => 'Classrooms_Software_Version', 
+                'reverseOf' => 'title', 
+                'orderBy' => [ '+modifiedDate', '+createdDate' ]
+            ],
 
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],
             'modifiedDate' => [ 'datetime', 'nativeName' => 'modified_date' ],

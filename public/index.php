@@ -1,21 +1,15 @@
 <?php
 
-if (isset($_SERVER['BSS_APP_CONFIG_FILE']))
+if (file_exists('../var/composer/vendor/autoload.php'))
 {
-    define('BSS_APP_CONFIG_FILE', $_SERVER['BSS_APP_CONFIG_FILE']);
-}
-else
-{
-    require_once 'bss.init.php';
+	require_once '../var/composer/vendor/autoload.php';
 }
 
+require_once 'bss.init.php';
 require_once 'bss/core/Application.php';
 require_once 'bss/core/Request.php';
 require_once 'bss/core/Response.php';
 
-if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-    $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
-}
 
 function Bss_App_Start ()
 {

@@ -6,7 +6,7 @@
  * @author      Daniel A. Koepke (dkoepke@sfsu.edu)
  * @copyright   Copyright &copy; San Francisco State University.
  */
-class Classrooms_AuthN_AdminController extends At_Admin_Controller
+class Classrooms_Software_AdminController extends At_Admin_Controller
 {
     public static function getRouteMap ()
     {

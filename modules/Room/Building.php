@@ -9,9 +9,9 @@
  * @author      Charles O'Sullivan (chsoney@sfsu.edu)
  * @copyright   Copyright &copy; San Francisco State University.
  */
-class Classrooms_Room_Building extends Bss_ActiveRecord_BaseWith
+class Classrooms_Room_Building extends Bss_ActiveRecord_Base
 {
-    use Classrooms_Notes_Provider;
+    use Notes_Provider;
 
     public static function SchemaInfo ()
     {
@@ -23,6 +23,12 @@ class Classrooms_Room_Building extends Bss_ActiveRecord_BaseWith
             'name' => 'string',
             'code' => 'string',
             'deleted' => 'bool',
+
+            'locations' => ['1:N', 
+                'to' => 'Classrooms_Room_Location', 
+                'reverseOf' => 'building', 
+                'orderBy' => [ '+modifiedDate', '+createdDate' ]
+            ],
 
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],
             'modifiedDate' => [ 'datetime', 'nativeName' => 'modified_date' ],

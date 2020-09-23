@@ -9,7 +9,7 @@
  * @author      Charles O'Sullivan (chsoney@sfsu.edu)
  * @copyright   Copyright &copy; San Francisco State University.
  */
-class Classrooms_Notes_Entry extends Bss_ActiveRecord_BaseWith
+class Classrooms_Notes_Entry extends Bss_ActiveRecord_Base
 {
     
     public static function SchemaInfo ()

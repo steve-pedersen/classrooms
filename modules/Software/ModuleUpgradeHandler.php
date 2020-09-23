@@ -23,7 +23,6 @@ class Classrooms_Software_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModu
                 $def->addProperty('created_date', 'datetime');
                 $def->addProperty('modified_date', 'datetime');
                 $def->addProperty('deleted', 'bool');
-                $def->addIndex('deleted');
                 $def->addIndex('parent_category_id', 'deleted');
                 $def->save();
 
@@ -54,7 +53,6 @@ class Classrooms_Software_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModu
                 $def->addProperty('created_date', 'datetime');
                 $def->addProperty('modified_date', 'datetime');
                 $def->addProperty('deleted', 'bool');
-                $def->addIndex('title_id');
                 $def->addIndex('title_id', 'deleted');
                 $def->save();
 
@@ -68,7 +66,6 @@ class Classrooms_Software_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModu
                 $def->addProperty('created_date', 'datetime');
                 $def->addProperty('modified_date', 'datetime');
                 $def->addProperty('deleted', 'bool');
-                $def->addIndex('version_id');
                 $def->addIndex('version_id', 'deleted');
                 $def->save();
 

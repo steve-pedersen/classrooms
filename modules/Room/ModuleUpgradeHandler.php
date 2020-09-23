@@ -26,6 +26,15 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addIndex('deleted');
                 $def->save();
 
+                $def = $this->createEntityType('classroom_room_types');
+                $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
+                $def->addProperty('name', 'string');
+                $def->addProperty('created_date', 'datetime');
+                $def->addProperty('modified_date', 'datetime');
+                $def->addProperty('deleted', 'bool');
+                $def->addIndex('deleted');
+                $def->save();
+
                 $def = $this->createEntityType('classroom_room_locations');
                 $def->addProperty('id', 'int', array('primaryKey' => true, 'sequence' => true));
                 $def->addProperty('number', 'string');
@@ -37,8 +46,7 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('deleted', 'bool');
                 $def->addIndex('building_id');
                 $def->addIndex('type_id');
-                $def->addIndex('type_id', 'deleted');
-                $def->addIndex('building_id', 'deleted');
+                $def->addIndex('deleted');
                 $def->save();
 
                 $def = $this->createEntityType('classroom_room_configurations');
@@ -57,6 +65,7 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('created_date', 'datetime');
                 $def->addProperty('modified_date', 'datetime');
                 $def->addProperty('deleted', 'bool');
+                $def->addIndex('room_id');
                 $def->save();
 
                 break;

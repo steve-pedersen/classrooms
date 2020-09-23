@@ -31,39 +31,39 @@
 	                <span class="icon-bar"></span>
 	              </button>
 	              {if $viewer && $viewer->faculty}
-	              <a class="navbar-brand" href="{$baseUrl}/fr/request">Workstation Selection</a>
+	              	<a class="navbar-brand" href="{$baseUrl}/fr/request">Classrooms Database</a>
 	              {else}
-	              <a class="navbar-brand" href="{$baseUrl}">Workstation Selection</a>
+	              	<a class="navbar-brand" href="{$baseUrl}">Classrooms Database</a>
 	              {/if}
 	            </div> 
-							<nav class="collapse navbar-collapse" id="navbar-at-collapse">
+				<nav class="collapse navbar-collapse" id="navbar-at-collapse">
 	            <ul class="nav navbar-nav navbar-right">
 					{if $viewer}
-								<li class="dropdown">
-									<a href="#" class="dropdown-toggle navbar-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-									{if $viewer->faculty}
-									Hello, Professor {$viewer->faculty->lastName}
-									{else}
-									Hello, {$viewer->firstName}
-									{/if} 
-									<span class="caret"></span>
-									</a>
-									<ul class="dropdown-menu">
-										{if $pAdmin}
-										<li>
-											<a class="btn btn-link navbar-link" href="admin"><i class="halflings-icon white cog"></i> Administrate</a>
-										</li>
-										{/if}
-										<li>
-											<form method="post" action="logout">
-												<button class="btn btn-link logout navbar-btn" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
-											</form>
-										</li>
-									</ul>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle navbar-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							{if $viewer->faculty}
+								Hello, Professor {$viewer->faculty->lastName}
+							{else}
+								Hello, {$viewer->firstName}
+							{/if} 
+							<span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								{if $pAdmin}
+								<li>
+									<a class="btn btn-link navbar-link" href="admin"><i class="halflings-icon white cog"></i> Administrate</a>
 								</li>
+								{/if}
+								<li>
+									<form method="post" action="logout">
+										<button class="btn btn-link logout navbar-btn" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
+									</form>
+								</li>
+							</ul>
+						</li>
 					{else}
 						<li>
-							<a class="login-button" href="{$app->baseUrl('login?returnTo=/purchase')}">Login</a>
+							<a class="login-button" href="{$app->baseUrl('login?returnTo=/')}">Login</a>
 						</li>
 					{/if} 
 	            </ul>

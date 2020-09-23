@@ -1,5 +1,7 @@
 <?php
 
+require_once Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'traits', 'Provider.php');
+
 /**
  * The master controller for Workstation Selection application. Put basic functionality that you want
  * the other controllers in your application to have available to them here.
@@ -34,7 +36,7 @@ abstract class Classrooms_Master_Controller extends Bss_Master_Controller
             $this->template->flashContent = $session->flashContent;
             unset($session->flashContent);
         }
-
+        
         parent::afterCallback($callback);
     }
 

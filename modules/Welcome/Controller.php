@@ -23,10 +23,6 @@ class Classrooms_Welcome_Controller extends Classrooms_Master_Controller
         {
             $this->template->welcomeText = $welcomeText;
         }
-        
-        if($account = $this->getAccount())
-        {
-            $this->response->redirect('purchase');
-        }
+
     }
 }

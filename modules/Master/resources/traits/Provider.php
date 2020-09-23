@@ -1,6 +1,6 @@
 <?php
 
-trait Classrooms_Notes_Provider 
+trait Notes_Provider 
 {
 	abstract public function getNotePath ();
 	abstract public function getNoteBase ();

@@ -11,7 +11,7 @@
  */
 class Classrooms_Software_Category extends Bss_ActiveRecord_Base
 {
-    use Classrooms_Notes_Provider;
+    use Notes_Provider;
 
     public static function SchemaInfo ()
     {
@@ -22,6 +22,8 @@ class Classrooms_Software_Category extends Bss_ActiveRecord_Base
             'id' => 'int',
             'name' => 'string',
             'deleted' => 'bool',
+
+            'parentCategory' => [ '1:1', 'to' => 'Classrooms_Software_Category', 'keyMap' => [ 'parent_category_id' => 'id' ] ],
 
             'expirationDate' => [ 'datetime', 'nativeName' => 'expiration_date' ],
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],

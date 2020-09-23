@@ -23,6 +23,8 @@ class Classrooms_Software_License extends Bss_ActiveRecord_Base
             'seats' => 'int',
             'deleted' => 'bool',
 
+            'version' => [ '1:1', 'to' => 'Classrooms_Software_Version', 'keyMap' => [ 'version_id' => 'id' ] ],
+
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],
             'modifiedDate' => [ 'datetime', 'nativeName' => 'modified_date' ],
         ];
