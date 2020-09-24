@@ -1,10 +1,6 @@
 <?php
 
 /**
- * Extensible implementation of an account system.
- * 
- * Applications should extend bss:core:authN/accountExtensions with a class
- * extending Bss_AuthN_AccountExtension.
  * 
  * @author      Charles O'Sullivan (chsoney@sfsu.edu)
  * @copyright   Copyright &copy; San Francisco State University.
@@ -22,14 +18,36 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_Base
             'id' => 'int',
             'number' => 'string',
             'description' => 'string',
+            'capacity' => 'int',
+            'facets' => 'string',
             'url' => 'string',
             'deleted' => 'bool',
+            'typeId' => ['int', 'nativeName' => 'type_id'],
+            'buildingId' => ['int', 'nativeName' => 'building_id'],
 
             'type' => [ '1:1', 'to' => 'Classrooms_Room_Type', 'keyMap' => [ 'type_id' => 'id' ] ],
             'building' => [ '1:1', 'to' => 'Classrooms_Room_Building', 'keyMap' => [ 'building_id' => 'id' ] ],
+            'configurations' => ['1:N', 
+                'to' => 'Classrooms_Room_Configuration', 
+                'reverseOf' => 'room', 
+                'orderBy' => [ '+modifiedDate', '+createdDate' ]
+            ],
+            'tutorials' => ['1:N', 
+                'to' => 'Classrooms_Room_Tutorial', 
+                'reverseOf' => 'room', 
+                'orderBy' => [ '+modifiedDate', '+createdDate' ]
+            ],
             
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],
             'modifiedDate' => [ 'datetime', 'nativeName' => 'modified_date' ],
+        ];
+    }
+
+    public static function AllRoomFacets ()
+    {
+        return [
+            'lcd_proj'=>'LCD Proj', 'lcd_tv'=>'LCD TV', 'vcr_dvd'=>'VCR/DVD', 'hdmi'=>'HDMI', 'vga'=>'VGA', 'data'=>'Data',
+            'scr'=>'Scr', 'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam'
         ];
     }
 

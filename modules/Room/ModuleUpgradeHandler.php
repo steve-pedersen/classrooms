@@ -39,8 +39,11 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('id', 'int', array('primaryKey' => true, 'sequence' => true));
                 $def->addProperty('number', 'string');
                 $def->addProperty('description', 'string');
+                $def->addProperty('url', 'string');
                 $def->addProperty('type_id', 'int');
                 $def->addProperty('building_id', 'int');
+                $def->addProperty('capacity', 'int');
+                $def->addProperty('facets', 'string');
                 $def->addProperty('created_date', 'datetime');
                 $def->addProperty('modified_date', 'datetime');
                 $def->addProperty('deleted', 'bool');
@@ -61,12 +64,63 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('release_station_ip', 'string');
                 $def->addProperty('ad_bound', 'bool');
                 $def->addProperty('count', 'int');
-                $def->addProperty('room_id', 'int');
+                $def->addProperty('location_id', 'int');
                 $def->addProperty('created_date', 'datetime');
                 $def->addProperty('modified_date', 'datetime');
                 $def->addProperty('deleted', 'bool');
-                $def->addIndex('room_id');
+                $def->addIndex('location_id');
                 $def->save();
+
+                $def = $this->createEntityType('classroom_room_tutorials');
+                $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
+                $def->addProperty('name', 'string');
+                $def->addProperty('description', 'string');
+                $def->addProperty('location_id', 'int');
+                $def->addProperty('created_date', 'datetime');
+                $def->addProperty('modified_date', 'datetime');
+                $def->addProperty('deleted', 'bool');
+                $def->addIndex('location_id');
+                $def->save();
+
+
+                $this->useDataSource('Classrooms_Room_Building');
+                $groupIdMap = $this->insertRecords('classroom_room_buildings',
+                    [
+                        ['code' => 'BH', 'name' => 'Burk Hall'],
+                        ['code' => 'BUS', 'name' => 'Business'],
+                        ['code' => 'CA', 'name' => 'Creative Arts'],
+                        ['code' => 'DC', 'name' => 'Downtown Campus'],
+                        ['code' => 'EP', 'name' => 'Ethnic Studies & Psychology'],
+                        ['code' => 'FA', 'name' => 'Fine Arts'],
+                        ['code' => 'GYM', 'name' => 'Gymnasium'],
+                        ['code' => 'HH', 'name' => 'Hensill Hall'],
+                        ['code' => 'HSS', 'name' => 'Health & Social Services'],
+                        ['code' => 'HUM', 'name' => 'Humanities'],
+                        ['code' => 'SCI', 'name' => 'Science'],
+                        ['code' => 'TH', 'name' => 'Thornton Hall'],
+                        ['code' => 'T', 'name' => 'Trailers'],
+                    ],
+                    [
+                        'idList' => ['id']
+                    ]
+                );
+
+                $this->useDataSource('Classrooms_Room_Type');
+                $groupIdMap = $this->insertRecords('classroom_room_types',
+                    [
+                        ['name' => 'Classroom'],
+                        ['name' => 'Lecture Hall'],
+                        ['name' => 'Lab'],
+                        ['name' => 'Auditorium'],
+                        ['name' => 'Meeting Room'],
+                        ['name' => 'Study Room'],
+                        ['name' => 'Theater'],
+                        ['name' => 'Collaborative Space'],
+                    ],
+                    [
+                        'idList' => ['id']
+                    ]
+                );
 
                 break;
         }

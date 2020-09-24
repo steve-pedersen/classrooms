@@ -15,6 +15,6 @@
 </div>
 {else}
 <div class="welcome-module">
-	<a href="{$app->baseUrl('/')}" class="btn btn-primary">Go To Something</a>
+	<a href="{$app->baseUrl('/rooms')}" class="btn btn-primary">View Rooms</a>
 </div>
 {/if}

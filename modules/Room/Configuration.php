@@ -26,10 +26,10 @@ class Classrooms_Room_Configuration extends Bss_ActiveRecord_Base
             'releaseStationIp' => ['string', 'nativeName' => 'release_station_ip'],
             'adBound' => ['bool', 'nativeName' => 'ad_bound'],
             'count' => 'int',
-            'roomId' => ['string', 'nativeName' => 'room_id'],
+            'locationId' => ['string', 'nativeName' => 'location_id'],
             'deleted' => 'bool',
 
-            'room' => [ '1:1', 'to' => 'Classrooms_Room_Location', 'keyMap' => [ 'room_id' => 'id' ] ],
+            'room' => [ '1:1', 'to' => 'Classrooms_Room_Location', 'keyMap' => [ 'location_id' => 'id' ] ],
 
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],
             'modifiedDate' => [ 'datetime', 'nativeName' => 'modified_date' ],
