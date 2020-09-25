@@ -32,23 +32,21 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_Base
                 'reverseOf' => 'room', 
                 'orderBy' => [ '+modifiedDate', '+createdDate' ]
             ],
-            'tutorials' => ['1:N', 
-                'to' => 'Classrooms_Room_Tutorial', 
-                'reverseOf' => 'room', 
-                'orderBy' => [ '+modifiedDate', '+createdDate' ]
-            ],
             
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],
             'modifiedDate' => [ 'datetime', 'nativeName' => 'modified_date' ],
         ];
     }
 
-    public static function AllRoomFacets ()
+    public function getCodeNumber ()
     {
-        return [
-            'lcd_proj'=>'LCD Proj', 'lcd_tv'=>'LCD TV', 'vcr_dvd'=>'VCR/DVD', 'hdmi'=>'HDMI', 'vga'=>'VGA', 'data'=>'Data',
-            'scr'=>'Scr', 'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam'
-        ];
+        return $this->building->code . ' ' . $this->number;
+    }
+
+    public function getTutorial ()
+    {
+        $tuts = $this->getSchema('Classrooms_Room_Tutorial');
+        return $tuts->findOne($tuts->locationId->equals($this->id));
     }
 
     public function getNotePath ()

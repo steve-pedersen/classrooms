@@ -16,12 +16,13 @@ class Classrooms_Room_Tutorial extends Bss_ActiveRecord_Base
             '__pk' => ['id'],
             
             'id' => 'int',
-            'title' => 'string',
+            'name' => 'string',
             'description' => 'string',
             'locationId' => ['string', 'nativeName' => 'location_id'],
             'deleted' => 'bool',
 
             'room' => [ '1:1', 'to' => 'Classrooms_Room_Location', 'keyMap' => [ 'location_id' => 'id' ] ],
+            // 'image' => [ '1:1', 'to' => 'Classrooms_Files_File', 'keyMap' => [ 'image_id' => 'id' ] ],
 
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],
             'modifiedDate' => [ 'datetime', 'nativeName' => 'modified_date' ],

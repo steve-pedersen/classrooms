@@ -2,7 +2,7 @@
 	<div class="row">
 		<div class="col-xs-12">
 		{if $location->id}
-			<h1>Edit Room <small>{$location->building->name} {$location->number}</small></h1>
+			<h1>Edit Room <small><a href="rooms/{$location->id}">{$location->building->name} {$location->number}</a></small></h1>
 		{else}
 			<h1>New Room</h1>
 		{/if}
@@ -10,19 +10,16 @@
 	</div>
 </div>
 
-<div class="container">
-	<div class="row">
-		<div class="col-sm-12">
-			<a href="buildings/new/edit" class="btn btn-info">Add New Building</a>
-			<a href="types/new/edit" class="btn btn-info">Add New Room Type</a>
-		{if $location->id}
-			<a href="rooms/{$location->id}/tutorials/new/edit" class="btn btn-info">Add New Tutorial</a>
-		{/if}
-		</div>
+<div class="row pull-right" style="margin-bottom: 1em;">
+	<div class="col-sm-12">
+		<a href="buildings/new/edit" class="btn btn-info">Add New Building</a>
+		<a href="types/new/edit" class="btn btn-info">Add New Room Type</a>
+	{if $location->id}
+		<a href="rooms/{$location->id}/tutorials/new/edit" class="btn btn-info">Add New Tutorial</a>
+	{/if}
 	</div>
 </div>
 
-<hr>
 
 {if $location->configurations && $location->configurations->count() > 1}
 <form action="" method="get" id="selectConfiguration">
@@ -77,7 +74,7 @@
 							<select name="room[type]" id="type" class="form-control">
 								<option value="">Choose Room Type</option>
 							{foreach $types as $type}
-								<option value="{$type->id}"{if $location->type_id == $type->id} selected{/if}>{$type->name} - {$type->code}</option>
+								<option value="{$type->id}"{if $location->type_id == $type->id} selected{/if}>{$type->name}</option>
 							{/foreach}
 							</select>
 						</div>
