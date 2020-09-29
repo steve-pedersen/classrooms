@@ -32,6 +32,11 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_Base
                 'reverseOf' => 'room', 
                 'orderBy' => [ '+modifiedDate', '+createdDate' ]
             ],
+            'images' => ['1:N', 
+                'to' => 'Classrooms_Files_File', 
+                'reverseOf' => 'room', 
+                'orderBy' => [ '+uploadedDate', 'remoteName' ]
+            ],
             
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],
             'modifiedDate' => [ 'datetime', 'nativeName' => 'modified_date' ],

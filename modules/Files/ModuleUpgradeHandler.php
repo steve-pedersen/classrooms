@@ -8,7 +8,7 @@ class Classrooms_Files_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
         {
             case 0:
 
-                $def = $this->createEntityType('syllabus_files', $this->getDataSource('Classrooms_Files_File'));
+                $def = $this->createEntityType('classroom_files', $this->getDataSource('Classrooms_Files_File'));
                 $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
                 $def->addProperty('remote_name', 'string');
                 $def->addProperty('local_name', 'string');
@@ -19,6 +19,7 @@ class Classrooms_Files_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
                 $def->addProperty('title', 'string');
                 $def->addProperty('uploaded_date', 'datetime');
                 $def->addProperty('uploaded_by_id', 'int');
+                $def->addProperty('location_id', 'int');
                 $def->addForeignKey('bss_authn_accounts', array('uploaded_by_id' => 'id'));
                 $def->save();
                 

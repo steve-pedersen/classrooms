@@ -75,6 +75,7 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
                 $def->addProperty('name', 'string');
                 $def->addProperty('description', 'string');
+                $def->addProperty('header_image_url', 'string');
                 $def->addProperty('location_id', 'int');
                 $def->addProperty('image_id', 'int');
                 $def->addProperty('created_date', 'datetime');

@@ -23,8 +23,10 @@
 #require js/dataTables.fixedHeader.min.js
 
 #require js/bootstrap-toggle.min.js
-#require js/workstation.js
-#require js/purchase.js
+
+#require js/blueimp/js/vendor/jquery.ui.widget.js
+#require js/blueimp/js/jquery.iframe-transport.js
+#require js/blueimp/js/jquery.fileupload.js
 
 
 (function ($) {
@@ -33,6 +35,57 @@
         e.stopPropagation();
         e.preventDefault();
       });
+
+      $('#fileupload').fileupload({
+        dataType: "json",
+        add: function(e, data) {
+          data.context = $('<div class="col-xs-1"></div>')
+            .append($('<div data-src="null" class="copy-image-btn"><img src="null" class="img-responsive"></div>'))
+            .appendTo($('#image-gallery .row:last-child'));
+          data.submit();
+        },
+        progress: function(e, data) {
+          var progress = parseInt((data.loaded / data.total) * 100, 10);
+          data.context.css("background-position-x", 100 - progress + "%");
+        },
+        done: function(e, data) {
+          $('#image-gallery').show();
+          data.context
+            .addClass("done")
+            .find(".copy-image-btn")
+            .attr('data-src', data._response.result.file.fullUrl)
+            .on("click", function (e) {
+              e.preventDefault();
+              $('#copy-message').animate({opacity:1}, 10).animate({opacity:0}, 1000);
+              var imageUrl = data._response.result.file.fullUrl;
+              navigator.clipboard.writeText(imageUrl).then(function() {
+                console.log('clipboard successfully set');
+              }, function() {
+                console.log('clipboard write failed');
+              });
+            })
+            .find('img')
+            .attr('src', data._response.result.file.url);
+        }
+      });
+      if ($('.copy-image-btn').length) {
+        $('#image-gallery').show();
+        $('.copy-image-btn').each(function (index, em) {
+          $(em).on('click', function (e) {
+            e.preventDefault();
+            $('#copy-message').animate({opacity:1}, 10).animate({opacity:0}, 1000);
+
+            var imageUrl = $(em).attr('data-src');
+            navigator.clipboard.writeText(imageUrl).then(function() {
+              console.log('clipboard successfully set');
+            }, function() {
+              console.log('clipboard write failed');
+            });
+          });
+        });        
+      }
+
+
 
       autosize($('textarea.autosize'));
 

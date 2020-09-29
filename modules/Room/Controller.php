@@ -22,7 +22,61 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/rooms/:roomid/tutorials/:id/edit' => ['callback' => 'editTutorial', ':id' => '[0-9]+|new'],
             '/buildings/:id/edit' => ['callback' => 'editBuilding', ':id' => '[0-9]+|new'],
             '/types/:id/edit' => ['callback' => 'editType', ':id' => '[0-9]+|new'],
+            '/rooms/:id/tutorials/upload' => ['callback' => 'uploadImages'],
         ];
+    }
+
+    public function uploadImages ()
+    {
+        $viewer = $this->requireLogin();
+
+        if ($this->request->wasPostedByUser())
+        {
+            $results = [
+                'message' => 'Server error when uploading.',
+                'status' => 500,
+                'success' => false
+            ];
+
+            $files = $this->schema('Classrooms_Files_File');
+            $file = $files->createInstance();
+            $file->createFromRequest($this->request, 'file', false);
+    
+            if ($file->isValid())
+            {
+                $uploadedBy = (int)$this->request->getPostParameter('uploadedBy', $viewer->id);
+                $roomId = (int)$this->request->getPostParameter('roomId', $this->getRouteVariable('id'));
+                $file->uploaded_by_id = $uploadedBy;
+                $file->location_id = $roomId;
+                $file->moveToPermanentStorage();
+                $file->save();
+            
+                $results = [
+                    'message' => 'Your file has been uploaded.',
+                    'status' => 200,
+                    'success' => true,
+                    'file' => [
+                        'url' => 'files/' . $file->id . '/download',
+                        'fullUrl' => $this->baseUrl('files/' . $file->id . '/download'),
+                        'name' => $file->remoteName,
+                    ],
+                    'fileSrc' => 'files/' . $file->id . '/download',
+                    'fileName' => $file->remoteName,
+                    'fid' => $file->id,
+                ];
+            }
+            else
+            {
+                $messages = 'Incorrect file type or file too large.';
+                $results['status'] = $messages !== '' ? 400 : 422;
+                $results['message'] = $messages;
+            }
+
+            echo json_encode($results);
+            exit;  
+        }    
+
+        $this->template->viewer = $viewer;
     }
  
     public function editRoom ()
@@ -65,7 +119,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $selectedConfiguration->save();
                     
                     $this->flash('Room saved.');
-                    $this->response->redirect('rooms');
+                    $this->response->redirect('rooms/' . $location->id);
 
                     break;
 
@@ -95,6 +149,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     			case 'save':
     				$tutorial->location_id = $location->id;
     				$tutorial->name = $this->request->getPostParameter('name');
+                    $tutorial->headerImageUrl = $this->request->getPostParameter('headerImageUrl');
     				$tutorial->description = $this->request->getPostParameter('description');
     				$tutorial->createdDate = $tutorial->createdDate ?? new DateTime;
     				$tutorial->modifiedDate = new DateTime;
@@ -111,6 +166,12 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     		}
     	}
 
+        foreach ($location->images as $image)
+        {   
+            $image->fullUrl = $this->baseUrl($image->imageSrc);
+        }
+
+        $this->template->images = $location->images;
     	$this->template->room = $location;
     	$this->template->tutorial = $tutorial;
     }

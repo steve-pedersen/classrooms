@@ -2,11 +2,11 @@
 
 class Classrooms_Files_File extends Bss_ActiveRecord_Base
 {
-    
+    // ['image/jpeg','image/gif','image/png']   
     public static function SchemaInfo ()
     {
         return array(
-            '__type' => 'syllabus_files',
+            '__type' => 'classroom_files',
             '__pk' => array('id'),
             
             'id' => 'int',
@@ -20,6 +20,7 @@ class Classrooms_Files_File extends Bss_ActiveRecord_Base
             
             'uploadedBy' => array('1:1', 'to' => 'Bss_AuthN_Account', 'keyMap' => array('uploaded_by_id' => 'id')),
             'uploadedDate' => array('datetime', 'nativeName' => 'uploaded_date'),
+            'room' => array('1:1', 'to' => 'Classrooms_Room_Location', 'keyMap' => array('location_id' => 'id')),
         );
     }
 
@@ -33,10 +34,10 @@ class Classrooms_Files_File extends Bss_ActiveRecord_Base
         return file_exists($this->localName);
     }
 
-    public function createFromRequest ($request, $inputName, $scan=true, $allowed='')
+    public function createFromRequest ($request, $inputName, $scan=true, $allowed=[])
     {
         if ($file = $request->getFileUpload($inputName))
-        {
+        {   
             $isAllowedType = true;
             if ($allowed)
             {
@@ -53,7 +54,7 @@ class Classrooms_Files_File extends Bss_ActiveRecord_Base
                 }
             }
             if (!$isAllowedType)
-            {
+            {   
                 $this->invalidate($inputName, 'The wrong file type was uploaded.');
                 return true;
             }
@@ -245,11 +246,7 @@ class Classrooms_Files_File extends Bss_ActiveRecord_Base
 
     public function getImageSrc ()
     {
-        if ($this->isCampusResourceImage())
-        {
-            return 'files/' . $this->id . '/imagesrc';
-        }
-        return $this->getDownloadUrl();
+        return 'files/' . $this->id . '/download';
     }
 
     public function beforeDelete ()

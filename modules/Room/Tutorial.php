@@ -19,6 +19,7 @@ class Classrooms_Room_Tutorial extends Bss_ActiveRecord_Base
             'name' => 'string',
             'description' => 'string',
             'locationId' => ['string', 'nativeName' => 'location_id'],
+            'headerImageUrl' => ['string', 'nativeName' => 'header_image_url'],
             'deleted' => 'bool',
 
             'room' => [ '1:1', 'to' => 'Classrooms_Room_Location', 'keyMap' => [ 'location_id' => 'id' ] ],

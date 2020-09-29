@@ -13,6 +13,7 @@
 		<link rel="stylesheet" type="text/css" href="assets/css/app-print.css" media="print">
 		<link rel="stylesheet" type="text/css" href="assets/less/jquery.dataTables.css">
 		<link rel="stylesheet" type="text/css" href="assets/less/dataTables.bootstrap.css">
+		<link rel="stylesheet" type="text/css" href="assets/js/blueimp/css/jquery.fileupload.css">
 		<script>document.write('<link rel="stylesheet" type="text/css" href="assets/css/app-js.css" media="screen">');</script>
 	</head>
 
