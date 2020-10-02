@@ -87,6 +87,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $configs = $this->schema('Classrooms_Room_Configuration');
         $types = $this->schema('Classrooms_Room_Type');
         $buildings = $this->schema('Classrooms_Room_Building');
+        $licenses = $this->schema('Classrooms_Software_License');
 
         $selectedConfiguration = $location->id ? 
             $this->request->getQueryParameter('configuration', $location->configurations->index(0)) : $configs->createInstance();
@@ -97,6 +98,12 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             {
                 case 'save':
                     $data = $this->request->getPostParameters();
+                    
+                    if (!isset($data['room']['number']) || $data['room']['number'] === '')
+                    {
+                        $this->flash('Room NOT saved. Please specify a room number', 'danger');
+                        $this->response->redirect('rooms/new/edit');
+                    }
 
                     $locationData = $data['room'];
                     $location->building_id = $locationData['building'];
@@ -106,17 +113,45 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $location->capacity = $locationData['capacity'];
                     $location->description = $locationData['description'];
                     $location->url = $locationData['url'];
-                    $location->facets = serialize($locationData['facets']);
+                    $location->facets = isset($locationData['facets']) ? serialize($locationData['facets']) : '';
                     $location->createdDate = $location->createdDate ?? new DateTime;
                     $location->modifiedDate = new DateTime;
                     $location->save();
 
-                    $configData = $data['config'];
-                    $selectedConfiguration->absorbData($configData);
-                    $selectedConfiguration->location_id = $location->id;
-                    $selectedConfiguration->location = $configData['configLocation'];
-                    $selectedConfiguration->adBound = isset($configData['adBound']);
-                    $selectedConfiguration->save();
+                    if (isset($data['config']['new']['model']) && $data['config']['new']['model'] !== '')
+                    {
+                        $configData = $data['config']['new'];
+                        $config = $configs->createInstance();
+                    }
+                    else
+                    {
+                        $configData = $data['config']['existing'];
+                        $config = $selectedConfiguration;
+                    }
+                    $config->absorbData($configData);
+                    $config->location = $configData['location'];
+                    $config->adBound = isset($configData['adBound']);
+                    $config->location_id = $location->id;
+                    $config->createdDate = $config->createdDate ?? new DateTime;
+                    $config->modifiedDate = new DateTime;
+                    $config->save();
+                    
+                    foreach ($configData['licenses'] as $licenseId => $on)
+                    {   
+                        $license = $licenses->get($licenseId);
+                        // $license->roomConfigurations->add($config);
+                        // $license->roomConfigurations->setProperty($config, 'title_id', $license->version->title_id);
+                        // $license->roomConfigurations->save();
+                        // $license->save();
+
+                        $config->softwareLicenses->add($license);
+                        // $config->softwareLicenses->setProperty($license, 'title_id', $license->version->title_id);
+                        $config->softwareLicenses->save();
+                        $config->save();
+                    }
+
+                    // echo "<pre>"; var_dump($licenseData); die;
+                    
                     
                     $this->flash('Room saved.');
                     $this->response->redirect('rooms/' . $location->id);
@@ -129,12 +164,24 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             }
         }
 
+        $softwareTitles = [];
+        foreach ($licenses->getAll() as $license)
+        {
+            if (!isset($softwareTitles[$license->version->title->id]))
+            {
+                $softwareTitles[$license->version->title->id] = [];
+            }
+            $softwareTitles[$license->version->title->id][] = $license;
+        }
+
+
         $this->template->location = $location;
         $this->template->selectedConfiguration = $selectedConfiguration;
         $this->template->types = $types->getAll();
         $this->template->buildings = $buildings->getAll(['orderBy' => 'code']);
         $this->template->roomFacets = $location->facets ? unserialize($location->facets) : [];
         $this->template->allFacets = self::$AllRoomFacets;
+        $this->template->softwareTitles = $softwareTitles;
     }
 
     public function editTutorial () 

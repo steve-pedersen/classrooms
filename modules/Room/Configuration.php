@@ -30,6 +30,14 @@ class Classrooms_Room_Configuration extends Bss_ActiveRecord_Base
             'deleted' => 'bool',
 
             'room' => [ '1:1', 'to' => 'Classrooms_Room_Location', 'keyMap' => [ 'location_id' => 'id' ] ],
+            'softwareLicenses' => ['N:M', 
+                'to' => 'Classrooms_Software_License', 
+                'via' => 'classroom_room_configurations_software_licenses_map', 
+                'toPrefix' => 'license', 
+                'fromPrefix' => 'configuration',
+                // 'properties' => ['title_id'],
+                // 'orderBy' => ['+_map.title_id']
+            ],
 
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],
             'modifiedDate' => [ 'datetime', 'nativeName' => 'modified_date' ],

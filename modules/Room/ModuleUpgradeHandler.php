@@ -71,6 +71,12 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addIndex('location_id');
                 $def->save();
 
+                $def = $this->createEntityType('classroom_room_configurations_software_licenses_map');
+                $def->addProperty('configuration_id', 'int', ['primaryKey' => true]);
+                $def->addProperty('license_id', 'int', ['primaryKey' => true]);
+                // $def->addProperty('title_id', 'int');
+                $def->save();
+
                 $def = $this->createEntityType('classroom_room_tutorials');
                 $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
                 $def->addProperty('name', 'string');
@@ -84,23 +90,23 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addIndex('location_id');
                 $def->save();
 
-
+                $now = new DateTime;
                 $this->useDataSource('Classrooms_Room_Building');
                 $groupIdMap = $this->insertRecords('classroom_room_buildings',
                     [
-                        ['code' => 'BH', 'name' => 'Burk Hall'],
-                        ['code' => 'BUS', 'name' => 'Business'],
-                        ['code' => 'CA', 'name' => 'Creative Arts'],
-                        ['code' => 'DC', 'name' => 'Downtown Campus'],
-                        ['code' => 'EP', 'name' => 'Ethnic Studies & Psychology'],
-                        ['code' => 'FA', 'name' => 'Fine Arts'],
-                        ['code' => 'GYM', 'name' => 'Gymnasium'],
-                        ['code' => 'HH', 'name' => 'Hensill Hall'],
-                        ['code' => 'HSS', 'name' => 'Health & Social Services'],
-                        ['code' => 'HUM', 'name' => 'Humanities'],
-                        ['code' => 'SCI', 'name' => 'Science'],
-                        ['code' => 'TH', 'name' => 'Thornton Hall'],
-                        ['code' => 'T', 'name' => 'Trailers'],
+                        ['code' => 'BH', 'name' => 'Burk Hall', 'created_date' => $now],
+                        ['code' => 'BUS', 'name' => 'Business', 'created_date' => $now],
+                        ['code' => 'CA', 'name' => 'Creative Arts', 'created_date' => $now],
+                        ['code' => 'DC', 'name' => 'Downtown Campus', 'created_date' => $now],
+                        ['code' => 'EP', 'name' => 'Ethnic Studies & Psychology', 'created_date' => $now],
+                        ['code' => 'FA', 'name' => 'Fine Arts', 'created_date' => $now],
+                        ['code' => 'GYM', 'name' => 'Gymnasium', 'created_date' => $now],
+                        ['code' => 'HH', 'name' => 'Hensill Hall', 'created_date' => $now],
+                        ['code' => 'HSS', 'name' => 'Health & Social Services', 'created_date' => $now],
+                        ['code' => 'HUM', 'name' => 'Humanities', 'created_date' => $now],
+                        ['code' => 'SCI', 'name' => 'Science', 'created_date' => $now],
+                        ['code' => 'TH', 'name' => 'Thornton Hall', 'created_date' => $now],
+                        ['code' => 'T', 'name' => 'Trailers', 'created_date' => $now],
                     ],
                     [
                         'idList' => ['id']
@@ -110,14 +116,14 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $this->useDataSource('Classrooms_Room_Type');
                 $groupIdMap = $this->insertRecords('classroom_room_types',
                     [
-                        ['name' => 'Classroom'],
-                        ['name' => 'Lecture Hall'],
-                        ['name' => 'Lab'],
-                        ['name' => 'Auditorium'],
-                        ['name' => 'Meeting Room'],
-                        ['name' => 'Study Room'],
-                        ['name' => 'Theater'],
-                        ['name' => 'Collaborative Space'],
+                        ['name' => 'Classroom', 'created_date' => $now],
+                        ['name' => 'Lecture Hall', 'created_date' => $now],
+                        ['name' => 'Lab', 'created_date' => $now],
+                        ['name' => 'Auditorium', 'created_date' => $now],
+                        ['name' => 'Meeting Room', 'created_date' => $now],
+                        ['name' => 'Study Room', 'created_date' => $now],
+                        ['name' => 'Theater', 'created_date' => $now],
+                        ['name' => 'Collaborative Space', 'created_date' => $now],
                     ],
                     [
                         'idList' => ['id']

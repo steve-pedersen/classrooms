@@ -21,8 +21,12 @@ class Classrooms_Software_Title extends Bss_ActiveRecord_Base
             
             'id' => 'int',
             'name' => 'string',
+            'description' => 'string',
             'deleted' => 'bool',
+            'developerId' => ['int', 'nativeName' => 'developer_id'],
+            'categoryId' => ['int', 'nativeName' => 'category_id'],
 
+            'category' => [ '1:1', 'to' => 'Classrooms_Software_Category', 'keyMap' => [ 'category_id' => 'id' ] ],
             'developer' => [ '1:1', 'to' => 'Classrooms_Software_Developer', 'keyMap' => [ 'developer_id' => 'id' ] ],
             'versions' => ['1:N', 
                 'to' => 'Classrooms_Software_Version', 

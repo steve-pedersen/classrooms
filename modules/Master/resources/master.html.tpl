@@ -95,7 +95,7 @@
 		{/if}
 
 		{if $flashContent}
-		<div id="user-message" class="alert alert-success alert-dismissable">
+		<div id="user-message" class="alert alert-{if $flashClass}{$flashClass}{else}success{/if} alert-dismissable">
 			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
 			<div class="primary">{$flashContent}</div>
 		</div> 

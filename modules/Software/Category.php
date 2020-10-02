@@ -24,8 +24,12 @@ class Classrooms_Software_Category extends Bss_ActiveRecord_Base
             'deleted' => 'bool',
 
             'parentCategory' => [ '1:1', 'to' => 'Classrooms_Software_Category', 'keyMap' => [ 'parent_category_id' => 'id' ] ],
+            'titles' => ['1:N', 
+                'to' => 'Classrooms_Software_Title', 
+                'reverseOf' => 'category', 
+                'orderBy' => [ '+modifiedDate', '+createdDate' ]
+            ],
 
-            'expirationDate' => [ 'datetime', 'nativeName' => 'expiration_date' ],
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],
             'modifiedDate' => [ 'datetime', 'nativeName' => 'modified_date' ],
         ];

@@ -13,7 +13,7 @@
 	</div>
 </div>
 
-<div class="container">
+<div class="well">
 	<form
 		id="fileupload"
 		action="rooms/{$room->id}/tutorials/upload"
@@ -46,14 +46,14 @@
 	{generate_form_post_key}
 	</form>
 
-	<div id="image-gallery" class="well" style="display:none">
+	<div id="image-gallery" class="container" style="display:none">
 		<h4>Click image to copy it's URL <small id="copy-message" style="opacity:0;margin-left:3em" class="text-success">COPIED</small></h4>
 		<div class="row" >
 		{foreach $images as $image}
-			{if $image@total > 12 && $image@index != 0 && $image@index % 12 == 0}
+			{if $image@total > 6 && $image@index != 0 && $image@index % 6 == 0}
 				</div><div class="row">
 			{/if}
-			<div class="col-xs-1">
+			<div class="col-xs-2">
 				<div data-src="{$image->fullUrl}" class="copy-image-btn">
 					<img src="{$image->imageSrc}" class="img-responsive">
 				</div>

@@ -35,11 +35,12 @@ class Classrooms_Software_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModu
                 $def->addIndex('deleted');
                 $def->save();
 
-                $def = $this->createEntityType('classroom_software_title');
+                $def = $this->createEntityType('classroom_software_titles');
                 $def->addProperty('id', 'int', array('primaryKey' => true, 'sequence' => true));
                 $def->addProperty('name', 'string');
                 $def->addProperty('description', 'string');
                 $def->addProperty('developer_id', 'int');
+                $def->addProperty('category_id', 'int');
                 $def->addProperty('created_date', 'datetime');
                 $def->addProperty('modified_date', 'datetime');
                 $def->addProperty('deleted', 'bool');
@@ -60,7 +61,7 @@ class Classrooms_Software_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModu
                 $def->addProperty('id', 'int', array('primaryKey' => true, 'sequence' => true));
                 $def->addProperty('number', 'string');
                 $def->addProperty('description', 'string');
-                $def->addProperty('seats', 'int');
+                $def->addProperty('seats', 'string');
                 $def->addProperty('version_id', 'int');
                 $def->addProperty('expiration_date', 'datetime');
                 $def->addProperty('created_date', 'datetime');
@@ -68,6 +69,32 @@ class Classrooms_Software_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModu
                 $def->addProperty('deleted', 'bool');
                 $def->addIndex('version_id', 'deleted');
                 $def->save();
+
+                $now = new DateTime;
+                $this->useDataSource('Classrooms_Software_Category');
+                $groupIdMap = $this->insertRecords('classroom_software_categories',
+                    [
+                        ['name' => 'Adobe Creative Cloud', 'created_date' => $now],
+                        ['name' => 'Anti-Virus/Anti-Malware', 'created_date' => $now],
+                        ['name' => 'Microsoft Office', 'created_date' => $now],
+                        ['name' => 'Statistical Software', 'created_date' => $now],
+                    ],
+                    [
+                        'idList' => ['id']
+                    ]
+                );
+
+                $this->useDataSource('Classrooms_Software_Developer');
+                $groupIdMap = $this->insertRecords('classroom_software_developers',
+                    [
+                        ['name' => 'Adobe', 'created_date' => $now],
+                        ['name' => 'Microsoft', 'created_date' => $now],
+                        ['name' => 'McAfee', 'created_date' => $now],
+                    ],
+                    [
+                        'idList' => ['id']
+                    ]
+                );
 
                 break;
         }

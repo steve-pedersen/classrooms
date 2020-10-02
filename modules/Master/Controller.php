@@ -23,9 +23,10 @@ abstract class Classrooms_Master_Controller extends Bss_Master_Controller
         // framework controllers.
     }
 
-    protected function flash ($content) {
+    protected function flash ($content, $class='success') {
         $session = $this->request->getSession();
         $session->flashContent = $content;
+        $session->flashClass = $class;
     }
 
     protected function afterCallback ($callback)
@@ -35,6 +36,11 @@ abstract class Classrooms_Master_Controller extends Bss_Master_Controller
         {
             $this->template->flashContent = $session->flashContent;
             unset($session->flashContent);
+        }
+        if (isset($session->flashClass))
+        {
+            $this->template->flashClass = $session->flashClass;
+            unset($session->flashClass);
         }
         
         parent::afterCallback($callback);
