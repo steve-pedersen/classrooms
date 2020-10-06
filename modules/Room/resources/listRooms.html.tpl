@@ -16,7 +16,7 @@
     <div class="panel-body">
         <form class="form-inline" role="form">
             <div class="form-group">
-                <label class="filter-col" for="pref-perpage">Building</label>
+                <label class="filter-col" for="building">Building</label>
 				<select class="form-control" name="building" style="margin-right:2em;">
 					<option value="">All</option>
 				{foreach $buildings as $building}
@@ -25,11 +25,20 @@
 				</select>                             
             </div>
             <div class="form-group">
-                <label class="filter-col" for="pref-perpage">Room Type</label>
+                <label class="filter-col" for="type">Room Type</label>
 				<select class="form-control" name="type" style="margin-right:2em;">
 					<option value="">All</option>
 				{foreach $types as $type}
 					<option value="{$type->id}" {if $selectedType == $type->id}selected{/if}>{$type->name}</option>
+				{/foreach}
+				</select>                         
+            </div>
+            <div class="form-group">
+                <label class="filter-col" for="title">Software</label>
+				<select class="form-control" name="title" style="margin-right:2em;">
+					<option value="">All</option>
+				{foreach $titles as $title}
+					<option value="{$title->id}" {if $selectedTitle == $title->id}selected{/if}>{$title->name}</option>
 				{/foreach}
 				</select>                         
             </div>

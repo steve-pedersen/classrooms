@@ -54,8 +54,8 @@
 				</div><div class="row">
 			{/if}
 			<div class="col-xs-2">
-				<div data-src="{$image->fullUrl}" class="copy-image-btn">
-					<img src="{$image->imageSrc}" class="img-responsive">
+				<div data-src="{$image->getRoomImageSrc($room->id)}" class="copy-image-btn">
+					<img src="{$image->getRoomImageSrc($room->id)}" class="img-responsive">
 				</div>
 			</div>
 		{/foreach}		
@@ -104,7 +104,7 @@
 			<input type="hidden" name="tutorialId" value="{$tutorial->id}">
 			<button type="submit" name="command[save]" class="btn btn-primary">Save Tutorial</button>
 			<button type="submit" name="command[delete]" class="btn btn-danger">Delete</button>
-			<a href="rooms" class="btn btn-link pull-right">Cancel</a>
+			<a href="rooms/{$room->id}" class="btn btn-link pull-right">Cancel</a>
 		</div>
 	</div>
 </form>

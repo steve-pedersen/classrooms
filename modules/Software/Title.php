@@ -39,6 +39,23 @@ class Classrooms_Software_Title extends Bss_ActiveRecord_Base
         ];
     }
 
+    public function getRoomsUsedIn ()
+    {
+        $rooms = [];
+        foreach ($this->versions as $version)
+        {
+            foreach ($version->licenses as $license)
+            {
+                foreach ($license->roomConfigurations as $config)
+                {
+                    $rooms[$config->room->id] = $config->room;
+                }
+            }
+        }
+
+        return $rooms;
+    }
+
     public function getNotePath ()
     {
         return $this->getNoteBase() . $this->id;

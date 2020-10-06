@@ -23,60 +23,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/buildings/:id/edit' => ['callback' => 'editBuilding', ':id' => '[0-9]+|new'],
             '/types/:id/edit' => ['callback' => 'editType', ':id' => '[0-9]+|new'],
             '/rooms/:id/tutorials/upload' => ['callback' => 'uploadImages'],
+            '/rooms/:id/files/:fileid/download' => ['callback' => 'downloadImage'],
         ];
-    }
-
-    public function uploadImages ()
-    {
-        $viewer = $this->requireLogin();
-
-        if ($this->request->wasPostedByUser())
-        {
-            $results = [
-                'message' => 'Server error when uploading.',
-                'status' => 500,
-                'success' => false
-            ];
-
-            $files = $this->schema('Classrooms_Files_File');
-            $file = $files->createInstance();
-            $file->createFromRequest($this->request, 'file', false);
-    
-            if ($file->isValid())
-            {
-                $uploadedBy = (int)$this->request->getPostParameter('uploadedBy', $viewer->id);
-                $roomId = (int)$this->request->getPostParameter('roomId', $this->getRouteVariable('id'));
-                $file->uploaded_by_id = $uploadedBy;
-                $file->location_id = $roomId;
-                $file->moveToPermanentStorage();
-                $file->save();
-            
-                $results = [
-                    'message' => 'Your file has been uploaded.',
-                    'status' => 200,
-                    'success' => true,
-                    'file' => [
-                        'url' => 'files/' . $file->id . '/download',
-                        'fullUrl' => $this->baseUrl('files/' . $file->id . '/download'),
-                        'name' => $file->remoteName,
-                    ],
-                    'fileSrc' => 'files/' . $file->id . '/download',
-                    'fileName' => $file->remoteName,
-                    'fid' => $file->id,
-                ];
-            }
-            else
-            {
-                $messages = 'Incorrect file type or file too large.';
-                $results['status'] = $messages !== '' ? 400 : 422;
-                $results['message'] = $messages;
-            }
-
-            echo json_encode($results);
-            exit;  
-        }    
-
-        $this->template->viewer = $viewer;
     }
  
     public function editRoom ()
@@ -139,19 +87,10 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     foreach ($configData['licenses'] as $licenseId => $on)
                     {   
                         $license = $licenses->get($licenseId);
-                        // $license->roomConfigurations->add($config);
-                        // $license->roomConfigurations->setProperty($config, 'title_id', $license->version->title_id);
-                        // $license->roomConfigurations->save();
-                        // $license->save();
-
                         $config->softwareLicenses->add($license);
-                        // $config->softwareLicenses->setProperty($license, 'title_id', $license->version->title_id);
                         $config->softwareLicenses->save();
                         $config->save();
-                    }
-
-                    // echo "<pre>"; var_dump($licenseData); die;
-                    
+                    }                
                     
                     $this->flash('Room saved.');
                     $this->response->redirect('rooms/' . $location->id);
@@ -238,37 +177,116 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
     public function listRooms ()
     {
+    	$viewer = $this->getAccount();
         $locations = $this->schema('Classrooms_Room_Location');
         $buildings = $this->schema('Classrooms_Room_Building')->getAll(['orderBy' => 'name']);
         $types = $this->schema('Classrooms_Room_Type')->getAll(['orderBy' => 'name']);
+        $titles = $this->schema('Classrooms_Software_Title');
 
         $selectedBuilding = $this->request->getQueryParameter('building');
         $selectedType = $this->request->getQueryParameter('type');
+        $selectedTitle = $this->request->getQueryParameter('title');
 
 		$condition = null;        
-        if ($selectedBuilding && $selectedType)
-        {
-        	$condition = $locations->buildingId->equals($selectedBuilding)->andIf($locations->typeId->equals($selectedType));
-        }
-        elseif ($selectedBuilding)
+        if ($selectedBuilding)
         {
         	$condition = $locations->buildingId->equals($selectedBuilding);
         }
-        elseif ($selectedType)
+        if ($selectedType)
         {
-        	$condition = $locations->typeId->equals($selectedType);
+        	$query = $locations->typeId->equals($selectedType);
+        	$condition = $condition ? $condition->andIf($query) : $query;
+        }
+        if ($selectedTitle)
+        {
+        	$title = $titles->get($selectedTitle);
+        	$query = $locations->id->inList(array_keys($title->getRoomsUsedIn()));
+        	$condition = $condition ? $condition->andIf($query) : $query;
         }
 
         $rooms = $locations->find($condition, ['orderBy' => 'number']);
+        // if ($this->hasPermission('admin'))
+        // {
+        // 	$rooms = $locations->find($condition, ['orderBy' => 'number']);
+        // }
+        // else
+        // {
+	       //  $authZ = $this->getAuthorizationManager();
+	       //  $azids = $authZ->getObjectsForWhich($viewer, 'location view');
+	       //  $rooms = $locations->getByAzids($azids, $condition, ['orderBy' => 'number']) ?? [];
+        // }
 
 
         $this->template->selectedBuilding = $selectedBuilding;
         $this->template->selectedType = $selectedType;
+        $this->template->selectedTitle = $selectedTitle;
         $this->template->buildings = $buildings;
         $this->template->types = $types;
         $this->template->rooms = $rooms;
+        $this->template->titles = $titles->getAll();
         $this->template->allFacets = self::$AllRoomFacets;
         $this->template->hasFilters = $condition;
+    }
+
+    public function downloadImage ()
+    {
+    	$roomId = $this->getRouteVariable('id');
+    	$fileId = $this->getRouteVariable('fileid');
+    	$location = $this->schema('Classrooms_Room_Location')->get($roomId);
+    	$this->forward('files/' . $fileId . '/download');
+    }
+
+    public function uploadImages ()
+    {
+        $viewer = $this->requireLogin();
+
+        if ($this->request->wasPostedByUser())
+        {
+            $results = [
+                'message' => 'Server error when uploading.',
+                'status' => 500,
+                'success' => false
+            ];
+
+            $files = $this->schema('Classrooms_Files_File');
+            $file = $files->createInstance();
+            $file->createFromRequest($this->request, 'file', false);
+    
+            if ($file->isValid())
+            {
+                $uploadedBy = (int)$this->request->getPostParameter('uploadedBy', $viewer->id);
+                $roomId = (int)$this->request->getPostParameter('roomId', $this->getRouteVariable('id'));
+                $file->uploaded_by_id = $uploadedBy;
+                $file->location_id = $roomId;
+                $file->moveToPermanentStorage();
+                $file->save();
+            
+                $results = [
+                    'message' => 'Your file has been uploaded.',
+                    'status' => 200,
+                    'success' => true,
+                    'file' => [
+                        'url' => 'rooms/'.$roomId.'/files/' . $file->id . '/download',
+                        'fullUrl' => $this->baseUrl('rooms/'.$roomId.'/files/' . $file->id . '/download'),
+                        'name' => $file->remoteName,
+                    ],
+                    // 'fileSrc' => 'rooms/'.$roomId.'/files/' . $file->id . '/download',
+                    // 'fileName' => $file->remoteName,
+                    // 'fid' => $file->id,
+                ];
+            }
+            else
+            {
+                $messages = 'Incorrect file type or file too large.';
+                $results['status'] = $messages !== '' ? 400 : 422;
+                $results['message'] = $messages;
+            }
+
+            echo json_encode($results);
+            exit;  
+        }    
+
+        $this->template->viewer = $viewer;
     }
 
 }

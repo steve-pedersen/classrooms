@@ -249,6 +249,11 @@ class Classrooms_Files_File extends Bss_ActiveRecord_Base
         return 'files/' . $this->id . '/download';
     }
 
+    public function getRoomImageSrc ($roomId)
+    {
+        return $this->application->baseUrl('rooms/' . $roomId . '/files/' . $this->id . '/download');
+    }
+
     public function beforeDelete ()
     {
         $dir = ($this->temporary ? 'temp-files' : 'files');

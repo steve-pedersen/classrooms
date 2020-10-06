@@ -1,9 +1,5 @@
 <h1>
-{if $title->tutorial->name}
-	{$title->tutorial->name}
-{else}
 	Software Title <small>{$title->name}</small>
-{/if}
 </h1>
 
 {if $pAdmin}
@@ -45,3 +41,10 @@
 	</dl>
 
 </div>
+
+<h2>Rooms used in</h2>
+<ul>
+{foreach $title->roomsUsedIn as $room}
+	<li><a href="rooms/{$room->id}">{$room->codeNumber}</a></li>
+{/foreach}
+</ul>

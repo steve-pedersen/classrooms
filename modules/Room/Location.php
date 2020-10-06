@@ -5,7 +5,7 @@
  * @author      Charles O'Sullivan (chsoney@sfsu.edu)
  * @copyright   Copyright &copy; San Francisco State University.
  */
-class Classrooms_Room_Location extends Bss_ActiveRecord_Base
+class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
 {
     use Notes_Provider;
 
@@ -14,6 +14,7 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_Base
         return [
             '__type' => 'classroom_room_locations',
             '__pk' => ['id'],
+            '__azidPrefix' => 'at:classrooms:room/Location/',
             
             'id' => 'int',
             'number' => 'string',

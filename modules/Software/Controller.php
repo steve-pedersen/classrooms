@@ -131,7 +131,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
     {
     	$this->addBreadcrumb('software', 'List Software Titles');
     	$title = $this->helper('activeRecord')->fromRoute('Classrooms_Software_Title', 'id');
-    	
+        
     	$this->template->title = $title;
     }
 
