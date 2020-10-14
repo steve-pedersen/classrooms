@@ -55,18 +55,83 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
         return $tuts->findOne($tuts->locationId->equals($this->id));
     }
 
+    public function hasDiff ($data)
+    {
+        $updated = false;
+        foreach ($this->getData() as $key => $value)
+        {
+            if ($updated) break;
+            if (isset($data[$key]) && !is_object($value))
+            {
+                if ($key === 'facets')
+                {   
+                    $facets = unserialize($this->facets);
+                    if (array_diff_key($facets, $data['facets']) || array_diff_key($data['facets'], $facets))
+                    {
+                        $updated = true;
+                    }
+                }
+                elseif ($this->$key != $data[$key])
+                {   
+                    $updated = true;
+                }
+            }
+        }
+
+        return $updated;
+    }
+
+    public function getDiff ($data)
+    {
+        $updated = ['old' => [], 'new' => []];
+        foreach ($this->getData() as $key => $value)
+        {
+            if (isset($data[$key]) && !is_object($value))
+            {
+                if ($key === 'facets')
+                {   
+                    $facets = unserialize($this->facets);
+                    if ($removed = array_diff_key($facets, $data['facets']))
+                    {
+                        foreach ($removed as $k => $on)
+                        {
+                            $updated['old'][$k] = 'checked';
+                            $updated['new'][$k] = 'unchecked';
+                        }
+                    }
+
+                    if ($added = array_diff_key($data['facets'], $facets))
+                    {
+                        foreach ($added as $k => $on)
+                        {
+                            $updated['old'][$k] = 'unchecked';
+                            $updated['new'][$k] = 'checked';
+                        }
+                    }
+                }
+                elseif ($this->$key != $data[$key])
+                {   
+                    $updated['old'][$key] = $this->$key;
+                    $updated['new'][$key] = $data[$key];
+                }
+            }
+        }
+
+        return $updated;
+    }
+
     public function getNotePath ()
     {
-        return $this->building->getNotePath() . $this->getNoteBase() . $this->id;
+        return $this->getNoteBase() . $this->id;
     }
 
     public function getNoteBase ()
     {
-        return '/room/';
+        return 'room/rooms/';
     }
 
     public function getNoteUrl ()
     {
-        return '/room/' . $this->id;
+        return 'room/' . $this->id;
     }
 }

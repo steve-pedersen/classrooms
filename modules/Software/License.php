@@ -1,10 +1,6 @@
 <?php
 
 /**
- * Extensible implementation of an account system.
- * 
- * Applications should extend bss:core:authN/accountExtensions with a class
- * extending Bss_AuthN_AccountExtension.
  * 
  * @author      Charles O'Sullivan (chsoney@sfsu.edu)
  * @copyright   Copyright &copy; San Francisco State University.
@@ -37,5 +33,10 @@ class Classrooms_Software_License extends Bss_ActiveRecord_Base
             'modifiedDate' => [ 'datetime', 'nativeName' => 'modified_date' ],
             'expirationDate' => [ 'datetime', 'nativeName' => 'expiration_date' ],
         ];
+    }
+
+    public function getSummary ()
+    {
+        return $this->version->title->name . ' v' . $this->version->number . ' - ' . $this->number;
     }
 }

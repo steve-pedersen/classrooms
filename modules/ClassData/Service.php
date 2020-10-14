@@ -18,9 +18,9 @@ class At_ClassData_Service
     public function __construct($app, $channel = 'raw')
     {
         $config = $app->configuration;
-        $this->urlBase = $config->getProperty('classdata.url');
-        $this->apiKey = $config->getProperty('classdata.key');
-        $this->apiSecret = $config->getProperty('classdata.secret');
+        $this->urlBase = $config->getProperty('classdata.url') ?? 'https://classdata.sfsu.edu/';
+        $this->apiKey = $config->getProperty('classdata.key') ?? 'ca1a3f6f-7cac-4e52-9a0a-5cbf82b16bc9';
+        $this->apiSecret = $config->getProperty('classdata.secret') ?? '4af2614e-142d-4db8-8512-b3ba13dd0143';
         $this->channel = $channel;
     }
     
@@ -49,18 +49,27 @@ class At_ClassData_Service
         }
         
         $url = $this->signResource("enrollments/{$semester}", $paramMap);
-        //die($url);
-        $req = new HttpRequest($url, HTTP_METH_GET);
-        $req->send();
-        
-        $body = $req->getResponseBody();
-        $data = null;
-        
-        if (!empty($body))
+        list($code, $data) = $this->request($url);
+
+        if ($code === 200)
         {
-            $data = @json_decode($body, true);
+            return $data;
         }
-        return [$req->getResponseCode(), $data];
+
+        return false;
+        
+
+        // $req = new HttpRequest($url, HTTP_METH_GET);
+        // $req->send();
+        
+        // $body = $req->getResponseBody();
+        // $data = null;
+        
+        // if (!empty($body))
+        // {
+        //     $data = @json_decode($body, true);
+        // }
+        // return [$req->getResponseCode(), $data];
     }
 
     public function getUserEnrollments ($userid, $semester, $role = null)
@@ -157,5 +166,48 @@ class At_ClassData_Service
         }
         
         return false;
+    }
+
+    public function getDepartments ()
+    {
+        $paramMap = [];
+        $url = $this->signResource('departments', $paramMap);
+        list($code, $data) = $this->request($url);
+
+        if ($code === 200)
+        {
+            return $data;
+        }
+
+        return false;
+    }
+
+    // TODO: POST needs testing of implementation
+    protected function request ($url, $post=false, $postData=[])
+    {
+        $data = null;
+        
+        $ch = curl_init();
+        $timeout = 5;
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        if ($post) 
+        { 
+            curl_setopt($ch, CURLOPT_POST, true); 
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postData); 
+        } 
+        $rawData = curl_exec($ch);
+        
+        if (!curl_error($ch)) {
+            $data = json_decode($rawData, true);
+        }
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+        
+        return [$httpCode, $data];
     }
 }

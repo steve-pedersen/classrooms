@@ -1,16 +1,10 @@
-<div class="container">
-	<div class="row">
-		<div class="col-xs-12">
-		{if $location->id}
-			<h1>Edit Room <small><a href="rooms/{$location->id}">{$location->building->name} {$location->number}</a></small></h1>
-		{else}
-			<h1>New Room</h1>
-		{/if}
-		</div>
-	</div>
-</div>
+{if $location->id}
+	<h1>Edit Room <small><a href="rooms/{$location->id}">{$location->building->name} {$location->number}</a></small></h1>
+{else}
+	<h1>New Room</h1>
+{/if}
 
-<div class="row pull-right" style="margin-bottom: 1em;">
+<div class="row pull-right" style="margin-bottom: 2em;">
 	<div class="col-sm-12">
 		<a href="buildings/new/edit" class="btn btn-info">Add New Building</a>
 		<a href="types/new/edit" class="btn btn-info">Add New Room Type</a>
@@ -22,21 +16,27 @@
 
 
 {if $location->configurations && $location->configurations->count() > 1}
+<br><br><br>
 <form action="" method="get" id="selectConfiguration">
 	<div class="container">
+		<hr>
 		<div class="row">
 			<div class="col-sm-12">
 				<div class="form-horizontal">
 
-					<div class="form-group">
+					<div class="form-group existing-items">
 						<label for="configuration" class="col-sm-2 control-label">Selected Configuration</label>
-						<div class="col-sm-10">
+						<div class="col-sm-8">
 							<select name="configuration" id="configuration" class="form-control">
 								<option value="">Choose Configuration</option>
 							{foreach $location->configurations as $configuration}
-								<option value="{$configuration->id}"{if $selectedConfiguration == $configuration->id} selected{/if}>{$configuration->model} - {$configuration->location}</option>
+								<option value="{$configuration->id}" {if $selectedConfiguration->id == $configuration->id}selected{/if}>{$configuration->model} - {$configuration->location}</option>
 							{/foreach}
 							</select>
+						</div>
+						<div class="controls col-sm-2 edit">
+							<button class="btn btn-primary pull-right">Go</button>
+							<a href="rooms/{$location->id}/configurations/{$selectedConfiguration->id}/edit" data-baseurl="rooms/{$location->id}/configurations/" class="btn btn-info pull-right">Edit</a>
 						</div>
 					</div>
 
@@ -133,7 +133,7 @@
 				
 				</div>
 
-				{include file="partial:_edit.configuration.html.tpl"}
+				{include file="partial:_configurations.html.tpl"}
 
 			</div>
 		</div>
@@ -146,3 +146,9 @@
 		</div>
 	</div>
 </form>
+
+{if $notes}
+	<hr>
+	<h2>Notes</h2>
+	{include file="partial:_view.notes.html.tpl"}
+{/if}

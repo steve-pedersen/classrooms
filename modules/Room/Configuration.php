@@ -46,17 +46,96 @@ class Classrooms_Room_Configuration extends Bss_ActiveRecord_Base
 
     public function getNotePath ()
     {
-        return 'room/configuration/' . $this->id;
+        return @$this->getNoteBase() . $this->id;
     }
 
     public function getNoteBase ()
     {
-        return 'room/configuration/';
+        return 'room/rooms/' . $this->room->id . '/configurations/';
     }
 
     public function getNoteUrl ()
     {
-        return 'configuration/' . $this->id;
+        return 'configurations/' . $this->id;
+    }
+
+    public function hasDiff ($data)
+    {
+        $updated = false;
+        foreach ($this->getData() as $key => $value)
+        {
+            if ($updated) break;
+            if (isset($data[$key]) && !is_object($value))
+            {
+                if ($this->$key != $data[$key])
+                {   
+                    $updated = true;
+                }
+            }
+        }
+
+        $existingLicenses = $this->softwareLicenses->asArray();
+        $posted = isset($data['licenses']) ? $data['licenses'] : [];
+        $existing = [];
+        foreach ($existingLicenses as $l)
+        {
+            $existing[$l->id] = 'on';
+        }
+        
+        if (array_diff_key($existing, $posted) || array_diff_key($posted, $existing))
+        {
+            $updated = true;
+        }
+
+        return $updated;
+    }
+
+    public function getDiff ($data)
+    {
+        $updated = ['old' => [], 'new' => []];
+        $licenses = $this->getSchema('Classrooms_Software_License');
+        
+        foreach ($this->getData() as $key => $value)
+        {
+            if (isset($data[$key]) && !is_object($value))
+            {
+                if ($this->$key != $data[$key])
+                {   
+                    $updated['old'][$key] = $this->$key;
+                    $updated['new'][$key] = $data[$key];
+                }
+            }
+        }
+
+        $existingLicenses = $this->softwareLicenses->asArray();
+        $posted = $data['licenses'];
+        $existing = [];
+        foreach ($existingLicenses as $l)
+        {
+            $existing[$l->id] = 'on';
+        }
+        
+        if ($removed = array_diff_key($existing, $posted))
+        {
+            foreach ($removed as $key => $on)
+            {
+                $license = $licenses->get($key);
+                $updated['old'][$license->summary] = 'checked';
+                $updated['new'][$license->summary] = 'unchecked';
+            }
+        }
+
+        if ($added = array_diff_key($posted, $existing))
+        {
+            foreach ($added as $key => $on)
+            {
+                $license = $licenses->get($key);
+                $updated['old'][$license->summary] = 'unchecked';
+                $updated['new'][$license->summary] = 'checked';
+            }                       
+        }
+
+        return $updated;
     }
 }
 

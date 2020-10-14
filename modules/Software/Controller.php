@@ -14,11 +14,12 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
             '/software' => ['callback' => 'listSoftware'],
             '/software/:id' => ['callback' => 'view'],
             '/software/:id/edit' => ['callback' => 'editSoftware', ':id' => '[0-9]+|new'],
+            '/software/:id/licenses/:lid/edit' => ['callback' => 'editLicense', ':id' => '[0-9]+'],
             '/developers/:id/edit' => ['callback' => 'editDeveloper', ':id' => '[0-9]+|new'],
             '/categories/:id/edit' => ['callback' => 'editCategory', ':id' => '[0-9]+|new'],
         ];
     }
- 
+
     public function editSoftware ()
     {
     	$this->addBreadcrumb('software', 'List Software Titles');
@@ -40,7 +41,6 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
             {
                 case 'save':
                     $data = $this->request->getPostParameters();
-                    // echo "<pre>"; var_dump($data); die;
                     
                     if (isset($data['developer']['new']) && $data['developer']['new'] !== '')
                     {
@@ -95,7 +95,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                         $license->number = $data['license']['new']['number'];
                         $license->description = $data['license']['new']['description'];
                         $license->seats = $data['license']['new']['seats'];
-                        $license->expirationDate = $data['license']['new']['expirationDate'];
+                        $license->expirationDate = new DateTime($data['license']['new']['expirationDate']);
                     }
                     else
                     {
@@ -120,8 +120,8 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         $this->template->title = $title;
         $this->template->selectedVersion = $selectedVersion;
         $this->template->selectedLicense = $selectedLicense;
-        $this->template->categories = $categories->getAll();
-        $this->template->developers = $developers->getAll();
+        $this->template->categories = $categories->getAll(['orderBy' => 'name']);
+        $this->template->developers = $developers->getAll(['orderBy' => 'name']);
     }
 
     public function editDeveloper () {}
@@ -144,30 +144,57 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         $selectedCategory = $this->request->getQueryParameter('category');
         $selectedDeveloper = $this->request->getQueryParameter('developer');
 
-		$condition = null;        
-        if ($selectedCategory && $selectedDeveloper)
+		$condition = $titles->deleted->isFalse()->orIf($titles->deleted->isNull());
+        if ($selectedCategory)
         {
-        	$condition = $titles->categoryId->equals($selectedDeveloper)->andIf(
-                $titles->developerId->equals($selectedDeveloper)
-            );
+            $condition = $condition->andIf($titles->categoryId->equals($selectedCategory));
         }
-        elseif ($selectedCategory)
+        if ($selectedDeveloper)
         {
-            $condition = $titles->categoryId->equals($selectedCategory);
-        }
-        elseif ($selectedDeveloper)
-        {
-        	$condition = $titles->developerId->equals($selectedDeveloper);
+        	$condition = $condition->andIf($titles->developerId->equals($selectedDeveloper));
         }
 
         $software = $titles->find($condition, ['orderBy' => 'createdDate']);
 
         $this->template->selectedCategory = $selectedCategory;
         $this->template->selectedDeveloper = $selectedDeveloper;
-        $this->template->developers = $developers->getAll();
-        $this->template->categories = $categories->getAll();
+        $this->template->developers = $developers->find($developers->deleted->isFalse()->orIf($developers->deleted->isNull()));
+        $this->template->categories = $categories->find($categories->deleted->isFalse()->orIf($categories->deleted->isNull()));
         $this->template->titles = $software;
         $this->template->hasFilters = $condition;
     }
 
+    public function editLicense ()
+   	{
+   		$software = $this->schema('Classrooms_Software_Title');
+   		$licenses = $this->schema('Classrooms_Software_License');
+   		$title = $software->get($this->getRouteVariable('id'));
+   		$license = $licenses->get($this->getRouteVariable('lid'));
+
+   		$this->addBreadcrumb('software', 'List Software Titles');
+   		$this->addBreadcrumb('software/' . $title->id . '/edit', $title->developer->name . ' ' . $title->name);
+
+   		if ($this->request->wasPostedByUser())
+   		{
+   			switch ($this->getPostCommand())
+   			{
+   				case 'save':
+   					$license->absorbData($this->request->getPostParameters());
+   					$license->save();
+   					$this->flash('Updated');
+   					break;
+
+   				case 'delete':
+   					$license->deleted = true;
+   					$license->save();
+   					$this->flash('Deleted');
+   					break;
+   			}
+
+   			$this->response->redirect('software/' . $title->id . '/edit');
+   		}
+
+   		$this->template->title = $title;
+   		$this->template->license = $license;
+   	}
 }

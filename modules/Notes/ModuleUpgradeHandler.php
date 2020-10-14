@@ -18,9 +18,11 @@ class Classrooms_Notes_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
                 $def = $this->createEntityType('classroom_notes_entries');
                 $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
                 $def->addProperty('message', 'string');
+                $def->addProperty('old_values', 'string');
+                $def->addProperty('new_values', 'string');
                 $def->addProperty('path', 'string');
                 $def->addProperty('url', 'string');
-                $def->addProperty('created_by', 'int');
+                $def->addProperty('created_by_id', 'int');
                 $def->addProperty('created_date', 'datetime');
                 $def->addProperty('deleted', 'bool');
                 $def->addIndex('deleted');

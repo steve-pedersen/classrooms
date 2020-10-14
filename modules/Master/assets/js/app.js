@@ -85,6 +85,12 @@
         });        
       }
 
+      $('.existing-items select').on('change', function (e) {
+        if ($(this).val()) {
+          let link = $('.existing-items .edit > a');
+          link.attr('href', `${link.attr('data-baseurl')}${$(this).val()}/edit`);
+        }
+      });
 
 
       autosize($('textarea.autosize'));

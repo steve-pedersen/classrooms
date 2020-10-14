@@ -7,15 +7,21 @@ trait Notes_Provider
 	abstract public function getNoteUrl ();
 	abstract public function getSchema ($schemaName = null);
 
-	public function addNote ($message, $user)
+	public function addNote ($message, $user, $details=[])
 	{
 		$note = $this->getSchema('Classrooms_Notes_Entry')->createInstance();
 
+		if (!empty($details) && (!empty($details['old']) || !empty($details['new'])))
+		{
+			$note->oldValues = serialize($details['old']);
+			$note->newValues = serialize($details['new']);
+		}
 		$note->message = $message;
 		$note->path = $this->getNotePath();
 		$note->url = $this->getNoteUrl();
 		$note->deleted = false;
 		$note->createdBy = $user;
+		$note->createdDate = new DateTime;
 
 		return $note->save();
 	}

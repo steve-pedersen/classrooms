@@ -32,12 +32,12 @@ class Classrooms_Room_Type extends Bss_ActiveRecord_Base
 
     public function getNotePath ()
     {
-        return 'room/type/' . $this->id;
+        return $this->getNoteBase() . $this->id;
     }
 
     public function getNoteBase ()
     {
-        return 'room/type/';
+        return 'room/types/';
     }
 
     public function getNoteUrl ()

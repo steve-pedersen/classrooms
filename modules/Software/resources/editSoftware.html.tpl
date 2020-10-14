@@ -76,7 +76,9 @@
 							<select name="version[existing]" id="version" class="form-control">
 								<option value="">Choose Version</option>
 							{foreach $title->versions as $version}
+							{if !$version->deleted}
 								<option value="{$version->id}"{if $selectedVersion->id == $version->id} selected{/if}>{$version->number}</option>
+							{/if}
 							{/foreach}
 							</select>
 						</div>
@@ -101,13 +103,15 @@
 					<p>Note, licenses are associated with version numbers.</p>
 
 					{if $selectedVersion->licenses->count() > 0}
-					<div class="form-group">
+					<div class="form-group existing-items">
 						<label for="license[existing]" class="col-sm-2 control-label">License</label>
-						<div class="col-sm-10">
-							<select name="license[existing]" id="license" class="form-control">
+						<div class="col-sm-9">
+							<select name="license[existing]" id="existingLicenses" class="form-control">
 								<option value="">Choose License</option>
 						{foreach $title->versions as $version}
+						{if !$version->deleted}
 							{foreach $version->licenses as $license}
+							{if !$license->deleted}
 								<option value="{$license->id}"{if $selectedLicense->id == $license->id} selected{/if}>
 									Title v{$version->number} | 
 									License #{$license->number}
@@ -115,9 +119,14 @@
 									{if $license->expirationDate} | Expires {$license->expirationDate->format('m/d/Y')}{/if}
 									{if $license->description} | {$license->description|truncate:100}{/if}
 								</option>
+							{/if}
 							{/foreach}
+						{/if}
 						{/foreach}
 							</select>
+						</div>
+						<div class="col-sm-1 edit">
+							<a href="software/{$title->id}/licenses/{$selectedLicense->id}/edit" data-baseurl="software/{$title->id}/licenses/" class="btn btn-info pull-right">Edit</a>
 						</div>
 					</div>	
 					{/if}	

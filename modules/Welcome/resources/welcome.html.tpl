@@ -17,5 +17,6 @@
 <div class="welcome-module">
 	<a href="{$app->baseUrl('/rooms')}" class="btn btn-primary">View Rooms</a>
 	<a href="{$app->baseUrl('/software')}" class="btn btn-primary">View Software</a>
+	<!-- <a href="{$app->baseUrl('/departments')}" class="btn btn-primary">View Departments</a> -->
 </div>
 {/if}

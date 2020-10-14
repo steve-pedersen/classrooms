@@ -31,6 +31,11 @@ class Classrooms_Software_Version extends Bss_ActiveRecord_Base
         ];
     }
 
+    public function getLicenses ()
+    {
+        return $this->_fetch('licenses');
+    }
+
     public function getNotePath ()
     {
         return $this->getNoteBase() . $this->id;

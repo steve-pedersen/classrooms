@@ -73,8 +73,8 @@
 	<div class="form-group">
 		<label for="config" class="col-sm-2 control-label">Available Titles</label>
 		<div class="col-sm-10">
-		{foreach $softwareTitles as $title}
-			{foreach $title as $license}
+		{foreach $softwareLicenses as $licenses}
+			{foreach $licenses as $license}
 				{assign var=checked value=false}
 				{foreach $selectedConfiguration->softwareLicenses as $l}
 					{if $l->id == $license->id}{assign var=checked value=true}{/if}
@@ -173,8 +173,8 @@
 			<div class="form-group">
 				<label for="config" class="col-sm-2 control-label">Available Titles</label>
 				<div class="col-sm-10">
-				{foreach $softwareTitles as $title}
-					{foreach $title as $license}
+				{foreach $softwareLicenses as $licenses}
+					{foreach $licenses as $license}
 						{assign var=checked value=false}
 						{foreach $selectedConfiguration->licenses as $l}
 							{if $l->id == $license->id}{/if}

@@ -32,17 +32,53 @@ class Classrooms_Room_Tutorial extends Bss_ActiveRecord_Base
 
     public function getNotePath ()
     {
-        return 'room/tutorial/' . $this->id;
+        return @$this->getNoteBase() . $this->id;
     }
 
     public function getNoteBase ()
     {
-        return 'room/tutorial/';
+        return 'room/rooms/' . $this->room->id . '/tutorials/';
     }
 
     public function getNoteUrl ()
     {
         return 'tutorial/' . $this->id;
+    }
+
+    public function hasDiff ($data)
+    {
+        $updated = false;
+        foreach ($this->getData() as $key => $value)
+        {
+            if ($updated) break;
+            if (isset($data[$key]) && !is_object($value))
+            {
+                if ($this->$key != $data[$key])
+                {   
+                    $updated = true;
+                }
+            }
+        }
+
+        return $updated;
+    }
+
+    public function getDiff ($data)
+    {
+        $updated = ['old' => [], 'new' => []];
+        foreach ($this->getData() as $key => $value)
+        {
+            if (isset($data[$key]) && !is_object($value))
+            {
+                if ($this->$key != $data[$key])
+                {   
+                    $updated['old'][$key] = $this->$key;
+                    $updated['new'][$key] = $data[$key];
+                }
+            }
+        }
+
+        return $updated;
     }
 }
 

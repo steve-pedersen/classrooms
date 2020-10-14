@@ -56,6 +56,11 @@ class Classrooms_Software_Title extends Bss_ActiveRecord_Base
         return $rooms;
     }
 
+    public function getVersions ()
+    {
+        return $this->_fetch('versions');
+    }
+
     public function getNotePath ()
     {
         return $this->getNoteBase() . $this->id;
