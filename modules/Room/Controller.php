@@ -99,7 +99,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                         $config = $selectedConfiguration;
                         if ($config->hasDiff($configData))
                         {
-                            $config->addNote('Configuration updated', $viewer, $config->getDiff($configData));
+                            $config->addNote('Configuration updated: '. $config->model, $viewer, $config->getDiff($configData));
                         }
                     }
                     $config->absorbData($configData);
@@ -111,7 +111,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $config->save();
                     if ($new)
                     {
-                        $config->addNote('New configuration created', $viewer);
+                        $config->addNote('New configuration created: '. $config->model, $viewer);
                     }
 
 	                $existingLicenses = $config->softwareLicenses->asArray();

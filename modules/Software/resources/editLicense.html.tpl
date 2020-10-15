@@ -45,3 +45,9 @@
 		</div>
 	</div>
 </form>
+
+{if $notes}
+	<hr>
+	<h2>Notes</h2>
+	{include file="partial:_view.notes.html.tpl"}
+{/if}

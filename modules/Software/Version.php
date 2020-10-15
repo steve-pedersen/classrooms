@@ -38,16 +38,16 @@ class Classrooms_Software_Version extends Bss_ActiveRecord_Base
 
     public function getNotePath ()
     {
-        return $this->getNoteBase() . $this->id;
+        return @$this->getNoteBase() . $this->id;
     }
 
     public function getNoteBase ()
     {
-        return '/software/version/';
+        return '/software/titles/' . $this->title->id . '/versions/';
     }
 
     public function getNoteUrl ()
     {
-        return '/software/version/' . $this->id;
+        return '/software/versions/' . $this->id;
     }
 }

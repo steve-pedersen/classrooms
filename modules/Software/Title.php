@@ -1,10 +1,6 @@
 <?php
 
 /**
- * Extensible implementation of an account system.
- * 
- * Applications should extend bss:core:authN/accountExtensions with a class
- * extending Bss_AuthN_AccountExtension.
  * 
  * @author      Charles O'Sullivan (chsoney@sfsu.edu)
  * @copyright   Copyright &copy; San Francisco State University.
@@ -74,5 +70,41 @@ class Classrooms_Software_Title extends Bss_ActiveRecord_Base
     public function getNoteUrl ()
     {
         return '/software/titles/' . $this->id;
+    }
+
+    public function hasDiff ($data)
+    {
+        $updated = false;
+        foreach ($this->getData() as $key => $value)
+        {
+            if ($updated) break;
+            if (isset($data[$key]) && !is_object($value))
+            {
+                if ($this->$key != $data[$key])
+                {   
+                    $updated = true;
+                }
+            }
+        }
+
+        return $updated;
+    }
+
+    public function getDiff ($data)
+    {
+        $updated = ['old' => [], 'new' => []];
+        foreach ($this->getData() as $key => $value)
+        {
+            if (isset($data[$key]) && !is_object($value))
+            {
+                if ($this->$key != $data[$key])
+                {   
+                    $updated['old'][$key] = $this->$key;
+                    $updated['new'][$key] = $data[$key];
+                }
+            }
+        }
+
+        return $updated;
     }
 }

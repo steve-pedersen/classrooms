@@ -39,4 +39,40 @@ class Classrooms_Software_License extends Bss_ActiveRecord_Base
     {
         return $this->version->title->name . ' v' . $this->version->number . ' - ' . $this->number;
     }
+
+    public function hasDiff ($data)
+    {
+        $updated = false;
+        foreach ($this->getData() as $key => $value)
+        {
+            if ($updated) break;
+            if (isset($data[$key]) && !is_object($value))
+            {
+                if ($this->$key != $data[$key])
+                {   
+                    $updated = true;
+                }
+            }
+        }
+
+        return $updated;
+    }
+
+    public function getDiff ($data)
+    {
+        $updated = ['old' => [], 'new' => []];
+        foreach ($this->getData() as $key => $value)
+        {
+            if (isset($data[$key]) && !is_object($value))
+            {
+                if ($this->$key != $data[$key])
+                {   
+                    $updated['old'][$key] = $this->$key;
+                    $updated['new'][$key] = $data[$key];
+                }
+            }
+        }
+
+        return $updated;
+    }
 }

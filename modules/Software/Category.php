@@ -1,10 +1,6 @@
 <?php
 
 /**
- * Extensible implementation of an account system.
- * 
- * Applications should extend bss:core:authN/accountExtensions with a class
- * extending Bss_AuthN_AccountExtension.
  * 
  * @author      Charles O'Sullivan (chsoney@sfsu.edu)
  * @copyright   Copyright &copy; San Francisco State University.

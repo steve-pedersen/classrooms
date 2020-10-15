@@ -22,14 +22,17 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
 
     public function editSoftware ()
     {
-    	$this->addBreadcrumb('software', 'List Software Titles');
-
+        $viewer = $this->requireLogin();
         $title = $this->helper('activeRecord')->fromRoute('Classrooms_Software_Title', 'id', ['allowNew' => true]);
         $versions = $this->schema('Classrooms_Software_Version');
         $licenses = $this->schema('Classrooms_Software_License');
         $developers = $this->schema('Classrooms_Software_Developer');
         $categories = $this->schema('Classrooms_Software_Category');
+        $notes = $this->schema('Classrooms_Notes_Entry');
         
+        $this->addBreadcrumb('software', 'List Software Titles');
+        $this->addBreadcrumb('software/' . $title->id, 'View');
+
         $selectedVersion = $title->id ? 
             $title->versions->index($title->versions->count() - 1) : $versions->createInstance();        
         $selectedLicense = $selectedVersion->id ? 
@@ -69,6 +72,11 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                     $category->modifiedDate = new DateTime;
                     $category->save();
                      
+                    $new = (bool) !$title->id;
+                    if (!$new && $title->hasDiff($data['title']))
+                    {
+                        $title->addNote('Software title updated', $viewer, $title->getDiff($data['title']));
+                    }
                     $title->developer_id = $developer->id;
                     $title->category_id = $category->id;
                     $title->name = $data['title']['name'];
@@ -76,11 +84,17 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                     $title->createdDate = $title->createdDate ?? new DateTime;
                     $title->modifiedDate = new DateTime;
                     $title->save();
+                    if ($new)
+                    {
+                        $title->addNote('Software title created', $viewer);
+                    }
 
+                    $new = false;
                     if (isset($data['version']['new']) && $data['version']['new'] !== '')
                     {
                         $version = $versions->createInstance();
                         $version->number = $data['version']['new'];
+                        $version->addNote('Version created for ' . $version->title->name, $viewer);
                     }
                     else
                     {
@@ -96,6 +110,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                         $license->description = $data['license']['new']['description'];
                         $license->seats = $data['license']['new']['seats'];
                         $license->expirationDate = new DateTime($data['license']['new']['expirationDate']);
+                        $version->addNote('License #'. $license->number .' added to version ' . $version->number, $viewer);
                     }
                     else
                     {
@@ -112,7 +127,21 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                     break;
 
     			case 'delete':
+                    foreach ($title->versions as $version)
+                    {
+                        foreach ($version->licenses as $license)
+                        {
+                            $license->deleted = true;
+                            $license->save();
+                        }
+                        $version->deleted = true;
+                        $version->save();
+                    }
+                    $title->deleted = true;
+                    $title->save();
 
+                    $this->flash('Software title deleted.');
+                    $this->response->redirect('software');
     				break;
             }
         }
@@ -122,6 +151,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         $this->template->selectedLicense = $selectedLicense;
         $this->template->categories = $categories->getAll(['orderBy' => 'name']);
         $this->template->developers = $developers->getAll(['orderBy' => 'name']);
+        $this->template->notes = $notes->find($notes->path->like($title->getNotePath().'%'), ['orderBy' => '-createdDate']);
     }
 
     public function editDeveloper () {}
@@ -131,8 +161,10 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
     {
     	$this->addBreadcrumb('software', 'List Software Titles');
     	$title = $this->helper('activeRecord')->fromRoute('Classrooms_Software_Title', 'id');
+        $notes = $this->schema('Classrooms_Notes_Entry');
         
     	$this->template->title = $title;
+        $this->template->notes = $notes->find($notes->path->like($title->getNotePath().'%'), ['orderBy' => '-createdDate']);
     }
 
     public function listSoftware ()
@@ -166,10 +198,12 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
 
     public function editLicense ()
    	{
+        $viewer = $this->requireLogin();
    		$software = $this->schema('Classrooms_Software_Title');
    		$licenses = $this->schema('Classrooms_Software_License');
    		$title = $software->get($this->getRouteVariable('id'));
    		$license = $licenses->get($this->getRouteVariable('lid'));
+        $notes = $this->schema('Classrooms_Notes_Entry');
 
    		$this->addBreadcrumb('software', 'List Software Titles');
    		$this->addBreadcrumb('software/' . $title->id . '/edit', $title->developer->name . ' ' . $title->name);
@@ -179,6 +213,14 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
    			switch ($this->getPostCommand())
    			{
    				case 'save':
+                    if ($license->hasDiff($this->request->getPostParameters()))
+                    {
+                        $license->version->addNote(
+                            'License #'. $license->number .' updated for version '. $license->version->number, 
+                            $viewer, 
+                            $license->getDiff($this->request->getPostParameters())
+                        );
+                    }
    					$license->absorbData($this->request->getPostParameters());
    					$license->save();
    					$this->flash('Updated');
@@ -187,6 +229,8 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
    				case 'delete':
    					$license->deleted = true;
    					$license->save();
+                    $license->version->addNote('License #'. $license->number .' deleted from version '. $license->version->number, $viewer);
+
    					$this->flash('Deleted');
    					break;
    			}
@@ -196,5 +240,6 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
 
    		$this->template->title = $title;
    		$this->template->license = $license;
+        $this->template->notes = $notes->find($notes->path->like($license->version->getNotePath().'%'), ['orderBy' => '-createdDate']);
    	}
 }
