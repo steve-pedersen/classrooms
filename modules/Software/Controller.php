@@ -23,6 +23,8 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
     public function editSoftware ()
     {
         $viewer = $this->requireLogin();
+        $this->requirePermission('edit software');
+
         $title = $this->helper('activeRecord')->fromRoute('Classrooms_Software_Title', 'id', ['allowNew' => true]);
         $versions = $this->schema('Classrooms_Software_Version');
         $licenses = $this->schema('Classrooms_Software_License');
@@ -169,6 +171,9 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
 
     public function listSoftware ()
     {
+        $viewer = $this->requireLogin();
+        $this->requirePermission('list software');
+
         $categories = $this->schema('Classrooms_Software_Category');
         $developers = $this->schema('Classrooms_Software_Developer');
         $titles = $this->schema('Classrooms_Software_Title');
@@ -199,6 +204,8 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
     public function editLicense ()
    	{
         $viewer = $this->requireLogin();
+        $this->requirePermission('edit software');
+        
    		$software = $this->schema('Classrooms_Software_Title');
    		$licenses = $this->schema('Classrooms_Software_License');
    		$title = $software->get($this->getRouteVariable('id'));

@@ -32,6 +32,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
     	$this->addBreadcrumb('rooms', 'List Rooms');
         $viewer = $this->requireLogin();
+        $this->requirePermission('edit room');
 
         $location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id', ['allowNew' => true]);
         $configs = $this->schema('Classrooms_Room_Configuration');
@@ -183,6 +184,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function editTutorial () 
     {
         $viewer = $this->requireLogin();
+        $this->requirePermission('edit room');
+
     	$location = $this->requireExists($this->schema('Classrooms_Room_Location')->get($this->getRouteVariable('roomid')));
     	$tutorial = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Tutorial', 'id', ['allowNew' => true]);
     	$notes = $this->schema('Classrooms_Notes_Entry');
@@ -254,6 +257,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function listRooms ()
     {
     	$viewer = $this->getAccount();
+        $this->requirePermission('list rooms');
+
         $locations = $this->schema('Classrooms_Room_Location');
         $buildings = $this->schema('Classrooms_Room_Building')->getAll(['orderBy' => 'name']);
         $types = $this->schema('Classrooms_Room_Type')->getAll(['orderBy' => 'name']);
@@ -354,6 +359,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function editConfiguration ()
     {
         $viewer = $this->requireLogin();
+        $this->requirePermission('edit room');
+
         $rooms = $this->schema('Classrooms_Software_Title');
         $configs = $this->schema('Classrooms_Software_License');
         $notes = $this->schema('Classrooms_Notes_Entry');

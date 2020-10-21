@@ -7,7 +7,8 @@ class Classrooms_Room_TaskDefinitionProvider extends Bss_AuthZ_TaskDefinitionPro
     public function getTaskDefinitions ()
     {
         return array(
-            'location view' => 'view a room location',
+            'list rooms' => 'list all rooms',
+            'edit room' => 'edit a room',
         );
     }
 }
