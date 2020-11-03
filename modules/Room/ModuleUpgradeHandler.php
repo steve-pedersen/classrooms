@@ -42,7 +42,7 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('url', 'string');
                 $def->addProperty('type_id', 'int');
                 $def->addProperty('building_id', 'int');
-                $def->addProperty('capacity', 'int');
+                $def->addProperty('capacity', 'string');
                 $def->addProperty('facets', 'string');
                 $def->addProperty('created_date', 'datetime');
                 $def->addProperty('modified_date', 'datetime');

@@ -19,7 +19,7 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
             'id' => 'int',
             'number' => 'string',
             'description' => 'string',
-            'capacity' => 'int',
+            'capacity' => 'string',
             'facets' => 'string',
             'url' => 'string',
             'deleted' => 'bool',
