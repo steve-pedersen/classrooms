@@ -14,6 +14,7 @@
 		<link rel="stylesheet" type="text/css" href="assets/less/jquery.dataTables.css">
 		<link rel="stylesheet" type="text/css" href="assets/less/dataTables.bootstrap.css">
 		<link rel="stylesheet" type="text/css" href="assets/js/blueimp/css/jquery.fileupload.css">
+		<link rel="icon" type="image/png" href="assets/images/favicon3.png">
 		<script>document.write('<link rel="stylesheet" type="text/css" href="assets/css/app-js.css" media="screen">');</script>
 	</head>
 
@@ -34,7 +35,13 @@
 	              {if $viewer && $viewer->faculty}
 	              	<a class="navbar-brand" href="{$baseUrl}/fr/request">Classrooms Database</a>
 	              {else}
-	              	<a class="navbar-brand" href="{$baseUrl}">Classrooms Database</a>
+	              	<a class="navbar-brand" href="{$baseUrl}" style="">
+	              		<img class="img-responsive" src="assets/images/brand.png" style="">
+	              		<span class="text">Classrooms Database</span>
+	              	</a>
+<!-- 	              	<a class="navbar-brand" href="{$baseUrl}" style="">
+	              		Classrooms Database
+	              	</a> -->
 	              {/if}
 	            </div> 
 				<nav class="collapse navbar-collapse" id="navbar-at-collapse">
