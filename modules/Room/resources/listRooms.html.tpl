@@ -1,7 +1,7 @@
 
 <h1>Classrooms</h1>
 
-{if $pAdmin}
+{if $canEdit}
 <div class="container-fluid">
 <div class="row pull-right" style="margin-bottom: 1em;">
 	<div class="col-sm-12">

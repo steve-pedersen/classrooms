@@ -249,6 +249,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     	$location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id');
         $notes = $this->schema('Classrooms_Notes_Entry');
         
+        $this->template->canEdit = $this->hasPermission('edit room');
     	$this->template->room = $location;
     	$this->template->allFacets = self::$AllRoomFacets;
         $this->template->notes = $notes->find($notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']);
@@ -258,6 +259,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
     	$viewer = $this->getAccount();
         $this->requirePermission('list rooms');
+        $this->template->canEdit = $this->hasPermission('edit room');
 
         $locations = $this->schema('Classrooms_Room_Location');
         $buildings = $this->schema('Classrooms_Room_Building')->getAll(['orderBy' => 'name']);

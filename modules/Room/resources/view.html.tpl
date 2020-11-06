@@ -2,7 +2,7 @@
 	Room <small>{$room->building->code} {$room->number}</small>
 </h1>
 
-{if $pAdmin}
+{if $canEdit}
 <div class="row pull-right" style="">
 	<div class="col-sm-12">
 		<a href="rooms/{$room->id}/edit" class="btn btn-primary">Edit Room</a>
@@ -83,7 +83,7 @@
 	{include file="partial:_view.tutorial.html.tpl"}
 {/if}
 
-{if $notes}
+{if $notes && $canEdit}
 	<hr>
 	<h2>Notes</h2>
 	{include file="partial:_view.notes.html.tpl"}

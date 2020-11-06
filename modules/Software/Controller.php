@@ -165,6 +165,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
     	$title = $this->helper('activeRecord')->fromRoute('Classrooms_Software_Title', 'id');
         $notes = $this->schema('Classrooms_Notes_Entry');
         
+        $this->template->canEdit = $this->hasPermission('edit software');
     	$this->template->title = $title;
         $this->template->notes = $notes->find($notes->path->like($title->getNotePath().'%'), ['orderBy' => '-createdDate']);
     }
@@ -173,6 +174,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
     {
         $viewer = $this->requireLogin();
         $this->requirePermission('list software');
+        $this->template->canEdit = $this->hasPermission('edit software');
 
         $categories = $this->schema('Classrooms_Software_Category');
         $developers = $this->schema('Classrooms_Software_Developer');

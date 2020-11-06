@@ -2,7 +2,7 @@
 	Software Title <small>{$title->name}</small>
 </h1>
 
-{if $pAdmin}
+{if $canEdit}
 <div class="row pull-right" style="">
 	<div class="col-sm-12">
 		<a href="software/{$title->id}/edit" class="btn btn-primary">Edit Software</a>
@@ -51,7 +51,7 @@
 </ul>
 {/if}
 
-{if $notes}
+{if $notes && $canEdit}
 	<hr>
 	<h2>Notes</h2>
 	{include file="partial:_view.notes.html.tpl"}
