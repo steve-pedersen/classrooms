@@ -67,11 +67,14 @@
 	</div>
 {/foreach}
 	</div>
+
+{if $pRequest}
 	<div class="row" style="">
 		<div class="col-sm-12">
 			<a href="#" class="btn btn-primary">Request Software</a>
 		</div>
 	</div>
+{/if}
 </div>
 
 
