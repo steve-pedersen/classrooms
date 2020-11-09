@@ -5,7 +5,7 @@ class Classrooms_Files_Controller extends Classrooms_Master_Controller
     public static function GetRouteMap ()
     {
         return array(
-            '/files/:fid/download' => ['callback' => 'download', 'fid' => '[0-9]+'],
+            '/files/:id/download' => ['callback' => 'download', 'id' => '[0-9]+'],
             '/files/:fid/imagesrc' => ['callback' => 'imageSrc', 'fid' => '[0-9]+'],
             '/files/check'         => ['callback' => 'check'],
         );
@@ -38,14 +38,14 @@ class Classrooms_Files_Controller extends Classrooms_Master_Controller
   
     public function download ()
     {
-        $account = $this->requireLogin();
+        $account = $this->getAccount();
         
-        $fid = $this->getRouteVariable('fid');
+        $fid = $this->getRouteVariable('id');
         $file = $this->requireExists($this->schema('Classrooms_Files_File')->get($fid));
-        
-        if ($file->uploadedBy && ($account->id != $file->uploadedBy->id))
+        $allowed = $this->getRouteVariable('allowed') ?? false;
+
+        if ($file->uploadedBy && !$allowed && ($account->id != $file->uploadedBy->id))
         {
-            
             if ($item = $this->getRouteVariable('item'))
             {
                 $authZ = $this->getAuthorizationManager();

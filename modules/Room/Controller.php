@@ -301,11 +301,11 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     }
 
     public function downloadImage ()
-    {
+    {   
     	$roomId = $this->getRouteVariable('id');
     	$fileId = $this->getRouteVariable('fileid');
     	$location = $this->schema('Classrooms_Room_Location')->get($roomId);
-    	$this->forward('files/' . $fileId . '/download');
+    	$this->forward('files/' . $fileId . '/download', ['allowed' => true]);
     }
 
     public function uploadImages ()
