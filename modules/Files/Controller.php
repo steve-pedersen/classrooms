@@ -42,7 +42,7 @@ class Classrooms_Files_Controller extends Classrooms_Master_Controller
         
         $fid = $this->getRouteVariable('id');
         $file = $this->requireExists($this->schema('Classrooms_Files_File')->get($fid));
-        $allowed = $this->getRouteVariable('allowed') ?? false;
+        $allowed = $this->getRouteVariable('allowed', false);
 
         if ($file->uploadedBy && !$allowed && ($account->id != $file->uploadedBy->id))
         {
