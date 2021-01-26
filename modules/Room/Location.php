@@ -28,10 +28,11 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
 
             'type' => [ '1:1', 'to' => 'Classrooms_Room_Type', 'keyMap' => [ 'type_id' => 'id' ] ],
             'building' => [ '1:1', 'to' => 'Classrooms_Room_Building', 'keyMap' => [ 'building_id' => 'id' ] ],
-            'configurations' => ['1:N', 
+            'configurations' => ['N:M', 
                 'to' => 'Classrooms_Room_Configuration', 
-                'reverseOf' => 'room', 
-                'orderBy' => [ '+modifiedDate', '+createdDate' ]
+                'via' => 'classroom_room_configurations_map', 
+                'toPrefix' => 'configuration', 
+                'fromPrefix' => 'location',
             ],
             'images' => ['1:N', 
                 'to' => 'Classrooms_Files_File', 

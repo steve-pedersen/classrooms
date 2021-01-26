@@ -24,19 +24,34 @@
 		<br>
 		<dt>Versions & Licenses</dt>
 		<dd>
+			<table class="table table-bordered table-condensed table-striped">
+				<thead>
+					<tr>
+						<th>Version</th>
+						<th>License #</th>
+						<th>Expires</th>
+						<th>Seats</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
 		{foreach $title->versions as $version}
-			<strong>Version {$version->number}</strong>
-			<ul>
 			{foreach $version->licenses as $license}
-				<li>
-					{$license->number}
-					{if $license->seats} | {$license->seats} seats{/if}
-					{if $license->expirationDate} | Expires {$license->expirationDate->format('m/d/Y')}{/if}
-					{if $license->description} | {$license->description}{/if}
-				</li>
+				{assign var=checked value=false}
+				{foreach $config->softwareLicenses as $l}
+					{if $l->id == $license->id}{assign var=checked value=true}{/if}
+				{/foreach}
+				<tr>
+					<th>{$license->version->number}</th>
+					<td>{$license->number}</td>
+					<td>{$license->expirationDate->format('m/d/Y')}</td>
+					<td>{$license->seats}</td>
+					<td>{$license->description|truncate:100}</td>
+				</tr>
 			{/foreach}
-			</ul>
 		{/foreach}
+				</tbody>
+			</table>
 		</dd>
 	</dl>
 

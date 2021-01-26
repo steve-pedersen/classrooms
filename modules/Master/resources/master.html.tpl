@@ -63,6 +63,12 @@
 								</li>
 								{/if}
 								<li>
+									<a class="btn btn-link navbar-link" href="rooms">Rooms</a>
+								</li>
+								<li>
+									<a class="btn btn-link navbar-link" href="software">Software</a>
+								</li>
+								<li>
 									<form method="post" action="logout">
 										<button class="btn btn-link logout navbar-btn" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
 									</form>

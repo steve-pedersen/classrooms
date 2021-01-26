@@ -26,7 +26,7 @@ class Classrooms_Software_License extends Bss_ActiveRecord_Base
                 'toPrefix' => 'configuration', 
                 'fromPrefix' => 'license',
                 // 'properties' => ['title_id'],
-                // 'orderBy' => ['+_map.title_id']
+                'orderBy' => 'model'
             ],
 
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],

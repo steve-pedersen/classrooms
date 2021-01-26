@@ -25,7 +25,94 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/types/:id/edit' => ['callback' => 'editType', ':id' => '[0-9]+|new'],
             '/rooms/:id/tutorials/upload' => ['callback' => 'uploadImages'],
             '/rooms/:id/files/:fileid/download' => ['callback' => 'downloadImage'],
+            '/configurations' => ['callback' => 'listConfigurations'],
+            '/configurations/:id' => ['callback' => 'viewConfigurationBundle'],
+            '/configurations/:id/edit' => ['callback' => 'editConfigurationBundle'],
         ];
+    }
+
+    public function listConfigurations ()
+    {
+        $viewer = $this->requireLogin();
+        $this->requirePermission('list software');
+        $this->template->canEdit = $this->hasPermission('edit room');
+
+        $configs = $this->schema('Classrooms_Room_Configuration');
+        $this->template->configurations = $configs->find(
+            $configs->deleted->isNull()->orIf($configs->deleted->isFalse()), ['orderBy' => 'model']
+        );
+    }
+
+    public function viewConfigurationBundle ()
+    {
+        $viewer = $this->requireLogin();
+        $config = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Configuration', 'id');
+        $this->addBreadcrumb('configurations', 'List Configurations');
+        $this->addBreadcrumb('configurations/' . $config->id . '/edit', 'Edit');
+
+        $this->template->config = $config;
+    }
+
+    public function editConfigurationBundle ()
+    {
+        $viewer = $this->requireLogin();
+        $this->requirePermission('edit room');
+        $this->addBreadcrumb('configurations', 'List Configurations');
+
+        $titles = $this->schema('Classrooms_Software_Title');
+        $licenses = $this->schema('Classrooms_Software_License');
+        $configs = $this->schema('Classrooms_Room_Configuration');
+
+        $config = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Configuration', 'id', ['allowNew' => true]);
+
+        if ($this->request->wasPostedByUser())
+        {
+            switch ($this->getPostCommand())
+            {
+                case 'save':
+                    $configData = $this->request->getPostParameters();
+                
+                    $config->addNote(
+                        'Configuration Bundle ' . ($config->id ? 'updated' : 'created'), 
+                        $viewer, 
+                        $this->request->getPostParameters()
+                    );
+                    $config->absorbData($configData);
+                    $config->isBundle = true;
+                    $config->adBound = isset($configData['adBound']);
+                    $config->createdDate = $config->createdDate ?? new DateTime;
+                    $config->modifiedDate = new DateTime;
+                    $config->save();
+
+                    $this->saveConfigurationLicenses($config, $configData);
+
+                    $this->flash('Configuration bundle saved');
+                    break;
+
+                case 'delete':
+                    $config->deleted = true;
+                    $config->save();
+                    $config->addNote('Configuration deleted', $viewer);
+
+                    $this->flash('Deleted');
+                    break;
+            }
+
+            $this->response->redirect('configurations/' . $config->id);
+        }
+
+        $softwareLicenses = [];
+        foreach ($licenses->getAll() as $license)
+        {
+            if (!isset($softwareLicenses[$license->version->title->id]))
+            {
+                $softwareLicenses[$license->version->title->id] = [];
+            }
+            $softwareLicenses[$license->version->title->id][] = $license;
+        }
+
+        $this->template->config = $config;
+        $this->template->softwareLicenses = $softwareLicenses;
     }
 
     public function editRoom ()
@@ -41,6 +128,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $licenses = $this->schema('Classrooms_Software_License');
         $notes = $this->schema('Classrooms_Notes_Entry');
         
+        // TODO: don't include bundled configurations as ones that can be selected or edited from this page
         if ($cid = $this->request->getQueryParameter('configuration', null))
         {
             $selectedConfiguration = $configs->get($cid);
@@ -86,64 +174,45 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     {
                         $location->addNote('New room created', $viewer);
                     }
-
-                    $new = false;
-                    if (isset($data['config']['new']['model']) && $data['config']['new']['model'] !== '')
+                    
+                    if ((isset($data['config']['new']['model']) && $data['config']['new']['model'] !== '') || 
+                        isset($data['config']['existing']))
                     {
-                        $configData = $data['config']['new'];
-                        $config = $configs->createInstance();
-                        $new = true;
-                    }
-                    else
-                    {
-                        $configData = $data['config']['existing'];
-                        $config = $selectedConfiguration;
-                        if ($config->hasDiff($configData))
+                        $new = false;
+                        if (isset($data['config']['new']['model']) && $data['config']['new']['model'] !== '')
                         {
-                            $config->addNote('Configuration updated: '. $config->model, $viewer, $config->getDiff($configData));
+                            $configData = $data['config']['new'];
+                            $config = $configs->createInstance();
+                            $new = true;
                         }
+                        else
+                        {
+                            $configData = $data['config']['existing'];
+                            $config = $selectedConfiguration;
+                            if ($config->hasDiff($configData))
+                            {
+                                $config->addNote('Custom configuration updated: '. $config->model, $viewer, $config->getDiff($configData));
+                            }
+                        }
+                        $config->absorbData($configData);
+                        $config->location = $configData['location'];
+                        $config->adBound = isset($configData['adBound']);
+                        $config->location_id = $location->id;
+                        $config->createdDate = $config->createdDate ?? new DateTime;
+                        $config->modifiedDate = new DateTime;
+                        $config->save();
+                        if ($new)
+                        {
+                            $config->rooms->add($location);
+                            $config->rooms->save();
+                            $config->save();
+                            $config->addNote('New custom configuration created: '. $config->model, $viewer);
+                        }
+
+                        $licenseChanges = $this->saveConfigurationLicenses($config, $configData);
                     }
-                    $config->absorbData($configData);
-                    $config->location = $configData['location'];
-                    $config->adBound = isset($configData['adBound']);
-                    $config->location_id = $location->id;
-                    $config->createdDate = $config->createdDate ?? new DateTime;
-                    $config->modifiedDate = new DateTime;
-                    $config->save();
-                    if ($new)
-                    {
-                        $config->addNote('New configuration created: '. $config->model, $viewer);
-                    }
 
-	                $existingLicenses = $config->softwareLicenses->asArray();
-	                $posted = isset($configData['licenses']) ? $configData['licenses'] : [];
-	                $existing = [];
-	                foreach ($existingLicenses as $l)
-	                {
-	                    $existing[$l->id] = 'on';
-	                }
-	                
-	                if ($removed = array_diff_key($existing, $posted))
-	                {
-	                    foreach ($removed as $key => $on)
-	                    {
-	                        $license = $licenses->get($key);
-                            $config->softwareLicenses->remove($license);
-                            $config->softwareLicenses->save();
-	                    }
-	                }
-
-	                if ($added = array_diff_key($posted, $existing))
-	                {
-	                    foreach ($added as $key => $on)
-	                    {
-	                        $license = $licenses->get($key);
-                            $config->softwareLicenses->add($license);
-                            $config->softwareLicenses->save();
-	                    }                       
-	                }
-
-	                $config->save();
+                    $bundleChanges = $this->saveRoomBundles($location, $this->request->getPostParameters());
 
                     $this->flash('Room saved.');
                     $this->response->redirect('rooms/' . $location->id);
@@ -153,6 +222,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     			case 'delete':
                     $location->deleted = true;
                     $location->save();
+                    $location->configurations->removeAll();
                     $location->addNote('Room deleted', $viewer);
 
                     $this->flash('Room deleted');
@@ -178,6 +248,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->roomFacets = $location->facets ? unserialize($location->facets) : [];
         $this->template->allFacets = self::$AllRoomFacets;
         $this->template->softwareLicenses = $softwareLicenses;
+        $this->template->bundles = $configs->find($configs->isBundle->isTrue(), ['orderBy' => 'model']);
         $this->template->notes = $notes->find($notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']);
     }
 
@@ -203,6 +274,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     				$tutorial->location_id = $location->id;
     				$tutorial->name = $this->request->getPostParameter('name');
                     $tutorial->headerImageUrl = $this->request->getPostParameter('headerImageUrl');
+                    $tutorial->youtubeEmbedCode = $this->request->getPostParameter('youtubeEmbedCode');
     				$tutorial->description = $this->request->getPostParameter('description');
     				$tutorial->createdDate = $tutorial->createdDate ?? new DateTime;
     				$tutorial->modifiedDate = new DateTime;
@@ -244,9 +316,10 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
     public function view ()
     {
+        $location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id');
     	$this->addBreadcrumb('rooms', 'List Rooms');
+        $this->addBreadcrumb('rooms/' . $location->id . '/edit', 'Edit');
 
-    	$location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id');
         $notes = $this->schema('Classrooms_Notes_Entry');
         
         $this->template->canEdit = $this->hasPermission('edit room');
@@ -298,6 +371,49 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->titles = $titles->getAll();
         $this->template->allFacets = self::$AllRoomFacets;
         $this->template->hasFilters = $condition;
+    }
+
+    public function editConfiguration ()
+    {
+        $viewer = $this->requireLogin();
+        $this->requirePermission('edit room');
+
+        $rooms = $this->schema('Classrooms_Software_Title');
+        $configs = $this->schema('Classrooms_Software_License');
+        $notes = $this->schema('Classrooms_Notes_Entry');
+        $room = $rooms->get($this->getRouteVariable('id'));
+        $config = $configs->get($this->getRouteVariable('cid'));
+
+        $this->addBreadcrumb('rooms', 'List Rooms');
+        $this->addBreadcrumb('rooms/' . $room->id . '/edit', $room->building->name . ' ' . $room->number);
+
+        if ($this->request->wasPostedByUser())
+        {
+            switch ($this->getPostCommand())
+            {
+                case 'save':
+                    $config->addNote('Configuration updated', $viewer, $this->request->getPostParameters());
+                    $config->absorbData($this->request->getPostParameters());
+                    $config->save();
+
+                    $this->flash('Updated');
+                    break;
+
+                case 'delete':
+                    $config->deleted = true;
+                    $config->save();
+                    $config->addNote('Configuration deleted', $viewer);
+
+                    $this->flash('Deleted');
+                    break;
+            }
+
+            $this->response->redirect('rooms/' . $room->id . '/edit');
+        }
+
+        $this->template->room = $room;
+        $this->template->selectedConfiguration = $config;
+        $this->template->notes = $notes->find($notes->path->like($config->getNotePath().'%'), ['orderBy' => '-createdDate']);
     }
 
     public function downloadImage ()
@@ -358,47 +474,77 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->viewer = $viewer;
     }
 
-    public function editConfiguration ()
+    protected function saveRoomBundles ($room, $data)
     {
-        $viewer = $this->requireLogin();
-        $this->requirePermission('edit room');
+        $bundles = $this->schema('Classrooms_Room_Configuration');
+        $existingBundles = $room->configurations->asArray();
+        $posted = isset($data['bundles']) ? $data['bundles'] : [];
+        $existing = $removed = $added = [];
 
-        $rooms = $this->schema('Classrooms_Software_Title');
-        $configs = $this->schema('Classrooms_Software_License');
-        $notes = $this->schema('Classrooms_Notes_Entry');
-        $room = $rooms->get($this->getRouteVariable('id'));
-        $config = $configs->get($this->getRouteVariable('cid'));
-
-        $this->addBreadcrumb('rooms', 'List Rooms');
-        $this->addBreadcrumb('rooms/' . $room->id . '/edit', $room->building->name . ' ' . $room->number);
-
-        if ($this->request->wasPostedByUser())
+        foreach ($existingBundles as $bundle)
         {
-            switch ($this->getPostCommand())
-            {
-                case 'save':
-                    $config->addNote('Configuration updated', $viewer, $this->request->getPostParameters());
-                    $config->absorbData($this->request->getPostParameters());
-                    $config->save();
-
-                    $this->flash('Updated');
-                    break;
-
-                case 'delete':
-                    $config->deleted = true;
-                    $config->save();
-                    $config->addNote('Configuration deleted', $viewer);
-
-                    $this->flash('Deleted');
-                    break;
-            }
-
-            $this->response->redirect('rooms/' . $room->id . '/edit');
+            $existing[$bundle->id] = 'on';
         }
 
-        $this->template->room = $room;
-        $this->template->selectedConfiguration = $config;
-        $this->template->notes = $notes->find($notes->path->like($config->getNotePath().'%'), ['orderBy' => '-createdDate']);
+        if ($removed = array_diff_key($existing, $posted))
+        {
+            foreach ($removed as $key => $on)
+            {
+                $bundle = $bundles->get($key);
+                $room->configurations->remove($bundle);
+                $room->configurations->save();
+            }
+        }
+
+        if ($added = array_diff_key($posted, $existing))
+        {
+            foreach ($added as $key => $on)
+            {
+                $bundle = $bundles->get($key);
+                $room->configurations->add($bundle);
+                $room->configurations->save();
+            }          
+        }
+
+        $room->save();
+
+        return [$removed, $added];
     }
 
+    protected function saveConfigurationLicenses ($config, $data)
+    {
+        $licenses = $this->schema('Classrooms_Software_License');
+        $existingLicenses = $config->softwareLicenses->asArray();
+        $posted = isset($data['licenses']) ? $data['licenses'] : [];
+        $existing = $removed = $added = [];
+        
+        foreach ($existingLicenses as $l)
+        {
+            $existing[$l->id] = 'on';
+        }
+        
+        if ($removed = array_diff_key($existing, $posted))
+        {
+            foreach ($removed as $key => $on)
+            {
+                $license = $licenses->get($key);
+                $config->softwareLicenses->remove($license);
+                $config->softwareLicenses->save();
+            }
+        }
+
+        if ($added = array_diff_key($posted, $existing))
+        {
+            foreach ($added as $key => $on)
+            {
+                $license = $licenses->get($key);
+                $config->softwareLicenses->add($license);
+                $config->softwareLicenses->save();
+            }                       
+        }
+
+        $config->save();
+
+        return [$removed, $added];
+    }
 }

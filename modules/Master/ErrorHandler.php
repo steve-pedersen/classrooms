@@ -18,11 +18,11 @@ abstract class Classrooms_Master_ErrorHandler extends Bss_Master_ErrorHandler
             $providerList = $providerManager->getProviders($error->getRequest()->hasQueryParameter('all'));
             $providerIdList = [ $providerList ];
             $soleProvider = (count($providerList) == 1 ? $providerIdList[0] : null);
-            
+
             if ($soleProvider)
             {
                 $this->template->soleProvider = true;
-                $this->template->selectedIdentityProvider = $soleProvider;
+                $this->template->selectedIdentityProvider = is_array($soleProvider) ? key($soleProvider) : $soleProvider;
             }
             elseif (($wayfSettings = $error->getRequest()->getCookie('wayfSettings')) && in_array($wayfSettings, $providerIdList))
             {

@@ -1,7 +1,7 @@
 {assign var="config" value=$selectedConfiguration}
 
 
-<h3>Configurations 
+<h3>Custom Configurations 
 	<small>
 	{if $config->id && $location->configurations && $location->configurations->count() > 1}
 		({$config->model} {$model->location})

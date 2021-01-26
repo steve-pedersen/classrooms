@@ -133,6 +133,35 @@
 				
 				</div>
 
+				<h3>Configuration Bundles</h3>
+				<div class="form-horizontal">
+					<div class="form-group">
+						<label for="bundles" class="col-sm-2 control-label">Available Bundles</label>
+						<div class="col-sm-10">
+						{foreach $bundles as $bundle}
+							<table class="table table-bordered table-condensed table-striped">
+								<thead>
+									<tr>
+										<th scope="col"></th>
+										<th scope="col">Model</th>
+										<th scope="col"># of software licenses</th>
+									</tr>
+								</thead>
+								<tbody>
+								<tr>
+									<td class="text-center">
+										<input type="checkbox" name="bundles[{$bundle->id}]" id="bundles[{$bundle->id}]" {if $location->configurations->has($bundle)}checked{/if}>
+									</td>
+									<td><label for="bundles[{$bundle->id}]">{$bundle->model}</label></td>
+									<td>{$bundle->softwareLicenses->count()}</td>
+								</tr>
+								</tbody>
+							</table>
+						{/foreach}
+						</div>
+					</div>
+				</div>
+
 				{include file="partial:_configurations.html.tpl"}
 
 			</div>
