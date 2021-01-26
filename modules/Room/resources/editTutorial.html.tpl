@@ -90,9 +90,13 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label for="youtubeEmbedCode">YouTube Embed Code</label>
+						<input type="text" name="youtubeEmbedCode" class="form-control" value="{$tutorial->youtubeEmbedCode}">
+					</div>
+					<div class="form-group">
 						<label for="description" class="control-label">Description</label>
 			            <div class="form-control-wrapper textarea">
-			                <textarea class="text-field form-control wysiwyg" name="description"  rows="15">{$tutorial->description}</textarea>
+			                <textarea class="text-field form-control wysiwyg" name="description" rows="15">{$tutorial->description}</textarea>
 			            </div>
 					</div>
 				</div>

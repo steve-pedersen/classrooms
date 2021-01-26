@@ -3,7 +3,7 @@
 /**
  * Create the configuration options.
  * 
- * @author      Daniel A. Koepke (dkoepke@sfsu.edu)
+ * @author      Steve Pedersen (pedersen@sfsu.edu)
  * @copyright   Copyright &copy; San Francisco State University
  */
 class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUpgradeHandler
@@ -64,11 +64,17 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('release_station_ip', 'string');
                 $def->addProperty('ad_bound', 'bool');
                 $def->addProperty('count', 'int');
-                $def->addProperty('location_id', 'int');
+                $def->addProperty('is_bundle', 'bool');
+                $def->addProperty('description', 'string');
                 $def->addProperty('created_date', 'datetime');
                 $def->addProperty('modified_date', 'datetime');
                 $def->addProperty('deleted', 'bool');
-                $def->addIndex('location_id');
+                // $def->addIndex('location_id');
+                $def->save();
+
+                $def = $this->createEntityType('classroom_room_configurations_map');
+                $def->addProperty('configuration_id', 'int', ['primaryKey' => true]);
+                $def->addProperty('location_id', 'int', ['primaryKey' => true]);
                 $def->save();
 
                 $def = $this->createEntityType('classroom_room_configurations_software_licenses_map');
@@ -130,6 +136,12 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                     ]
                 );
 
+                break;
+
+            case 1:
+                $def = $this->alterEntityType('classroom_room_tutorials', $this->getDataSource('Classrooms_Room_Tutorial'));
+                $def->addProperty('youtube_embed_code', 'string');
+                $def->save();
                 break;
         }
     }
