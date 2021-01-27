@@ -2,59 +2,62 @@
 <h1>Classrooms</h1>
 
 {if $canEdit}
-<div class="container-fluid">
+<!-- <div class="container-fluid">
 <div class="row pull-right" style="margin-bottom: 1em;">
 	<div class="col-sm-12">
 		<a href="rooms/new/edit" class="btn btn-primary">Add New Room</a>
 	</div>
 </div>
-</div>
+</div> -->
 {/if}
 
-<div class="panel panel-default">
-    <div class="panel-heading"><h2>Filter Rooms</h2></div>
-    <div class="panel-body">
-        <form class="form-inline" role="form">
-            <div class="form-group">
-                <label class="filter-col" for="building">Building</label>
-				<select class="form-control" name="building" style="margin-right:2em;">
-					<option value="">All</option>
-				{foreach $buildings as $building}
-					<option value="{$building->id}" {if $selectedBuilding == $building->id}selected{/if}>{$building->name}</option>
-				{/foreach}
-				</select>                             
-            </div>
-            <div class="form-group">
-                <label class="filter-col" for="type">Room Type</label>
-				<select class="form-control" name="type" style="margin-right:2em;">
-					<option value="">All</option>
-				{foreach $types as $type}
-					<option value="{$type->id}" {if $selectedType == $type->id}selected{/if}>{$type->name}</option>
-				{/foreach}
-				</select>                         
-            </div>
-            <div class="form-group">
-                <label class="filter-col" for="title">Software</label>
-				<select class="form-control" name="title" style="margin-right:2em;">
-					<option value="">All</option>
-				{foreach $titles as $title}
-					<option value="{$title->id}" {if $selectedTitle == $title->id}selected{/if}>{$title->name}</option>
-				{/foreach}
-				</select>                         
-            </div>
-            <div class="form-group">    
-                <button type="submit" class="btn btn-info filter-col">
-                    Apply
-                </button>
-                {if $hasFilters}
-                <a href="rooms" class="btn btn-link filter-col">
-                    Clear filters
-                </a> 
-                {/if}
-            </div>
-        </form>
+<div class="well multiselect-filter">
+	<h2>Filter Rooms</h2>
+	<form class="form-inline" role="form" id="filterForm">
+    <div class="form-group">
+		<select id="filter-buildings" name="buildings[]" class="multiselect form-control" multiple label="Buildings">
+		{foreach $buildings as $building}
+			<option value="{$building->id}" {if $selectedBuildings && in_array($building->id, $selectedBuildings)}selected{/if}>
+				{$building->name}
+			</option>
+		{/foreach}	
+		</select>		        
     </div>
+    <div class="form-group">
+		<select id="filter-types" class="multiselect form-control" name="types[]" multiple label="Room Types">
+		{foreach $types as $type}
+			<option value="{$type->id}" {if $selectedTypes && in_array($type->id, $selectedTypes)}selected{/if}>
+				{$type->name}
+			</option>
+		{/foreach}
+		</select>     
+    </div>
+
+    <div class="form-group">
+		<select id="filter-titles" class="multiselect form-control" name="titles[]" multiple label="Software Titles">
+		{foreach $titles as $title}
+			<option value="{$title->id}" {if $selectedTitles && in_array($title->id, $selectedTitles)}selected{/if}>
+				{$title->name}
+			</option>
+		{/foreach}
+		</select>  
+    </div>
+    <div class="form-group">    
+        <button type="submit" class="btn btn-info filter-col">
+            Apply
+        </button>
+        <a href="rooms" class="btn btn-link filter-col" id="clearFilters">
+            Clear filters
+        </a> 
+    </div>
+	{if $canEdit}
+    <div class="form-group" id="addNew">
+		<a href="rooms/new/edit" class="btn btn-success">Add New Room</a>
+    </div>
+	{/if}
+	</form>
 </div>
+
 
 <table class="table table-bordered table-striped table-condensed">
 	<thead>

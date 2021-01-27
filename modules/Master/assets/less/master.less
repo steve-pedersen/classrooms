@@ -1278,3 +1278,52 @@ body {
 
   }
 }
+
+.multiselect-filter {
+  #addNew {
+    float: right;
+    @media (max-width: 991px) {
+      float: none;
+      margin-top: 10px;
+    }
+    @media (max-width: 768px) {
+      margin-top: 0;
+    }
+  }
+  .multiselect.btn {
+    width: 15rem;
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+
+  &.well {
+    // background-color: @brand-info;
+  }
+  h2 {
+    margin-top: 0;
+  }
+  .multiselect-container > li > a,
+  .dropdown-menu > li > a {
+    padding: 5px 15px;
+  }
+
+  .multiselect-container>li.multiselect-all {
+    border-bottom: 1px solid #e9e9e9;
+    
+  }
+
+  #clearer {
+    padding-left: 10px;
+    vertical-align: middle;
+  }
+
+  .row {
+    padding: 20px;
+  }
+
+  a.demo {
+    padding: 20px;
+    display: block;
+  }
+}

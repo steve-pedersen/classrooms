@@ -21,6 +21,7 @@
 #require js/jquery.dataTables.min.js
 #require js/dataTables.bootstrap.min.js
 #require js/dataTables.fixedHeader.min.js
+#require js/bootstrap-multiselect.min.js
 
 #require js/bootstrap-toggle.min.js
 
@@ -103,5 +104,45 @@
         $self.datepicker({
         });
       });
+
+
+
+
+      // // ROOM FILTERS
+      $(".multiselect").multiselect({
+        enableClickableOptGroups: true,
+        includeSelectAllOption: true,
+        // nonSelectedText: "Buildings",
+        //enableCollapsibleOptGroups: true,
+        selectAllText: "Select all",
+        maxHeight: 400,
+        // button text test code
+        buttonText: function(options, select) {
+          const label = $(select).attr('label');
+          if (
+            options.length === 0 ||
+            options.length === $(".multiselect option").length
+          ) {
+            return label;
+          } else {
+            return label + " (" + options.length + ")";
+          }
+        }
+      });
+
+      // // Reset all
+      // $("#clearFilters").on("click", function(e) {
+      //   e.preventDefault();
+      //   // remove selected options
+      //   $('.multiselect').each(function (e) {
+      //     $(e).find("option").each(function(element) {
+      //       $(element).removeAttr("selected").prop("selected", false);
+      //     });
+      //   })
+        
+      //   //refresh multiselect
+      //   $(".multiselect").multiselect("refresh");
+      // });
+
     });
 })(jQuery);

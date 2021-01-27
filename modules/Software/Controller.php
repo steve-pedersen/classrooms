@@ -180,25 +180,33 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         $developers = $this->schema('Classrooms_Software_Developer');
         $titles = $this->schema('Classrooms_Software_Title');
 
-        $selectedCategory = $this->request->getQueryParameter('category');
-        $selectedDeveloper = $this->request->getQueryParameter('developer');
+        $selectedCategories = $this->request->getQueryParameter('categories');
+        $selectedDevelopers = $this->request->getQueryParameter('developers');
 
 		$condition = $titles->deleted->isFalse()->orIf($titles->deleted->isNull());
-        if ($selectedCategory)
+        if ($selectedCategories)
         {
-            $condition = $condition->andIf($titles->categoryId->equals($selectedCategory));
+            foreach ($selectedCategories as $selected)
+            {
+                $condition = $condition->andIf($titles->categoryId->equals($selected));
+            }
         }
-        if ($selectedDeveloper)
+        if ($selectedDevelopers)
         {
-        	$condition = $condition->andIf($titles->developerId->equals($selectedDeveloper));
+        	foreach ($selectedDevelopers as $selected)
+            {
+                $condition = $condition->andIf($titles->developerId->equals($selected));
+            }
         }
 
-        $software = $titles->find($condition, ['orderBy' => 'createdDate']);
+        $software = $titles->find($condition, ['orderBy' => ['name', 'createdDate']]);
+        $developers = $developers->find($developers->deleted->isFalse()->orIf($developers->deleted->isNull()), ['orderBy' => 'name']);
+        $categories = $categories->find($categories->deleted->isFalse()->orIf($categories->deleted->isNull()), ['orderBy' => 'name']);
 
-        $this->template->selectedCategory = $selectedCategory;
-        $this->template->selectedDeveloper = $selectedDeveloper;
-        $this->template->developers = $developers->find($developers->deleted->isFalse()->orIf($developers->deleted->isNull()));
-        $this->template->categories = $categories->find($categories->deleted->isFalse()->orIf($categories->deleted->isNull()));
+        $this->template->selectedCategories = $selectedCategories;
+        $this->template->selectedDevelopers = $selectedDevelopers;
+        $this->template->developers = $developers;
+        $this->template->categories = $categories;
         $this->template->titles = $software;
         $this->template->hasFilters = $condition;
     }

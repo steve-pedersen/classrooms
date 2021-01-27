@@ -339,36 +339,47 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $types = $this->schema('Classrooms_Room_Type')->getAll(['orderBy' => 'name']);
         $titles = $this->schema('Classrooms_Software_Title');
 
-        $selectedBuilding = $this->request->getQueryParameter('building');
-        $selectedType = $this->request->getQueryParameter('type');
-        $selectedTitle = $this->request->getQueryParameter('title');
-
+        $selectedBuildings = $this->request->getQueryParameter('buildings');
+        $selectedTypes = $this->request->getQueryParameter('types');
+        $selectedTitles = $this->request->getQueryParameter('titles');
+        // echo "<pre>"; var_dump($this->request->getQueryParameters()); die;
+        
 		$condition = null;        
-        if ($selectedBuilding)
+        if ($selectedBuildings)
         {
-        	$condition = $locations->buildingId->equals($selectedBuilding);
+            foreach ($selectedBuildings as $selected)
+            {
+                $query = $locations->buildingId->equals($selected);
+                $condition = $condition ? $condition->andIf($query) : $query;
+            }
         }
-        if ($selectedType)
+        if ($selectedTypes)
         {
-        	$query = $locations->typeId->equals($selectedType);
-        	$condition = $condition ? $condition->andIf($query) : $query;
+            foreach ($selectedTypes as $selected)
+            {
+                $query = $locations->typeId->equals($selected);
+                $condition = $condition ? $condition->andIf($query) : $query;
+            }
         }
-        if ($selectedTitle)
+        if ($selectedTitles)
         {
-        	$title = $titles->get($selectedTitle);
-        	$query = $locations->id->inList(array_keys($title->getRoomsUsedIn()));
-        	$condition = $condition ? $condition->andIf($query) : $query;
+            foreach ($selectedTitles as $selected)
+            {
+                $title = $titles->get($selected);
+                $query = $locations->id->inList(array_keys($title->getRoomsUsedIn()));
+                $condition = $condition ? $condition->andIf($query) : $query;
+            }
         }
 
         $rooms = $locations->find($condition, ['orderBy' => 'number']);
 
-        $this->template->selectedBuilding = $selectedBuilding;
-        $this->template->selectedType = $selectedType;
-        $this->template->selectedTitle = $selectedTitle;
+        $this->template->selectedBuildings = $selectedBuildings;
+        $this->template->selectedTypes = $selectedTypes;
+        $this->template->selectedTitles = $selectedTitles;
         $this->template->buildings = $buildings;
         $this->template->types = $types;
         $this->template->rooms = $rooms;
-        $this->template->titles = $titles->getAll();
+        $this->template->titles = $titles->getAll(['orderBy' => 'name']);
         $this->template->allFacets = self::$AllRoomFacets;
         $this->template->hasFilters = $condition;
     }

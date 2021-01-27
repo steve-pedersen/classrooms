@@ -42,9 +42,12 @@ class Classrooms_Software_Title extends Bss_ActiveRecord_Base
         {
             foreach ($version->licenses as $license)
             {
-                foreach ($license->roomConfigurations as $config)
+                foreach ($license->roomConfigurations as $configs)
                 {
-                    $rooms[$config->room->id] = $config->room;
+                    foreach ($configs->rooms as $room)
+                    {
+                        $rooms[$room->id] = $room;
+                    }
                 }
             }
         }

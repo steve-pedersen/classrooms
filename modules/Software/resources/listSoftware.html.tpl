@@ -1,50 +1,41 @@
 
 <h1>Software Titles</h1>
 
-{if $canEdit}
-<div class="container-fluid">
-<div class="row pull-right" style="margin-bottom: 1em;">
-	<div class="col-sm-12">
-		<a href="software/new/edit" class="btn btn-primary">Add New Title</a>
-	</div>
-</div>
-</div>
-{/if}
-
-<div class="panel panel-default">
-    <div class="panel-heading"><h2>Filter Titles</h2></div>
-    <div class="panel-body">
-        <form class="form-inline" role="form">
-            <div class="form-group">
-                <label class="filter-col" for="pref-perpage">Category</label>
-				<select class="form-control" name="category" style="margin-right:2em;">
-					<option value="">All</option>
-				{foreach $categories as $category}
-					<option value="{$category->id}" {if $selectedCategory == $category->id}selected{/if}>{$category->name}</option>
-				{/foreach}
-				</select>                             
-            </div>
-            <div class="form-group">
-                <label class="filter-col" for="pref-perpage">Developer</label>
-				<select class="form-control" name="developer" style="margin-right:2em;">
-					<option value="">All</option>
-				{foreach $developers as $developer}
-					<option value="{$developer->id}" {if $selectedDeveloper == $developer->id}selected{/if}>{$developer->name}</option>
-				{/foreach}
-				</select>                         
-            </div>
-            <div class="form-group">    
-                <button type="submit" class="btn btn-info filter-col">
-                    Apply
-                </button>
-                {if $hasFilters}
-                <a href="software" class="btn btn-link filter-col">
-                    Clear filters
-                </a> 
-                {/if}
-            </div>
-        </form>
+<div class="well multiselect-filter">
+	<h2>Filter Titles</h2>
+	<form class="form-inline" role="form" id="filterForm">
+    <div class="form-group">
+		<select id="filter-categories" name="categories[]" class="multiselect form-control" multiple label="Categories">
+		{foreach $categories as $category}
+			<option value="{$category->id}" {if $selectedCategories && in_array($category->id, $selectedCategories)}selected{/if}>
+				{$category->name}
+			</option>
+		{/foreach}	
+		</select>		        
     </div>
+    <div class="form-group">
+		<select id="filter-developers" class="multiselect form-control" name="developers[]" multiple label="Developers">
+		{foreach $developers as $developer}
+			<option value="{$developer->id}" {if $selectedDevelopers && in_array($developer->id, $selectedDevelopers)}selected{/if}>
+				{$developer->name}
+			</option>
+		{/foreach}
+		</select>     
+    </div>
+    <div class="form-group">    
+        <button type="submit" class="btn btn-info filter-col">
+            Apply
+        </button>
+        <a href="software" class="btn btn-link filter-col" id="clearFilters">
+            Clear filters
+        </a> 
+    </div>
+	{if $canEdit}
+    <div class="form-group" id="addNew">
+		<a href="software/new/edit" class="btn btn-success">Add New Software</a>
+    </div>
+	{/if}
+	</form>
 </div>
 
 <table class="table table-bordered table-striped table-condensed">
