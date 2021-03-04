@@ -29,6 +29,8 @@
 #require js/blueimp/js/jquery.iframe-transport.js
 #require js/blueimp/js/jquery.fileupload.js
 
+#require js/room.js
+
 
 (function ($) {
     $(function () {
@@ -127,6 +129,22 @@
           } else {
             return label + " (" + options.length + ")";
           }
+        }
+      });
+
+      $('.singleselect').multiselect({
+        buttonText: function(options, select) {
+          const label = $(select).attr('label');
+          var text = '';
+          var val = '';
+          $(options).each(function(i, option) {
+            if ($(option).is(':checked')) {
+              text = $(option).text();
+              val = $(option).val();
+            }
+          });
+          
+          return label + (val == '' ? " " : " within ") + text;
         }
       });
 

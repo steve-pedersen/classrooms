@@ -18,6 +18,7 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
             
             'id' => 'int',
             'number' => 'string',
+            'alternateName' => ['string', 'nativeName' => 'alternate_name'],
             'description' => 'string',
             'capacity' => 'string',
             'facets' => 'string',
@@ -54,6 +55,20 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
     {
         $tuts = $this->getSchema('Classrooms_Room_Tutorial');
         return $tuts->findOne($tuts->locationId->equals($this->id));
+    }
+
+    public function getCustomConfigurations ()
+    {
+        $customConfigs = [];
+        foreach ($this->configurations as $config)
+        {
+            if (!$config->isBundle)
+            {
+                $customConfigs[] = $config;
+            }
+        }
+
+        return $customConfigs;
     }
 
     public function hasDiff ($data)

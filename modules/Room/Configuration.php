@@ -18,6 +18,8 @@ class Classrooms_Room_Configuration extends Bss_ActiveRecord_Base
             'id' => 'int',
             'model' => 'string',
             'location' => 'string',
+            'deviceType' => ['string', 'nativeName' => 'device_type'],
+            'deviceQuantity' => ['string', 'nativeName' => 'device_quantity'],
             'managementType' => ['string', 'nativeName' => 'management_type'],
             'imageStatus' => ['string', 'nativeName' => 'image_status'],
             'vintages' => 'string',

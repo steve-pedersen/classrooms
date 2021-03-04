@@ -179,6 +179,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         $categories = $this->schema('Classrooms_Software_Category');
         $developers = $this->schema('Classrooms_Software_Developer');
         $titles = $this->schema('Classrooms_Software_Title');
+        $licenses = $this->schema('Classrooms_Software_License');
 
         $selectedCategories = $this->request->getQueryParameter('categories');
         $selectedDevelopers = $this->request->getQueryParameter('developers');
@@ -200,6 +201,37 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         }
 
         $software = $titles->find($condition, ['orderBy' => ['name', 'createdDate']]);
+        if ($expiration = $this->request->getQueryParameter('expiration'))
+        {   
+            $sorted = [];
+            foreach ($software as $software)
+            {
+                foreach ($software->versions as $version)
+                {
+                    foreach ($version->licenses as $license)
+                    {
+                        if ($license->expirationDate <= new DateTime('+' . $expiration))
+                        {
+                            // $sorted[$license->expirationDate->getTimeStamp()] = $software;
+                            $sorted[$software->id] = $license->expirationDate->getTimeStamp();
+                        }
+                    }
+                }
+            }
+            asort($sorted);
+            // $sorted = array_reverse($sorted);
+            // echo "<pre>"; var_dump($sorted); die;
+            
+            $sortedTitles = [];
+            foreach ($sorted as $id => $expiry)
+            {
+                $sortedTitles[] = $titles->get($id);
+            }
+
+            $software = $sortedTitles;
+            $condition = $condition ?? true;
+        }
+
         $developers = $developers->find($developers->deleted->isFalse()->orIf($developers->deleted->isNull()), ['orderBy' => 'name']);
         $categories = $categories->find($categories->deleted->isFalse()->orIf($categories->deleted->isNull()), ['orderBy' => 'name']);
 
@@ -209,6 +241,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         $this->template->categories = $categories;
         $this->template->titles = $software;
         $this->template->hasFilters = $condition;
+        $this->template->expiration = $expiration;
     }
 
     public function editLicense ()

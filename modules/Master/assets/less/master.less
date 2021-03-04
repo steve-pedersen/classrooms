@@ -9,7 +9,7 @@
 }
 .navbar-brand>img {
   height: 100%;
-  margin-right: 15px;
+  margin-right: 7px;
   margin-top: -5px;
   width: auto;
   display: inline-block;
@@ -40,6 +40,44 @@
   &:hover {
     cursor: pointer;
     border: 4px solid lightgreen;
+  }
+}
+
+.room-card {
+  .row.equal {
+      overflow: hidden; 
+  }
+
+  [class*="col-"] {
+      margin-bottom: -99999px;
+      padding-bottom: 99999px;
+  }
+
+  h3, h4 {
+    font-family: 'Lato', sans-serif;
+    margin-top: 0;
+  }
+  .room-number {
+
+  }
+  .basic-info,
+  .config-info,
+  .tutorial-info {
+    height: 100%;
+    border-left: 1px solid #CCC;
+  }
+  div.room-number {
+    @media (min-width: 768px) {
+      [class*="col-"] {
+          padding-left: 0;
+          // padding-right: 0;
+      } 
+    }
+    @media (max-width: 768px) {
+      .building-image {
+        display: none;
+      }
+    }
   }
 }
 
@@ -1291,7 +1329,7 @@ body {
     }
   }
   .multiselect.btn {
-    width: 15rem;
+    min-width: 15rem;
     @media (max-width: 768px) {
       width: 100%;
     }

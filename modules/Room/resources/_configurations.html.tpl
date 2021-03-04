@@ -28,6 +28,20 @@
 	</div>
 
 	<div class="form-group">
+		<label for="deviceType" class="col-sm-2 control-label">Type of Units/Devices</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" name="config[existing][deviceType]" value="{$config->deviceType}" placeholder="">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="deviceQuantity" class="col-sm-2 control-label">Quantity of Units/Devices</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" name="config[existing][deviceQuantity]" value="{$config->deviceQuantity}" placeholder="">
+		</div>
+	</div>
+
+	<div class="form-group">
 		<label for="managementType" class="col-sm-2 control-label">Management Type</label>
 		<div class="col-sm-10">
 			<input type="text" class="form-control" name="config[existing][managementType]" value="{$config->managementType}" placeholder="">
@@ -63,7 +77,7 @@
 	</div>
 
 	<div class="form-group">
-		<label for="adBound" class="col-sm-2 control-label">Ad Bound</label>
+		<label for="adBound" class="col-sm-2 control-label">AD Bound</label>
 		<div class="col-sm-2">
 			<input type="checkbox" class="checkbox" name="config[existing][adBound]" value="{$config->adBound}" {if $config->adBound}checked{/if}>
 		</div>
@@ -73,23 +87,40 @@
 	<div class="form-group">
 		<label for="config" class="col-sm-2 control-label">Available Titles</label>
 		<div class="col-sm-10">
+			<table class="table table-condensed">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Title</th>
+						<th>Version</th>
+						<th>License</th>
+						<th>Expires</th>
+					</tr>
+				</thead>
+				<tbody>
 		{foreach $softwareLicenses as $licenses}
 			{foreach $licenses as $license}
+				<tr>
 				{assign var=checked value=false}
 				{foreach $selectedConfiguration->softwareLicenses as $l}
 					{if $l->id == $license->id}{assign var=checked value=true}{/if}
 				{/foreach}
-			<div class="checkbox">
-				<label>
-					<input type="checkbox" name="config[existing][licenses][{$license->id}]" {if $checked}checked{/if}>
-					{$license->version->title->name} | 
-					v{$license->version->number} | 
-					License {$license->number} expiring {$license->expirationDate->format('m/d/Y')}
-					{if $license->description} | {$license->description|truncate:100}{/if}
-				</label>
-			</div>
+					<td>
+						<input type="checkbox" name="config[existing][licenses][{$license->id}]" {if $checked}checked{/if} id="config[existing][licenses][{$license->id}]">
+					</td>
+					<td>
+						<label for="config[existing][licenses][{$license->id}]">
+							{$license->version->title->name}
+						</label>
+					</td>
+					<td>{$license->version->number}</td>
+					<td>{$license->number}</td>
+					<td>{$license->expirationDate->format('m/d/Y')}</td>
+				</tr>
 			{/foreach}
 		{/foreach}
+				</tbody>
+			</table>
 		</div>
 	</div>
 </div>
@@ -98,7 +129,7 @@
 
 <div id="accordion">
 
-	{if $location->configurations->count() > 0}
+	{if count($customConfigurations) > 0}
 	<div class="container-fluid">
 		<div class="row">
 			<a role="button" class="btn btn-default pull-right" data-toggle="collapse" data-parent="#accordion" href="#newConfig" aria-expanded="true" aria-controls="newConfig">
@@ -108,10 +139,10 @@
 	</div>
 	{/if}
 
-	<div class="panel-collapse collapse {if $location->configurations->count() == 0}in{/if}" role="tabpanel" id="newConfig">
+	<div class="panel-collapse collapse {if count($customConfigurations) == 0}in{/if}" role="tabpanel" id="newConfig">
 		<div class="form-horizontal">
-			{if $location->configurations->count() > 0}
-			<h4 class="">Add new configuration</h4>
+			{if count($customConfigurations) > 0}
+				<h4 class="">Add new configuration</h4>
 			{/if}
 			<div class="form-group">
 				<label for="model" class="col-sm-2 control-label">Model</label>
@@ -126,6 +157,21 @@
 					<input type="text" class="form-control" name="config[new][location]" value="" placeholder="">
 				</div>
 			</div>
+
+			<div class="form-group">
+				<label for="deviceType" class="col-sm-2 control-label">Type of Units/Devices</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" name="config[new][deviceType]" value="" placeholder="">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="deviceQuantity" class="col-sm-2 control-label">Quantity of Units/Devices</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" name="config[new][deviceQuantity]" value="" placeholder="">
+				</div>
+			</div>
+
 
 			<div class="form-group">
 				<label for="managementType" class="col-sm-2 control-label">Management Type</label>
@@ -163,7 +209,7 @@
 			</div>
 
 			<div class="form-group">
-				<label for="adBound" class="col-sm-2 control-label">Ad Bound</label>
+				<label for="adBound" class="col-sm-2 control-label">AD Bound</label>
 				<div class="col-sm-2">
 					<input type="checkbox" class="checkbox" name="config[new][adBound]" value="">
 				</div>
@@ -173,23 +219,36 @@
 			<div class="form-group">
 				<label for="config" class="col-sm-2 control-label">Available Titles</label>
 				<div class="col-sm-10">
+					<table class="table table-condensed">
+						<thead>
+							<tr>
+								<th></th>
+								<th>Title</th>
+								<th>Version</th>
+								<th>License</th>
+								<th>Expires</th>
+							</tr>
+						</thead>
+						<tbody>
 				{foreach $softwareLicenses as $licenses}
 					{foreach $licenses as $license}
-						{assign var=checked value=false}
-						{foreach $selectedConfiguration->licenses as $l}
-							{if $l->id == $license->id}{/if}
-						{/foreach}
-					<div class="checkbox">
-						<label>
-							<input type="checkbox" name="config[new][licenses][{$license->id}]">
-							{$license->version->title->name} | 
-							v{$license->version->number} | 
-							License {$license->number} expiring {$license->expirationDate->format('m/d/Y')}
-							{if $license->description} | {$license->description|truncate:100}{/if}
-						</label>
-					</div>
+						<tr>
+							<td class="text-center">
+								<input type="checkbox" name="config[new][licenses][{$license->id}]" id="config[new][licenses][{$license->id}]">
+							</td>
+							<td>
+								<label for="config[new][licenses][{$license->id}]">
+									{$license->version->title->name}
+								</label>
+							</td>
+							<td>{$license->version->number}</td>
+							<td>{$license->number}</td>
+							<td>{$license->expirationDate->format('m/d/Y')}</td>
+						</tr>
 					{/foreach}
 				{/foreach}
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</div>

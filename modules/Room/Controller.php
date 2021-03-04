@@ -39,7 +39,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
         $configs = $this->schema('Classrooms_Room_Configuration');
         $this->template->configurations = $configs->find(
-            $configs->deleted->isNull()->orIf($configs->deleted->isFalse()), ['orderBy' => 'model']
+        	$configs->isBundle->isTrue()->andIf(
+        		$configs->deleted->isNull()->orIf($configs->deleted->isFalse())
+            ), ['orderBy' => 'model']
         );
     }
 
@@ -128,15 +130,14 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $licenses = $this->schema('Classrooms_Software_License');
         $notes = $this->schema('Classrooms_Notes_Entry');
         
-        // TODO: don't include bundled configurations as ones that can be selected or edited from this page
+        $customConfigurations = $location->customConfigurations;
         if ($cid = $this->request->getQueryParameter('configuration', null))
         {
             $selectedConfiguration = $configs->get($cid);
         }
         else
         {
-            $selectedConfiguration = $location->id && $location->configurations->index(0) ? 
-                $location->configurations->index(0) : $configs->createInstance();
+            $selectedConfiguration = !empty($customConfigurations) ? $customConfigurations[0] : $configs->createInstance();
         }
         
         if ($this->request->wasPostedByUser())
@@ -145,6 +146,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             {
                 case 'save':
                     $data = $this->request->getPostParameters();
+                    // echo "<pre>"; var_dump($data['config']); die;
                     
                     if (!isset($data['room']['number']) || $data['room']['number'] === '')
                     {
@@ -197,15 +199,14 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                         $config->absorbData($configData);
                         $config->location = $configData['location'];
                         $config->adBound = isset($configData['adBound']);
-                        $config->location_id = $location->id;
                         $config->createdDate = $config->createdDate ?? new DateTime;
                         $config->modifiedDate = new DateTime;
                         $config->save();
+                        
                         if ($new)
                         {
-                            $config->rooms->add($location);
-                            $config->rooms->save();
-                            $config->save();
+                            $location->configurations->add($config);
+                            $location->configurations->save();
                             $config->addNote('New custom configuration created: '. $config->model, $viewer);
                         }
 
@@ -240,9 +241,10 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             }
             $softwareLicenses[$license->version->title->id][] = $license;
         }
-
+        
         $this->template->location = $location;
         $this->template->selectedConfiguration = $selectedConfiguration;
+        $this->template->customConfigurations = $customConfigurations;
         $this->template->types = $types->getAll();
         $this->template->buildings = $buildings->getAll(['orderBy' => 'code']);
         $this->template->roomFacets = $location->facets ? unserialize($location->facets) : [];
@@ -314,14 +316,88 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function editBuilding () {}
     public function editType () {}
 
+    public function fetchInstructorsRooms ($terms='2213')
+    {
+        $service = new At_ClassData_Service($this->getApplication());
+        $locations = $this->schema('Classrooms_Room_Location');
+        $courseSections = $this->schema('Classrooms_ClassData_CourseSection');
+        $locations = $locations->find(
+            $location->deleted->isNull()->orIf($locations->deleted->isFalse()),
+            ['orderBy' => ['buildingId', 'number']]
+        );
+
+        $instructorsRooms = [];
+        foreach ($locations as $location)
+        {
+            foreach (explode(',', $terms) as $term)
+            {
+                $instructorsRooms[$term] = [];
+                $facilityId = $location->building->code . str_pad($location->number, 4, '0', STR_PAD_LEFT);
+                $schedules = $service->getSchedules($term, $facilityId);
+                
+                foreach ($schedules['courseSchedules'] as $id => $courseSchedule)
+                {
+                    $courseSection = $courseSections->get($id);
+                    $instructors = $courseSection->getInstructors();
+
+                    foreach ($instructors as $instructor)
+                    {
+                        if (!isset($instructorsRooms[$term][$instructor->id]))
+                        {
+                            $instructorsRooms[$term][$instructor->id] = [];
+                        }
+
+                        foreach ($courseSchedule as $schedule)
+                        {
+                            $instructorsRooms[$term][$instructor->id] = [
+                                'course_section_id' => $id,
+                                'location_id' => $location->id,
+                                'facility_id' => $courseSchedule['facility']['id'],
+                                'schedule' => $schedule
+                            ];
+                        }                        
+                    }
+                }
+            }
+        }
+
+        return $instructorsRooms;
+    }
+
     public function view ()
     {
         $location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id');
     	$this->addBreadcrumb('rooms', 'List Rooms');
         $this->addBreadcrumb('rooms/' . $location->id . '/edit', 'Edit');
-
-        $notes = $this->schema('Classrooms_Notes_Entry');
         
+        $notes = $this->schema('Classrooms_Notes_Entry');
+
+        $service = new At_ClassData_Service($this->getApplication());
+        
+        $app = $this->getApplication();
+        $importer = $app->moduleManager->getExtensionByName('at:classrooms:classdata/importer', 'importer');
+        $importer->import('2213');
+
+        echo "<pre>"; var_dump($service->getDepartments()['departments']); die;
+        
+
+        $facilityId = $location->building->code . str_pad($location->number, 4, '0', STR_PAD_LEFT);
+        $facilityId = 'FA0153';
+        // $facilityId = 'TH0529';
+        $facilities = $service->getFacilities()['facilities'];
+        // echo "<pre>"; var_dump($facilities['FA0153']); die;
+
+        
+        $schedules = $service->getSchedules('2213', $facilityId);
+        $courses = $schedules['courseSchedules']['courses'];
+        foreach ($courses as $course)
+        {
+            echo "<pre>"; var_dump($course, $schedules['courseSchedules']); die;
+            
+        }
+        
+        
+        $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
         $this->template->canEdit = $this->hasPermission('edit room');
     	$this->template->room = $location;
     	$this->template->allFacets = self::$AllRoomFacets;
@@ -331,8 +407,13 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function listRooms ()
     {
     	$viewer = $this->getAccount();
-        $this->requirePermission('list rooms');
+        // $this->requirePermission('list rooms');
         $this->template->canEdit = $this->hasPermission('edit room');
+
+        $service = new At_ClassData_Service($this->getApplication());
+        $facilities = $service->getFacilities();
+        // echo "<pre>"; var_dump($facilities); die;
+        
 
         $locations = $this->schema('Classrooms_Room_Location');
         $buildings = $this->schema('Classrooms_Room_Building')->getAll(['orderBy' => 'name']);
@@ -342,9 +423,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $selectedBuildings = $this->request->getQueryParameter('buildings');
         $selectedTypes = $this->request->getQueryParameter('types');
         $selectedTitles = $this->request->getQueryParameter('titles');
-        // echo "<pre>"; var_dump($this->request->getQueryParameters()); die;
         
-		$condition = null;        
+		$condition = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
         if ($selectedBuildings)
         {
             foreach ($selectedBuildings as $selected)
@@ -488,9 +568,13 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     protected function saveRoomBundles ($room, $data)
     {
         $bundles = $this->schema('Classrooms_Room_Configuration');
-        $existingBundles = $room->configurations->asArray();
         $posted = isset($data['bundles']) ? $data['bundles'] : [];
-        $existing = $removed = $added = [];
+        $existing = $existingBundles = $removed = $added = [];
+        
+        foreach ($room->configurations->asArray() as $config)
+        {
+            if ($config->isBundle) $existingBundles[] = $config;
+        }
 
         foreach ($existingBundles as $bundle)
         {

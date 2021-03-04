@@ -56,6 +56,8 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
                 $def->addProperty('model', 'string');
                 $def->addProperty('location', 'string');
+                $def->addProperty('device_type', 'string');
+                $def->addProperty('device_quantity', 'string');
                 $def->addProperty('management_type', 'string');
                 $def->addProperty('image_status', 'string');
                 $def->addProperty('vintages', 'string');
@@ -90,6 +92,7 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('header_image_url', 'string');
                 $def->addProperty('location_id', 'int');
                 $def->addProperty('image_id', 'int');
+                $def->addProperty('youtube_embed_code', 'string');
                 $def->addProperty('created_date', 'datetime');
                 $def->addProperty('modified_date', 'datetime');
                 $def->addProperty('deleted', 'bool');
@@ -139,10 +142,23 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 break;
 
             case 1:
-                $def = $this->alterEntityType('classroom_room_tutorials', $this->getDataSource('Classrooms_Room_Tutorial'));
-                $def->addProperty('youtube_embed_code', 'string');
+                $def = $this->alterEntityType('classroom_room_locations', $this->getDataSource('Classrooms_Room_Location'));
+                $def->addProperty('alternate_name', 'string');
                 $def->save();
+
                 break;
+
+            // case 2:
+            // 	$def = $this->alterEntityType('classroom_room_configurations', $this->getDataSource('Classrooms_Room_Configuration'));
+            // 	$def->addProperty('total_units', 'int');
+            // 	$def->addProperty('mac_quantity', 'int');
+            // 	$def->addProperty('pc_quantity', 'int');
+            // 	$def->addProperty('linux_quantity', 'int');
+            // 	$def->save();
+
+            // 	break;
+
+            
         }
     }
 }

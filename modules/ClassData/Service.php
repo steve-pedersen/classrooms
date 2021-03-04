@@ -39,6 +39,32 @@ class At_ClassData_Service
         return $url . '&s=' . sha1($this->apiSecret . $url);
     }
     
+    public function getFacilities ()
+    {
+        $url = $this->signResource("facilities", []);
+        list($code, $data) = $this->request($url);
+
+        if ($code == 200)
+        {
+            return $data;
+        }
+
+        return [$code, $data];
+    }
+
+    public function getSchedules ($semester='', $facilityId='')
+    {
+        $url = $this->signResource("schedules", ['term' => $semester, 'facility' => $facilityId]);
+        list($code, $data) = $this->request($url);
+
+        if ($code == 200)
+        {
+            return $data;
+        }
+
+        return [$code, $data];
+    }
+
     public function getEnrollments ($semester, $role = null)
     {
         $paramMap = [];
@@ -51,25 +77,12 @@ class At_ClassData_Service
         $url = $this->signResource("enrollments/{$semester}", $paramMap);
         list($code, $data) = $this->request($url);
 
-        if ($code === 200)
+        if (!empty($data))
         {
-            return $data;
+            $data = @json_decode($data, true);
         }
 
-        return false;
-        
-
-        // $req = new HttpRequest($url, HTTP_METH_GET);
-        // $req->send();
-        
-        // $body = $req->getResponseBody();
-        // $data = null;
-        
-        // if (!empty($body))
-        // {
-        //     $data = @json_decode($body, true);
-        // }
-        // return [$req->getResponseCode(), $data];
+        return [$code, $data];
     }
 
     public function getUserEnrollments ($userid, $semester, $role = null)
@@ -81,53 +94,40 @@ class At_ClassData_Service
         }
 
         $url = $this->signResource("users/{$userid}/semester/{$semester}", $paramMap);
-        //die($url);
-        $req = new HttpRequest($url, HTTP_METH_GET);
-        $req->send();
-        
-        $body = $req->getResponseBody();
-        $data = null;
-        
-        if (!empty($body))
+        list($code, $data) = $this->request($url);
+
+        if (!empty($data))
         {
-            $data = @json_decode($body, true);
+            $data = @json_decode($data, true)['courses'];
         }
 
-        return [$req->getResponseCode(), $data['courses']];
+        return [$code, $data];
     }
     
     public function getChanges ($semester, $since)
     {
         $url = $this->signResource("changes/{$semester}", ['since' => $since]);
-        $req = new HttpRequest($url, HTTP_METH_GET);
-        $req->send();
-        
-        $body = $req->getResponseBody();
-        $data = null;
-        
-        if (!empty($body))
+        list($code, $data) = $this->request($url);
+
+        if (!empty($data))
         {
-            $data = @json_decode($body, true);
+            $data = @json_decode($data, true);
         }
 
-        return [$req->getResponseCode(), $data];
+        return [$code, $data];
     }
 
     public function getCourse ($id)
     {
         $url = $this->signResource('courses/' . $id, ['include' => 'description,prerequisites,students,instructors,userdata']);
-        $req = new HttpRequest($url, HTTP_METH_POST);
-        $req->send();
-        
-        $body = $req->getResponseBody();
-        $data = null;
-        
-        if (!empty($body))
+        list($code, $data) = $this->request($url);
+
+        if (!empty($data))
         {
-            $data = @json_decode($body, true);
+            $data = @json_decode($data, true);
         }
-        
-        return [$req->getResponseCode(), $data];
+
+        return [$code, $data];
     }
     
     public function getCourses ($idList)

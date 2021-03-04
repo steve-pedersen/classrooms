@@ -23,7 +23,7 @@ class Classrooms_Software_Version extends Bss_ActiveRecord_Base
             'licenses' => ['1:N', 
                 'to' => 'Classrooms_Software_License', 
                 'reverseOf' => 'version', 
-                'orderBy' => [ '+modifiedDate', '+createdDate' ]
+                'orderBy' => [ 'expirationDate', '+modifiedDate', '+createdDate' ]
             ],
 
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],

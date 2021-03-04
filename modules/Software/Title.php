@@ -35,7 +35,7 @@ class Classrooms_Software_Title extends Bss_ActiveRecord_Base
         ];
     }
 
-    public function getRoomsUsedIn ()
+    public function getRoomsUsedIn ($showDeleted = false)
     {
         $rooms = [];
         foreach ($this->versions as $version)
@@ -46,7 +46,10 @@ class Classrooms_Software_Title extends Bss_ActiveRecord_Base
                 {
                     foreach ($configs->rooms as $room)
                     {
-                        $rooms[$room->id] = $room;
+                        if (!$room->deleted || $showDeleted)
+                        {
+                            $rooms[$room->id] = $room;
+                        }
                     }
                 }
             }

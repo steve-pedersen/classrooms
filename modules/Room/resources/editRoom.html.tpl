@@ -15,7 +15,7 @@
 </div>
 
 
-{if $location->configurations && $location->configurations->count() > 1}
+{if $customConfigurations && count($customConfigurations) > 1}
 <br><br><br>
 <form action="" method="get" id="selectConfiguration">
 	<div class="container">
@@ -29,7 +29,7 @@
 						<div class="col-sm-8">
 							<select name="configuration" id="configuration" class="form-control">
 								<option value="">Choose Configuration</option>
-							{foreach $location->configurations as $configuration}
+							{foreach $customConfigurations as $configuration}
 								<option value="{$configuration->id}" {if $selectedConfiguration->id == $configuration->id}selected{/if}>{$configuration->model} - {$configuration->location}</option>
 							{/foreach}
 							</select>
@@ -138,7 +138,7 @@
 					<div class="form-group">
 						<label for="bundles" class="col-sm-2 control-label">Available Bundles</label>
 						<div class="col-sm-10">
-						{foreach $bundles as $bundle}
+						
 							<table class="table table-bordered table-condensed table-striped">
 								<thead>
 									<tr>
@@ -148,6 +148,7 @@
 									</tr>
 								</thead>
 								<tbody>
+							{foreach $bundles as $bundle}
 								<tr>
 									<td class="text-center">
 										<input type="checkbox" name="bundles[{$bundle->id}]" id="bundles[{$bundle->id}]" {if $location->configurations->has($bundle)}checked{/if}>
@@ -155,9 +156,10 @@
 									<td><label for="bundles[{$bundle->id}]">{$bundle->model}</label></td>
 									<td>{$bundle->softwareLicenses->count()}</td>
 								</tr>
+							{/foreach}
 								</tbody>
 							</table>
-						{/foreach}
+						
 						</div>
 					</div>
 				</div>
@@ -171,7 +173,8 @@
 			{generate_form_post_key}
 			<input type="hidden" name="locationId" value="{$location->id}">
 			<button type="submit" name="command[save]" class="btn btn-primary">Save Room</button>
-			<a href="rooms/{$location->id}" class="btn btn-danger pull-right">Cancel</a>
+			<a href="rooms/{$location->id}" class="btn btn-default">Cancel</a>
+			<button type="submit" name="command[delete]" class="btn btn-danger pull-right">Delete</button>
 		</div>
 	</div>
 </form>

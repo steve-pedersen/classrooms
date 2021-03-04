@@ -52,7 +52,7 @@
 	</div>
 
 	<div class="form-group">
-		<label for="adBound" class="col-sm-2 control-label">Ad Bound</label>
+		<label for="adBound" class="col-sm-2 control-label">AD Bound</label>
 		<div class="col-sm-2">
 			<input type="checkbox" class="checkbox" name="adBound" value="{$config->adBound}" {if $config->adBound}checked{/if}>
 		</div>

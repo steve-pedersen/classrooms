@@ -1,18 +1,8 @@
 
 <h1>Classrooms</h1>
 
-{if $canEdit}
-<!-- <div class="container-fluid">
-<div class="row pull-right" style="margin-bottom: 1em;">
-	<div class="col-sm-12">
-		<a href="rooms/new/edit" class="btn btn-primary">Add New Room</a>
-	</div>
-</div>
-</div> -->
-{/if}
-
 <div class="well multiselect-filter">
-	<h2>Filter Rooms</h2>
+	<h2>Filter</h2>
 	<form class="form-inline" role="form" id="filterForm">
     <div class="form-group">
 		<select id="filter-buildings" name="buildings[]" class="multiselect form-control" multiple label="Buildings">
@@ -58,8 +48,64 @@
 	</form>
 </div>
 
+{foreach $rooms as $room}
+	{assign var="facets" value=unserialize($room->facets)}
 
-<table class="table table-bordered table-striped table-condensed">
+<div class="panel panel-default room-card">
+  <div class="panel-body">
+    <div class="row equal" style="min-height: 9rem;">
+    	<div class="col-sm-4 room-number" style="display:inline;">
+			
+			<div class="col-sm-6">
+	    		<ul class="list-unstyled">
+		    		<li>
+		    			<h3>
+		    				<a href="rooms/{$room->id}?mode=basic" class="room-link">{if $room->building->code}{$room->building->code} {/if}{$room->number}</a>
+		    			</h3>
+		    		</li>
+		    		<li>{$room->building->name}</li>
+		    		<li>{$room->type->name}</li>
+	    		</ul>    				
+			</div>
+			<div class="col-sm-6 building-image text-center">
+				<a href="rooms/{$room->id}" class="room-link">
+				<img src="assets/images/buildings-{$room->building->code|lower}.jpg" class="img-responsive" style="max-width:100px;" alt="{$room->building->code} building">
+				</a>
+			</div>
+			
+    	</div>
+    	<div class="col-sm-5 config-info" >
+    		<h4>Equipment</h4>
+    		<ul class="list-unstyled">
+    			<li><a href="rooms/{$room->id}?mode=software"></a></li>
+    		{foreach $room->configurations as $config}
+    			{if !$config->isBundle}
+    				<li>{$config->deviceQuantity} {$config->deviceType}</li>
+    			{/if}
+    		{/foreach}
+    			<li>
+				{foreach $facets as $key => $facet}
+					{$allFacets[$key]}{if !$facet@last}, {/if}
+				{/foreach}
+    			</li>
+    		</ul>
+    	</div>
+    	<div class="col-sm-3 tutorial-info">
+    		<h4>Tutorial</h4>
+    		{if $room->tutorial->name}
+    			<a href="rooms/{$room->id}?mode=tutorial">{$room->tutorial->name}</a>
+    		{else}
+    			No tutorial set up for this room.
+    		{/if}
+    	</div>
+    </div>
+  </div>
+</div>
+
+{/foreach}
+
+
+<!-- <table class="table table-bordered table-striped table-condensed">
 	<thead>
 		<tr>
 			<th scope="Room#">Room #</th>
@@ -87,4 +133,4 @@
 		</tr>
 	{/foreach}
 	</tbody>
-</table>
+</table> -->
