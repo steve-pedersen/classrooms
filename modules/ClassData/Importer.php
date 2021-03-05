@@ -1,6 +1,6 @@
 <?php
 
-class Classrooms_ClassData_Importer extends Bss_Core_NamedExtension
+class Classrooms_ClassData_Importer
 {   
     const DATASOURCE_ALIAS = 'classroom_classdata';
     const ACCOUNTS_TABLE = 'classroom_classdata_users';
@@ -15,6 +15,7 @@ class Classrooms_ClassData_Importer extends Bss_Core_NamedExtension
         'Email' => 'emailAddress',
     );
     
+    private $application;
     private $urlBase;
     private $apiKey;
     private $apiSecret;
@@ -27,51 +28,66 @@ class Classrooms_ClassData_Importer extends Bss_Core_NamedExtension
     private $allCourses;
 
 
-    public static function getExtensionName () { return 'importer'; }
-    public static function getExtensionPointName () { return 'at:classrooms:classdata/importer'; }
+    public function __construct($app, $channel = 'raw')
+    {
+        $this->application = $app;
+        $config = $app->configuration;
+        $this->urlBase = $config->getProperty('classdata.url') ?? 'https://classdata.sfsu.edu/';
+        $this->apiKey = $config->getProperty('classdata.key') ?? 'ca1a3f6f-7cac-4e52-9a0a-5cbf82b16bc9';
+        $this->apiSecret = $config->getProperty('classdata.secret') ?? '4af2614e-142d-4db8-8512-b3ba13dd0143';
+        $this->channel = $channel;
+    }
+
+    public function getApplication ()
+    {
+        return $this->application;
+    }
+
+    // public static function getExtensionName () { return 'importer'; }
+    // public static function getExtensionPointName () { return 'at:classrooms:classdata/importer'; }
     public function getDataSource ($alias = 'default')
     {
         return $this->getApplication()->dataSourceManager->getDataSource($alias);
     }
-    public function schema ($recordClass)
+    public function schema ($name)
     {
-        return $this->getApplication()->schemaManager->getSchema($recordClass);
+        return $this->application->schemaManager->getSchema($name);
     }
 
-    public function findAccount ($uniqueId)
-    {
-        $account = null;
-        $dataSource = $this->getDataSource(self::DATASOURCE_ALIAS);
-        $query = $dataSource->createSelectQuery(self::ACCOUNTS_TABLE);
+    // public function findAccount ($uniqueId)
+    // {
+    //     $account = null;
+    //     $dataSource = $this->getDataSource(self::DATASOURCE_ALIAS);
+    //     $query = $dataSource->createSelectQuery(self::ACCOUNTS_TABLE);
         
-        foreach (self::$SimsAccountFieldMap as $classdataField => $accountField)
-        {
-            $query->project($classdataField);
-        }
+    //     foreach (self::$SimsAccountFieldMap as $classdataField => $accountField)
+    //     {
+    //         $query->project($classdataField);
+    //     }
         
-        $condition = $dataSource->createCondition(
-            $dataSource->createTypedValue('SFSUid', 'symbol'),
-            Bss_DataSource_Condition::OP_EQUALS,
-            $dataSource->createTypedValue($uniqueId, 'string')
-        );
+    //     $condition = $dataSource->createCondition(
+    //         $dataSource->createTypedValue('SFSUid', 'symbol'),
+    //         Bss_DataSource_Condition::OP_EQUALS,
+    //         $dataSource->createTypedValue($uniqueId, 'string')
+    //     );
         
-        $query->setCondition($condition);
-        $rs = $query->execute(true);
+    //     $query->setCondition($condition);
+    //     $rs = $query->execute(true);
         
-        while ($rs->next())
-        {
-            $account = new stdClass;
+    //     while ($rs->next())
+    //     {
+    //         $account = new stdClass;
             
-            foreach (self::$SimsAccountFieldMap as $classdataField => $accountField)
-            {
-                $account->$accountField = $rs->getValue($classdataField, 'string');
-            }
+    //         foreach (self::$SimsAccountFieldMap as $classdataField => $accountField)
+    //         {
+    //             $account->$accountField = $rs->getValue($classdataField, 'string');
+    //         }
             
-            break;
-        }
+    //         break;
+    //     }
         
-        return $account;
-    }
+    //     return $account;
+    // }
 
     
     public function findEnrollments ($accountId)
@@ -108,20 +124,20 @@ class Classrooms_ClassData_Importer extends Bss_Core_NamedExtension
         return $courses->find($courses->externalCourseKey->like($semesterCode . '-%'));
     }
   
-    public function importOrganizations ()
-    {
+    public function importDepartments ()
+    {   
         $service = new Classrooms_ClassData_Service($this->getApplication());
-        list($code, $data) = $this->getDeparments();
-
+        list($code, $data) = $service->getDepartments();
+        
         if ($code === 200)
         {
-            $departments = $this->getSchema('Classrooms_ClassData_Department');
-            $allDepartments = $departments->findValues('name');
-
+            $departments = $this->schema('Classrooms_Department_Department');
+            $allDepartments = $departments->findValues(['name' => 'id']);
+            
             foreach ($data['departments'] as $departmentName => $info)
             {
                 if (!isset($allDepartments[$departmentName]))
-                {
+                {               
                     $department = $departments->createInstance();
                     $department->createdDate = new DateTime;
                     $department->modifiedDate = new DateTime;
@@ -136,40 +152,23 @@ class Classrooms_ClassData_Importer extends Bss_Core_NamedExtension
     public function import ($semesterCode)
     {
         set_time_limit(0);
-        ini_set('memory_limit', '-1');
-     
-        echo "<pre>"; var_dump(123); die;
-        
+        ini_set('memory_limit', '-1');   
 
-        $courses = $this->getSchema('Classrooms_ClassData_CourseSection');
-        $users = $this->getSchema('Classrooms_ClassData_User');
-        $enrollments = $this->getSchema('Classrooms_ClassData_Enrollment');
-        $this->allDepartments = $this->getSchema('Classrooms_ClassData_Department')->findValues(['externalKey' => 'id']);
-        $this->allCourses = $this->getSchema('Classrooms_ClassData_Course')->findValues(['id' => 'id']);
+        $courses = $this->schema('Classrooms_ClassData_CourseSection');
+        $users = $this->schema('Classrooms_ClassData_User');
+        $enrollments = $this->schema('Classrooms_ClassData_Enrollment');
+        $this->allDepartments = $this->schema('Classrooms_Department_Department')->findValues(['name' => 'id']);
+        $this->allCourses = $this->schema('Classrooms_ClassData_Course')->findValues(['id' => 'id']);
         
         $dataSource = $courses->getDefaultDataSource();
         $tx = $dataSource->createTransaction();
         $now = new DateTime;
+    
+        $since = '1970-01-01';
         
-        // TODO: Look into beefing up the logging system here
-        // $since field can simply be a site setting.
-        $logs = $this->getSchema('Classrooms_ClassData_SyncLog');
-        $lastLog = $logs->findOne($logs->status->equals(200), ['orderBy' => ['-dt', '-id']]);
-        $newLog = $logs->createInstance();
-        $enrollData = $enrollments->findOne($enrollments->yearSemester->equals($semesterCode));
-
-        // if (($lastLog === null) || !$enrollData)
-        // {
-        //     $since = '1970-01-01';
-        // }
-        // else
-        // {
-        //     $since = $lastLog->dt->format('c');
-        // } 
-         $since = '1970-01-01';
-
-        list($status, $data) = $this->getChanges($semesterCode, $since);
-
+        $service = new Classrooms_ClassData_Service($this->getApplication());
+        list($status, $data) = $service->getChanges($semesterCode, $since);
+        
         if ($status != 200)
         {
             if ($data && isset($data['error']))
@@ -301,10 +300,6 @@ class Classrooms_ClassData_Importer extends Bss_Core_NamedExtension
                 }
             }
         }
-        
-        $newLog->dt = $now;
-        $newLog->status = $status;
-        $newLog->save();
         
         $tx->commit();
         return $now;
@@ -461,12 +456,12 @@ class Classrooms_ClassData_Importer extends Bss_Core_NamedExtension
 
         if (!isset($this->allCourses[$data['course']]))
         {
-            $course = $this->getSchema('Classrooms_ClassData_Course')->createInstance();
+            $course = $this->schema('Classrooms_ClassData_Course')->createInstance();
             $course->id = $data['course'];
             $course->createdDate = new DateTime;
             $course->modifiedDate = new DateTime;
             $course->deleted = false;
-            $course->department_id = $this->allDepartments[$data['department']] ?? null;
+            $course->department_id = @$this->allDepartments[$data['department']] ?? null;
             $course->save($tx);
             $this->allCourses[$data['course']] = $course->id;
         }
@@ -483,7 +478,7 @@ class Classrooms_ClassData_Importer extends Bss_Core_NamedExtension
                 'createdDate' => $now,
                 'modifiedDate' => $now,
                 'deleted' => false,
-                'department_id' => $this->allDepartments[$data['department']] ?? null,
+                'department_id' => @$this->allDepartments[$data['department']] ?? null,
                 'course_id' => $this->allCourses[$data['course']],
             ],
             ['transaction' => $tx]
@@ -532,7 +527,7 @@ class Classrooms_ClassData_Importer extends Bss_Core_NamedExtension
                 'createdDate' => $now,
                 'modifiedDate' => $now,
                 'deleted' => false,
-                'department_id' => $this->allDepartments[$data['department']] ?? null,
+                'department_id' => @$this->allDepartments[$data['department']] ?? null,
             ],
             $courses->id->equals($courseId),
             ['transaction' => $tx]
@@ -600,10 +595,3 @@ class Classrooms_ClassData_Importer extends Bss_Core_NamedExtension
     }
 
 }
-
-
-
-
-
-
-

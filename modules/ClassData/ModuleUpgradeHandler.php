@@ -59,15 +59,6 @@ class Classrooms_ClassData_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseMod
                 $def->addProperty('deleted', 'bool');
                 $def->save();
 
-                $def = $this->createEntityType('classdata_sync_logs', $this->getDataSource('Classrooms_ClassData_SyncLog'));
-                $def->addProperty('id', 'int', ['primaryKey' => true, 'sequence' => true]);
-                $def->addProperty('dt', 'datetime');
-                $def->addProperty('by', 'string');
-                $def->addProperty('status', 'int');
-                $def->addProperty('error_code', 'string');
-                $def->addProperty('error_message', 'string');
-                $def->save();
-
                 $app = $this->getApplication();
                 $settings = $app->siteSettings;
                 $settings->defineProperty('semesters', 'The comma-separated list of semesters to pay attention to, each in format (YYYS where S=3 is Spring, S=7 is Fall). The first 3 digits shall be digits 1, 3, and 4 of the year, e.g. 2019=219.', 'string');

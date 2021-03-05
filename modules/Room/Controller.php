@@ -318,7 +318,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
     public function fetchInstructorsRooms ($terms='2213')
     {
-        $service = new At_ClassData_Service($this->getApplication());
+        $service = new Classrooms_ClassData_Service($this->getApplication());
         $locations = $this->schema('Classrooms_Room_Location');
         $courseSections = $this->schema('Classrooms_ClassData_CourseSection');
         $locations = $locations->find(
@@ -372,11 +372,12 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         
         $notes = $this->schema('Classrooms_Notes_Entry');
 
-        $service = new At_ClassData_Service($this->getApplication());
+        $service = new Classrooms_ClassData_Service($this->getApplication());
+        echo "<pre>"; var_dump($service->getDepartments()); die;
         
         $app = $this->getApplication();
-        $importer = $app->moduleManager->getExtensionByName('at:classrooms:classdata/importer', 'importer');
-        $importer->import('2213');
+        $importer = new Classrooms_ClassData_Importer($this->getApplication());
+        echo "<pre>"; var_dump($importer->importDepartments(), $importer); die;
 
         echo "<pre>"; var_dump($service->getDepartments()['departments']); die;
         
@@ -410,8 +411,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         // $this->requirePermission('list rooms');
         $this->template->canEdit = $this->hasPermission('edit room');
 
-        $service = new At_ClassData_Service($this->getApplication());
-        $facilities = $service->getFacilities();
+        $service = new Classrooms_ClassData_Service($this->getApplication());
+        // echo "<pre>"; var_dump($service->getDepartments()); die;
+        // $facilities = $service->getFacilities();
         // echo "<pre>"; var_dump($facilities); die;
         
 

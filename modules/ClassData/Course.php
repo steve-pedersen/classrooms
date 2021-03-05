@@ -16,7 +16,7 @@ class Classrooms_ClassData_Course extends Bss_ActiveRecord_Base
             'modifiedDate' => ['datetime', 'nativeName' => 'modified_date'],
             'deleted' => 'bool',
 
-            'department'    => ['1:1', 'to' => 'Classrooms_ClassData_Department', 'keyMap' => ['department_id' => 'id']],
+            // 'department'    => ['1:1', 'to' => 'Classrooms_ClassData_Department', 'keyMap' => ['department_id' => 'id']],
             'sections' => ['1:N', 'to' => 'Classrooms_ClassData_CourseSection', 'reverseOf' => 'course', 'orderBy' => ['+createdDate']],
         ];
     }

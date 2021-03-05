@@ -38,6 +38,7 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def = $this->createEntityType('classroom_room_locations');
                 $def->addProperty('id', 'int', array('primaryKey' => true, 'sequence' => true));
                 $def->addProperty('number', 'string');
+                $def->addProperty('alternate_name', 'string');
                 $def->addProperty('description', 'string');
                 $def->addProperty('url', 'string');
                 $def->addProperty('type_id', 'int');
@@ -140,25 +141,7 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 );
 
                 break;
-
-            case 1:
-                $def = $this->alterEntityType('classroom_room_locations', $this->getDataSource('Classrooms_Room_Location'));
-                $def->addProperty('alternate_name', 'string');
-                $def->save();
-
-                break;
-
-            // case 2:
-            // 	$def = $this->alterEntityType('classroom_room_configurations', $this->getDataSource('Classrooms_Room_Configuration'));
-            // 	$def->addProperty('total_units', 'int');
-            // 	$def->addProperty('mac_quantity', 'int');
-            // 	$def->addProperty('pc_quantity', 'int');
-            // 	$def->addProperty('linux_quantity', 'int');
-            // 	$def->save();
-
-            // 	break;
-
-            
+         
         }
     }
 }

@@ -5,7 +5,7 @@
  *
  * @author Charles O'Sullivan <chsoney@sfsu.edu>
  */
-class At_ClassData_Service
+class Classrooms_ClassData_Service
 {
     private $urlBase;
 
@@ -109,11 +109,6 @@ class At_ClassData_Service
         $url = $this->signResource("changes/{$semester}", ['since' => $since]);
         list($code, $data) = $this->request($url);
 
-        if (!empty($data))
-        {
-            $data = @json_decode($data, true);
-        }
-
         return [$code, $data];
     }
 
@@ -173,13 +168,8 @@ class At_ClassData_Service
         $paramMap = [];
         $url = $this->signResource('departments', $paramMap);
         list($code, $data) = $this->request($url);
-
-        if ($code === 200)
-        {
-            return $data;
-        }
-
-        return false;
+        
+        return [$code, $data];
     }
 
     // TODO: POST needs testing of implementation

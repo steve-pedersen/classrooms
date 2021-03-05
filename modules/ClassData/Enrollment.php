@@ -11,7 +11,7 @@ class Classrooms_ClassData_Enrollment extends Bss_ActiveRecord_Base
     public static function SchemaInfo ()
     {
         return [
-            '__type' => 'syllabus_classdata_enrollments',
+            '__type' => 'classroom_classdata_enrollments',
             '__pk' => ['userId', 'courseSectionId'],
             
             'userId' => ['string', 'nativeName' => 'user_id'],
