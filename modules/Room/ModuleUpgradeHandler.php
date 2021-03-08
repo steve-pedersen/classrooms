@@ -65,6 +65,9 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('uniprint', 'string');
                 $def->addProperty('uniprint_queue', 'string');
                 $def->addProperty('release_station_ip', 'string');
+                $def->addProperty('printer_model', 'string');
+                $def->addProperty('printer_ip', 'string');
+                $def->addProperty('printer_server', 'string');
                 $def->addProperty('ad_bound', 'bool');
                 $def->addProperty('count', 'int');
                 $def->addProperty('is_bundle', 'bool');

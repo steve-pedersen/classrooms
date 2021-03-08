@@ -65,15 +65,15 @@ class Classrooms_ClassData_AdminController extends At_Admin_Controller
             
             $importer->importDepartments();
 
-            // $semesterCodes = $this->application->siteSettings->semesters ?? '2213';
-            // if (!is_array($semesterCodes))
-            // {
-            //     $semesterCodes = explode(',', $semesterCodes);
-            // }
-            // foreach ($semesterCodes as $semesterCode)
-            // {
-            //     $importer->import($semesterCode);
-            // }
+            $semesterCodes = $this->application->siteSettings->semesters ?? '2213';
+            if (!is_array($semesterCodes))
+            {
+                $semesterCodes = explode(',', $semesterCodes);
+            }
+            foreach ($semesterCodes as $semesterCode)
+            {
+                $importer->import($semesterCode);
+            }
         }
     }
 

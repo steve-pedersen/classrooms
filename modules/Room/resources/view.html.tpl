@@ -85,6 +85,12 @@
  	<h3>Software in this room</h3>
 	<div class="">
 		<div class="row">
+			{if $trackUrl}
+			<div class="col-sm-12">
+				<a href="{$trackUrl}" target="_blank">View all computers and hardware in this room</a>
+			</div>
+			<br>
+			{/if}
 	{foreach $room->configurations as $config}
 		{if $config->softwareLicenses->count() > 0}
 			{if $config@index != 0 && $config@index % 2 == 0}

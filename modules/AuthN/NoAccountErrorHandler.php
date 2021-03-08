@@ -38,36 +38,11 @@ class Classrooms_AuthN_NoAccountErrorHandler extends Classrooms_Master_ErrorHand
 
         if (($username = $identity->getProperty('username')))
         {
-            $facultySchema = $this->schema('Classrooms_Purchase_Faculty');
+            $accountManager = new Classrooms_ClassData_AccountManager($this->getApplication());
+            $account = $accountManager->createFacultyAccount($identity);
 
-            $faculty = $facultySchema->findOne($facultySchema->allTrue(
-                $facultySchema->SFSUid->equals($username),
-                $facultySchema->deleted->isFalse()
-            ));
-
-            if ($faculty)
+            if ($account->isFaculty)
             {
-                $accounts = $this->schema('Bss_AuthN_Account');
-                $account = $accounts->createInstance();
-
-                $account->firstName = $faculty->firstName;
-                $account->lastName = $faculty->lastName;
-                $account->emailAddress = $faculty->email;
-                $account->username = $faculty->SFSUid;
-                $account->faculty_id = $faculty->id;
-                $account->createdDate = new DateTime;
-                $account->save();
-
-                $roleName = $this->getApplication()->getConfiguration()->getProperty('facultyRequest.authorization.role', 'Faculty');
-                $roleSchema = $this->schema('Classrooms_AuthN_Role');
-
-                if ($facultyRole = $roleSchema->findOne($roleSchema->name->equals($roleName)))
-                {
-                    $account->roles->add($facultyRole);
-                }
-
-                $account->roles->save();
-
                 $this->request = $error->getRequest();
                 $this->response = $error->getResponse();
 

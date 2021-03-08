@@ -8,6 +8,34 @@
  */
 class Classrooms_Room_Controller extends Classrooms_Master_Controller
 {
+	private static $Fields = array(
+        'serialNumber',
+        'tagNumber',
+        'description',
+        'department',
+        'location',
+        'assignee',
+        'acquisitionCost',
+        'acquisitionDate',
+        'modifiedDate',
+        'lastCheckedDate',
+        'model',
+        'modelNumber',
+        'poNumber',
+        'poNumber',
+        'area',
+        'status',
+        'type',
+        'pcType',
+        'officialDescription',
+        'officialSerialNumber',
+        'officialStatus',
+        'officialLocation',
+        'manufacturer',
+        'fleet',
+        'ucorpTag',
+    );
+
     public static $AllRoomFacets = [
         'lcd_proj'=>'LCD Proj', 'lcd_tv'=>'LCD TV', 'vcr_dvd'=>'VCR/DVD', 'hdmi'=>'HDMI', 'vga'=>'VGA', 'data'=>'Data',
         'scr'=>'Scr', 'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam'
@@ -29,6 +57,83 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/configurations/:id' => ['callback' => 'viewConfigurationBundle'],
             '/configurations/:id/edit' => ['callback' => 'editConfigurationBundle'],
         ];
+    }
+
+    public function view ()
+    {
+        $location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id');
+    	$this->addBreadcrumb('rooms', 'List Rooms');
+        $this->addBreadcrumb('rooms/' . $location->id . '/edit', 'Edit');
+        
+        $notes = $this->schema('Classrooms_Notes_Entry');
+
+        $service = new Classrooms_ClassData_Service($this->getApplication());
+        $facilityId = $location->building->code . str_pad($location->number, 4, '0', STR_PAD_LEFT);
+        $trackRoomUrlApi = 'https://track.sfsu.edu/rooms/' . $facilityId . '?fields=' . implode(',', self::$Fields);
+        list($code, $url) = $service->request($trackRoomUrlApi);
+        
+        $this->template->trackUrl = $url;
+        $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
+        $this->template->canEdit = $this->hasPermission('edit room');
+    	$this->template->room = $location;
+    	$this->template->allFacets = self::$AllRoomFacets;
+        $this->template->notes = $notes->find($notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']);
+    }
+
+    public function listRooms ()
+    {
+    	$viewer = $this->getAccount();
+        // $this->requirePermission('list rooms');
+        $this->template->canEdit = $this->hasPermission('edit room');
+        
+        $locations = $this->schema('Classrooms_Room_Location');
+        $buildings = $this->schema('Classrooms_Room_Building')->getAll(['orderBy' => 'name']);
+        $types = $this->schema('Classrooms_Room_Type')->getAll(['orderBy' => 'name']);
+        $titles = $this->schema('Classrooms_Software_Title');
+
+        $selectedBuildings = $this->request->getQueryParameter('buildings');
+        $selectedTypes = $this->request->getQueryParameter('types');
+        $selectedTitles = $this->request->getQueryParameter('titles');
+        $sq = $this->request->getQueryParameter('sq');
+        
+		$condition = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
+        if ($selectedBuildings)
+        {
+            foreach ($selectedBuildings as $selected)
+            {
+                $query = $locations->buildingId->equals($selected);
+                $condition = $condition ? $condition->andIf($query) : $query;
+            }
+        }
+        if ($selectedTypes)
+        {
+            foreach ($selectedTypes as $selected)
+            {
+                $query = $locations->typeId->equals($selected);
+                $condition = $condition ? $condition->andIf($query) : $query;
+            }
+        }
+        if ($selectedTitles)
+        {
+            foreach ($selectedTitles as $selected)
+            {
+                $title = $titles->get($selected);
+                $query = $locations->id->inList(array_keys($title->getRoomsUsedIn()));
+                $condition = $condition ? $condition->andIf($query) : $query;
+            }
+        }
+
+        $rooms = $locations->find($condition, ['orderBy' => 'number']);
+
+        $this->template->selectedBuildings = $selectedBuildings;
+        $this->template->selectedTypes = $selectedTypes;
+        $this->template->selectedTitles = $selectedTitles;
+        $this->template->buildings = $buildings;
+        $this->template->types = $types;
+        $this->template->rooms = $rooms;
+        $this->template->titles = $titles->getAll(['orderBy' => 'name']);
+        $this->template->allFacets = self::$AllRoomFacets;
+        $this->template->hasFilters = $condition;
     }
 
     public function listConfigurations ()
@@ -322,7 +427,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $locations = $this->schema('Classrooms_Room_Location');
         $courseSections = $this->schema('Classrooms_ClassData_CourseSection');
         $locations = $locations->find(
-            $location->deleted->isNull()->orIf($locations->deleted->isFalse()),
+            $locations->deleted->isNull()->orIf($locations->deleted->isFalse()),
             ['orderBy' => ['buildingId', 'number']]
         );
 
@@ -335,7 +440,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 $facilityId = $location->building->code . str_pad($location->number, 4, '0', STR_PAD_LEFT);
                 $schedules = $service->getSchedules($term, $facilityId);
                 
-                foreach ($schedules['courseSchedules'] as $id => $courseSchedule)
+                foreach ($schedules['courseSchedules']['courses'] as $id => $courseSchedule)
                 {
                     $courseSection = $courseSections->get($id);
                     $instructors = $courseSection->getInstructors();
@@ -348,12 +453,12 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                         }
 
                         foreach ($courseSchedule as $schedule)
-                        {
+                        {	
                             $instructorsRooms[$term][$instructor->id] = [
                                 'course_section_id' => $id,
                                 'location_id' => $location->id,
-                                'facility_id' => $courseSchedule['facility']['id'],
-                                'schedule' => $schedule
+                                'facility_id' => $schedules['courseSchedules']['facility']['id'],
+                                'schedule' => array_shift($schedule)
                             ];
                         }                        
                     }
@@ -362,108 +467,6 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         }
 
         return $instructorsRooms;
-    }
-
-    public function view ()
-    {
-        $location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id');
-    	$this->addBreadcrumb('rooms', 'List Rooms');
-        $this->addBreadcrumb('rooms/' . $location->id . '/edit', 'Edit');
-        
-        $notes = $this->schema('Classrooms_Notes_Entry');
-
-        $service = new Classrooms_ClassData_Service($this->getApplication());
-        echo "<pre>"; var_dump($service->getDepartments()); die;
-        
-        $app = $this->getApplication();
-        $importer = new Classrooms_ClassData_Importer($this->getApplication());
-        echo "<pre>"; var_dump($importer->importDepartments(), $importer); die;
-
-        echo "<pre>"; var_dump($service->getDepartments()['departments']); die;
-        
-
-        $facilityId = $location->building->code . str_pad($location->number, 4, '0', STR_PAD_LEFT);
-        $facilityId = 'FA0153';
-        // $facilityId = 'TH0529';
-        $facilities = $service->getFacilities()['facilities'];
-        // echo "<pre>"; var_dump($facilities['FA0153']); die;
-
-        
-        $schedules = $service->getSchedules('2213', $facilityId);
-        $courses = $schedules['courseSchedules']['courses'];
-        foreach ($courses as $course)
-        {
-            echo "<pre>"; var_dump($course, $schedules['courseSchedules']); die;
-            
-        }
-        
-        
-        $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
-        $this->template->canEdit = $this->hasPermission('edit room');
-    	$this->template->room = $location;
-    	$this->template->allFacets = self::$AllRoomFacets;
-        $this->template->notes = $notes->find($notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']);
-    }
-
-    public function listRooms ()
-    {
-    	$viewer = $this->getAccount();
-        // $this->requirePermission('list rooms');
-        $this->template->canEdit = $this->hasPermission('edit room');
-
-        $service = new Classrooms_ClassData_Service($this->getApplication());
-        // echo "<pre>"; var_dump($service->getDepartments()); die;
-        // $facilities = $service->getFacilities();
-        // echo "<pre>"; var_dump($facilities); die;
-        
-
-        $locations = $this->schema('Classrooms_Room_Location');
-        $buildings = $this->schema('Classrooms_Room_Building')->getAll(['orderBy' => 'name']);
-        $types = $this->schema('Classrooms_Room_Type')->getAll(['orderBy' => 'name']);
-        $titles = $this->schema('Classrooms_Software_Title');
-
-        $selectedBuildings = $this->request->getQueryParameter('buildings');
-        $selectedTypes = $this->request->getQueryParameter('types');
-        $selectedTitles = $this->request->getQueryParameter('titles');
-        
-		$condition = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
-        if ($selectedBuildings)
-        {
-            foreach ($selectedBuildings as $selected)
-            {
-                $query = $locations->buildingId->equals($selected);
-                $condition = $condition ? $condition->andIf($query) : $query;
-            }
-        }
-        if ($selectedTypes)
-        {
-            foreach ($selectedTypes as $selected)
-            {
-                $query = $locations->typeId->equals($selected);
-                $condition = $condition ? $condition->andIf($query) : $query;
-            }
-        }
-        if ($selectedTitles)
-        {
-            foreach ($selectedTitles as $selected)
-            {
-                $title = $titles->get($selected);
-                $query = $locations->id->inList(array_keys($title->getRoomsUsedIn()));
-                $condition = $condition ? $condition->andIf($query) : $query;
-            }
-        }
-
-        $rooms = $locations->find($condition, ['orderBy' => 'number']);
-
-        $this->template->selectedBuildings = $selectedBuildings;
-        $this->template->selectedTypes = $selectedTypes;
-        $this->template->selectedTitles = $selectedTitles;
-        $this->template->buildings = $buildings;
-        $this->template->types = $types;
-        $this->template->rooms = $rooms;
-        $this->template->titles = $titles->getAll(['orderBy' => 'name']);
-        $this->template->allFacets = self::$AllRoomFacets;
-        $this->template->hasFilters = $condition;
     }
 
     public function editConfiguration ()

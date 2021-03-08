@@ -173,7 +173,7 @@ class Classrooms_ClassData_Service
     }
 
     // TODO: POST needs testing of implementation
-    protected function request ($url, $post=false, $postData=[])
+    public function request ($url, $post=false, $postData=[])
     {
         $data = null;
         
