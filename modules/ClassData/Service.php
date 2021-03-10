@@ -163,12 +163,30 @@ class Classrooms_ClassData_Service
         return false;
     }
 
+    public function getOrganizations ()
+    {
+        $paramMap = ['include' => 'college'];
+        $url = $this->signResource('organizations', $paramMap);
+        list($code, $data) = $this->request($url);
+
+        return [$code, $data];
+    }
+
     public function getDepartments ()
     {
         $paramMap = [];
         $url = $this->signResource('departments', $paramMap);
         list($code, $data) = $this->request($url);
         
+        return [$code, $data];
+    }
+
+    public function getPersonnel ()
+    {
+        $paramMap = [];
+        $url = $this->signResource('personnel', $paramMap);
+        list($code, $data) = $this->request($url);
+
         return [$code, $data];
     }
 

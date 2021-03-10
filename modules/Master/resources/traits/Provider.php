@@ -13,8 +13,8 @@ trait Notes_Provider
 
 		if (!empty($details) && (!empty($details['old']) || !empty($details['new'])))
 		{
-			$note->oldValues = serialize($details['old']);
-			$note->newValues = serialize($details['new']);
+			$note->oldValues = !empty($details['old']) ? serialize($details['old']) : null;
+			$note->newValues = !empty($details['new']) ? serialize($details['new']) : null;
 		}
 		$note->message = $message;
 		$note->path = $this->getNotePath();
