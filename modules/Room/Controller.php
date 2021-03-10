@@ -45,6 +45,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
         return [
             '/rooms' => ['callback' => 'listRooms'],
+            '/rooms/autocomplete' => ['callback' => 'autoComplete'],
             '/rooms/:id' => ['callback' => 'view'],
             '/rooms/:id/edit' => ['callback' => 'editRoom', ':id' => '[0-9]+|new'],
             '/rooms/:roomid/tutorials/:id/edit' => ['callback' => 'editTutorial', ':id' => '[0-9]+|new'],
@@ -67,12 +68,10 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         
         $notes = $this->schema('Classrooms_Notes_Entry');
 
-        $service = new Classrooms_ClassData_Service($this->getApplication());
-        $facilityId = $location->building->code . str_pad($location->number, 4, '0', STR_PAD_LEFT);
+        $facilityId = $location->building->code . '^' . $location->number;
         $trackRoomUrlApi = 'https://track.sfsu.edu/rooms/' . $facilityId . '?fields=' . implode(',', self::$Fields);
-        list($code, $url) = $service->request($trackRoomUrlApi);
         
-        $this->template->trackUrl = $url;
+        $this->template->trackUrl = $trackRoomUrlApi;
         $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
         $this->template->canEdit = $this->hasPermission('edit room');
     	$this->template->room = $location;
@@ -94,7 +93,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $selectedBuildings = $this->request->getQueryParameter('buildings');
         $selectedTypes = $this->request->getQueryParameter('types');
         $selectedTitles = $this->request->getQueryParameter('titles');
-        $sq = $this->request->getQueryParameter('sq');
+        $s = $this->request->getQueryParameter('s');
         
 		$condition = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
         if ($selectedBuildings)
@@ -646,5 +645,112 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $config->save();
 
         return [$removed, $added];
+    }
+
+    public function autoComplete ()
+    {
+        $locations = $this->schema('Classrooms_Room_Location');
+        $buildings = $this->schema('Classrooms_Room_Building');
+        // $types = $this->schema('Classrooms_Room_Type');
+        // $titles = $this->schema('Classrooms_Software_Title');
+
+        $query = $this->request->getQueryParameter('s');
+        $queryParts = explode(' ', $query);
+
+        $condition = null;
+        $bldgCond = null;
+
+        // location match
+        foreach ($queryParts as $i => $part)
+        {
+            $pattern = '%' . strtolower($query) . '%';
+            if (strpos($pattern, ' ') !== false)
+            {
+                $patternParts = explode(' ', $pattern);
+
+                $attributes = $locations->number->lower()->like($patternParts[$i])->orIf(
+                    $locations->alternateName->lower()->like($patternParts[$i])
+                    // $locations->capacity->lower()->greaterThanOrEquals($patternParts[$i])
+                );
+                $condition = $condition ? $condition->orIf($attributes) : $attributes;
+            }
+            else
+            {
+                $attributes = $locations->number->lower()->like($pattern)->orIf(
+                    $locations->alternateName->lower()->like($pattern)
+                    // $locations->capacity->lower()->greaterThanOrEquals($pattern)
+                );
+                $condition = $condition ? $condition->orIf($attributes) : $attributes;
+            }
+        }
+
+        // building match
+        foreach ($queryParts as $i => $part)
+        {
+            $pattern = '%' . strtolower($query) . '%';
+            if (strpos($pattern, ' ') !== false)
+            {
+                $patternParts = explode(' ', $pattern);
+
+                $attributes = $buildings->name->lower()->like($patternParts[$i])->orIf(
+                    $buildings->code->lower()->like($patternParts[$i])
+                );
+
+                $bldgCond = $bldgCond ? $buildings->orIf($attributes) : $attributes;
+            }
+            else
+            {
+                $attributes = $buildings->name->lower()->like($pattern)->orIf(
+                    $buildings->code->lower()->like($pattern)
+                );
+
+                $bldgCond = $bldgCond ? $buildings->orIf($attributes) : $attributes;
+            }
+        }
+
+        $buildingIds = [];
+        if ($bldgCond)
+        {
+            $buildingIds = $buildings->findValues(['id' => 'id'], $bldgCond);
+        }
+
+        if (!empty($buildingIds))
+        {
+            $condition = $condition->orIf(
+                $locations->buildingId->inList($buildingIds)
+            );
+        }
+
+        $nonDeleted = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
+        $condition = $condition ? $condition->andIf($nonDeleted) : $nonDeleted;
+        $rooms = $locations->find($condition, ['orderBy' => 'number']);
+
+        if ($rooms)
+        {
+            $options = [];
+            foreach ($rooms as $room)
+            {
+                $options[$room->id] = [
+                    'id' => $room->id
+                ];
+            }
+
+            $results = array(
+                'message' => 'Candidates found.',
+                'status' => 'success',
+                'data' => $options
+            );
+        }
+        else
+        {
+            $results = array(
+                'message' => 'No candidates found.',
+                'status' => 'error',
+                'data' => []
+            );
+        }
+
+        echo json_encode($results);
+        exit;
     }
 }

@@ -40,6 +40,9 @@
             Clear filters
         </a> 
     </div>
+    <div class="form-group">
+    	<input type="text" name="s" class="form-control autocomplete" placeholder="Search...">
+    </div>
 	{if $canEdit}
     <div class="form-group" id="addNew">
 		<a href="rooms/new/edit" class="btn btn-success">Add New Room</a>
@@ -51,7 +54,7 @@
 {foreach $rooms as $room}
 	{assign var="facets" value=unserialize($room->facets)}
 
-<div class="panel panel-default room-card">
+<div class="panel panel-default room-card" id="{$room->id}">
   <div class="panel-body">
     <div class="row equal" style="min-height: 9rem;">
     	<div class="col-sm-4 room-number" style="display:inline;">
