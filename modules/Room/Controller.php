@@ -96,6 +96,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $selectedBuildings = $this->request->getQueryParameter('buildings');
         $selectedTypes = $this->request->getQueryParameter('types');
         $selectedTitles = $this->request->getQueryParameter('titles');
+        $selectedEquipment = $this->request->getQueryParameter('equipment');
         $capacity = $this->request->getQueryParameter('cap');
         $s = $this->request->getQueryParameter('s');
         
@@ -140,6 +141,14 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $sortedRooms = [];
         foreach ($rooms as $room)
         {
+            if ($selectedEquipment)
+            {
+                $roomEquipment = unserialize($room->facets);
+                foreach ($selectedEquipment as $selected)
+                {
+                    if (!array_key_exists($selected, $roomEquipment)) continue 2;
+                }
+            }
             $sortedRooms[$room->building->code . $room->number] = $room;
         }
         ksort($sortedRooms);
@@ -147,6 +156,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->selectedBuildings = $selectedBuildings;
         $this->template->selectedTypes = $selectedTypes;
         $this->template->selectedTitles = $selectedTitles;
+        $this->template->selectedEquipment = $selectedEquipment;
         $this->template->capacity = $capacity;
         $this->template->buildings = $buildings;
         $this->template->types = $types;
