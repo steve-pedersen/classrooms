@@ -12,9 +12,10 @@ class Classrooms_ClassData_CronJob extends Bss_Cron_Job
         {
             set_time_limit(0);
 
+            $createFacultyAccounts = true;
             $importer = new Classrooms_ClassData_Importer($this->getApplication());
             
-            $importer->importDepartments();
+            list($count, $added, $removed) = $importer->syncDepartments();
 
             $semesterCodes = $this->application->siteSettings->semesters ?? '2213';
             if (!is_array($semesterCodes))
@@ -23,7 +24,7 @@ class Classrooms_ClassData_CronJob extends Bss_Cron_Job
             }
             foreach ($semesterCodes as $semesterCode)
             {
-                $importer->import($semesterCode);
+                $importer->import($semesterCode, $createFacultyAccounts);
             }
 
             return true;

@@ -41,7 +41,7 @@
             Clear filters
         </a> 
     </div>
-	{if $canEdit}
+	{if $pEdit}
     <div class="form-group" id="addNew">
 		<a href="software/new/edit" class="btn btn-success">Add New Software</a>
     </div>

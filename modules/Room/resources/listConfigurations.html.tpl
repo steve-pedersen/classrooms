@@ -1,7 +1,7 @@
 
 <h1>Configuration Bundles</h1>
 
-{if $canEdit}
+{if $pEdit}
 <div class="container-fluid">
 <div class="row pull-right" style="margin-bottom: 1em;">
 	<div class="col-sm-12">

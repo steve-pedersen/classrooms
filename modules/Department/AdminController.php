@@ -84,98 +84,10 @@ class Classrooms_Department_AdminController extends At_Admin_Controller
     public function sync ()
     {
         $viewer = $this->requireLogin();
-    	$schema = $this->schema('Classrooms_Department_Department');
-        $users = $this->schema('Classrooms_Department_User');
-    	
-        $service = new Classrooms_ClassData_Service($this->getApplication());
-    	$departments = $service->getDepartments()[1]['departments'];
-    	ksort($departments);
+        $importer = new Classrooms_ClassData_Importer($this->getApplication());
+        list($count, $added, $removed) = $importer->syncDepartments();
 
-    	$count = 0;
-    	foreach ($departments as $department => $temp)
-    	{
-    		if (!$schema->findOne($schema->name->equals($department)))
-    		{
-	    		$dept = $schema->createInstance();
-	    		$dept->name = $department;
-	    		$dept->createdDate = new DateTime;
-	    		$dept->save();
-	    		$count++;
-    		}
-    	}
-
-        $personnel = $service->getPersonnel()[1]['personnel'];
-        ksort($personnel);
-        $personnelChanges = [];
-        
-        foreach ($personnel['colleges'] as $cid => $college)
-        {
-            foreach ($college['departments'] as $dept)
-            {   
-                $department = $schema->findOne($schema->name->equals($dept['name']));
-                $personnelChanges[$department->name] = ['add' => [], 'remove' => []];
-                if (!empty($dept['people']))
-                {
-                    foreach ($dept['people'] as $id => $person)
-                    {
-                        if (!($user = $users->findOne($users->sfStateId->equals($id))))
-                        {
-                            $user = $users->createInstance();
-                            $user->firstName = $person['firstName'];
-                            $user->lastName = $person['lastName'];
-                            $user->position = $person['role'];
-                            $user->sfStateId = $id;
-                            $user->createdDate = new DateTime;
-                        }
-                        $user->modifiedDate = $user->deleted && $user->modifiedDate ? new DateTime : $user->modifiedDate;
-                        $user->deleted = false;
-                        $user->save();
-
-                        if (!$department->users->has($user))
-                        {
-                            $department->users->add($user);
-                            $department->users->save();
-                            $personnelChanges[$department->name]['add'][] = $user->sfStateId;
-                            $user->addNote($user->sfStateId . ' added to ' . $department->name, $viewer);
-                        }
-                    }
-                }
-
-                // remove as necessary
-                foreach ($department->users as $user)
-                {   
-                    if (!in_array($user->sfStateId, array_keys($dept['people'])))
-                    {   
-                        $department->users->remove($user);
-                        $department->users->save();
-                        $user->deleted = true;
-                        $user->save();
-
-                        $personnelChanges[$department->name]['remove'][] = $user->sfStateId;
-                    }
-                }
-            }
-        }
-
-        $added = 0;
-        $removed = 0;
-        foreach ($personnelChanges as $departmentName => $changes)
-        {
-            $department = $schema->findOne($schema->name->equals($departmentName));
-            if (!empty($changes['add']))
-            {
-                $department->addNote(count($changes['add']) . ' personnel added', $viewer, ['new' => $changes['add']]);
-                $added += count($changes['add']);
-            }
-            if (!empty($changes['remove']))
-            {
-                $department->addNote(count($changes['remove']) . ' personnel removed', $viewer, ['new' => $changes['remove']]);
-                $removed += count($changes['remove']);
-            }
-        }
-
-
-    	$this->flash($count.' departments updated. '.$added.' total personnel added. '. $removed.' total personnel removed.');
+    	$this->flash($count.' departments synchronized. '.$added.' total personnel added. '. $removed.' total personnel removed.');
     	$this->response->redirect('departments');
     }
 }

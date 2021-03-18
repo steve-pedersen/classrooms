@@ -23,7 +23,7 @@
 		</select>     
     </div>
 
-    <div class="form-group">
+<!--     <div class="form-group">
 		<select id="filter-titles" class="multiselect form-control" name="titles[]" multiple label="Software Titles">
 		{foreach $titles as $title}
 			<option value="{$title->id}" {if $selectedTitles && in_array($title->id, $selectedTitles)}selected{/if}>
@@ -31,6 +31,10 @@
 			</option>
 		{/foreach}
 		</select>  
+    </div> -->
+    <div class="form-group">
+    	<!-- <label for="cap" class="">Capacity</label> -->
+		<input type="text" id="cap" name="cap" value="{$capacity}" class="form-control" placeholder="Capacity..."> 
     </div>
     <div class="form-group">    
         <button type="submit" class="btn btn-info filter-col">
@@ -40,10 +44,11 @@
             Clear filters
         </a> 
     </div>
+    <!-- <div class="form-group" style="padding-left:15px;border-left:1px solid #666;"> -->
     <div class="form-group">
     	<input type="text" name="s" class="form-control autocomplete" placeholder="Search...">
     </div>
-	{if $canEdit}
+	{if $pEdit}
     <div class="form-group" id="addNew">
 		<a href="rooms/new/edit" class="btn btn-success">Add New Room</a>
     </div>
@@ -56,7 +61,7 @@
 
 <div class="panel panel-default room-card" id="{$room->id}">
   <div class="panel-body">
-    <div class="row equal" style="min-height: 9rem;">
+    <div class="row equal" style="min-height: 8rem;">
     	<div class="col-sm-4 room-number" style="display:inline;">
 			
 			<div class="col-sm-6">
@@ -86,21 +91,23 @@
     				<li>{$config->deviceQuantity} {$config->deviceType}</li>
     			{/if}
     		{/foreach}
-    			<li>
+    			<li><strong>A/V: </strong>
 				{foreach $facets as $key => $facet}
 					{$allFacets[$key]}{if !$facet@last}, {/if}
 				{/foreach}
     			</li>
     		</ul>
     	</div>
+    	{if $room->tutorial->name}
     	<div class="col-sm-3 tutorial-info">
     		<h4>Tutorial</h4>
     		{if $room->tutorial->name}
-    			<a href="rooms/{$room->id}?mode=tutorial">{$room->tutorial->name}</a>
+    			<a href="rooms/{$room->id}?mode=tutorial" style="font-weight:bold;">{$room->tutorial->name}</a>
     		{else}
     			No tutorial set up for this room.
     		{/if}
     	</div>
+    	{/if}
     </div>
   </div>
 </div>

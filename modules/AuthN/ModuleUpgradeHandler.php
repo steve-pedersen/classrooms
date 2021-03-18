@@ -48,6 +48,8 @@ class Classrooms_AuthN_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
                         array('name' => 'Administrator', 'description' => 'Has every possible permission.', 'is_system_role' => true),
                         array('name' => 'Normal User', 'description' => 'Can view most Templates. Miscellaneous Items exculded.', 'is_system_role' => true),
                         array('name' => 'Super User', 'description' => 'Can view all Templates.', 'is_system_role' => true),
+                        array('name' => 'Faculty', 'description' => 'Can see what is relevant to them', 'is_system_role' => true),
+                        array('name' => 'Management', 'description' => 'Department Chair or AOC', 'is_system_role' => true),
                     ),
                     array(
                         'idList' => array('id')

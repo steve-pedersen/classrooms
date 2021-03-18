@@ -37,8 +37,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     );
 
     public static $AllRoomFacets = [
-        'lcd_proj'=>'LCD Proj', 'lcd_tv'=>'LCD TV', 'vcr_dvd'=>'VCR/DVD', 'hdmi'=>'HDMI', 'vga'=>'VGA', 'data'=>'Data',
-        'scr'=>'Scr', 'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam'
+        'lcd_proj'=>'LCD Projector', 'lcd_tv'=>'LCD TV', 'vcr_dvd'=>'VCR/DVD', 'hdmi'=>'HDMI', 'vga'=>'VGA', 'data'=>'Data/Ethernet',
+        'scr'=>'Scanner', 'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam'
     ];
 
     public static function getRouteMap ()
@@ -67,23 +67,26 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->addBreadcrumb('rooms/' . $location->id . '/edit', 'Edit');
         
         $notes = $this->schema('Classrooms_Notes_Entry');
-
+        
         $facilityId = $location->building->code . '^' . $location->number;
-        $trackRoomUrlApi = 'https://track.sfsu.edu/rooms/' . $facilityId . '?fields=' . implode(',', self::$Fields);
+        $trackRoomUrlApi = 'https://track.sfsu.edu/property/rooms?facility=' .$facilityId. '&fields=' . implode(',', self::$Fields);
         
         $this->template->trackUrl = $trackRoomUrlApi;
         $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
-        $this->template->canEdit = $this->hasPermission('edit room');
+        $this->template->pEdit = $this->hasPermission('edit room');
+        $this->template->pViewDetails = $this->hasPermission('view schedules');
     	$this->template->room = $location;
     	$this->template->allFacets = self::$AllRoomFacets;
-        $this->template->notes = $notes->find($notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']);
+        $this->template->notes = $location->id ? $notes->find(
+            $notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']
+        ) : [];
     }
 
     public function listRooms ()
     {
     	$viewer = $this->getAccount();
         // $this->requirePermission('list rooms');
-        $this->template->canEdit = $this->hasPermission('edit room');
+        $this->template->pEdit = $this->hasPermission('edit room');
         
         $locations = $this->schema('Classrooms_Room_Location');
         $buildings = $this->schema('Classrooms_Room_Building')->getAll(['orderBy' => 'name']);
@@ -93,24 +96,29 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $selectedBuildings = $this->request->getQueryParameter('buildings');
         $selectedTypes = $this->request->getQueryParameter('types');
         $selectedTitles = $this->request->getQueryParameter('titles');
+        $capacity = $this->request->getQueryParameter('cap');
         $s = $this->request->getQueryParameter('s');
         
 		$condition = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
         if ($selectedBuildings)
         {
+            $building = null;
             foreach ($selectedBuildings as $selected)
             {
                 $query = $locations->buildingId->equals($selected);
-                $condition = $condition ? $condition->andIf($query) : $query;
+                $building = $building ? $building->orIf($query) : $query;
             }
+            $condition = $building ? $condition->andIf($building) : $condition;
         }
         if ($selectedTypes)
         {
+            $type = null;
             foreach ($selectedTypes as $selected)
             {
                 $query = $locations->typeId->equals($selected);
-                $condition = $condition ? $condition->andIf($query) : $query;
+                $type = $type ? $type->orIf($query) : $query;
             }
+            $condition = $type ? $condition->andIf($type) : $condition;
         }
         if ($selectedTitles)
         {
@@ -121,25 +129,37 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 $condition = $condition ? $condition->andIf($query) : $query;
             }
         }
+        if ($capacity)
+        {
+            $query = $locations->capacity->greaterThanOrEquals($capacity);
+            $condition = $condition ? $condition->andIf($query) : $query;
+        }
 
         $rooms = $locations->find($condition, ['orderBy' => 'number']);
+
+        $sortedRooms = [];
+        foreach ($rooms as $room)
+        {
+            $sortedRooms[$room->building->code . $room->number] = $room;
+        }
+        ksort($sortedRooms);
 
         $this->template->selectedBuildings = $selectedBuildings;
         $this->template->selectedTypes = $selectedTypes;
         $this->template->selectedTitles = $selectedTitles;
+        $this->template->capacity = $capacity;
         $this->template->buildings = $buildings;
         $this->template->types = $types;
-        $this->template->rooms = $rooms;
+        $this->template->rooms = $sortedRooms;
         $this->template->titles = $titles->getAll(['orderBy' => 'name']);
         $this->template->allFacets = self::$AllRoomFacets;
-        $this->template->hasFilters = $condition;
     }
 
     public function listConfigurations ()
     {
         $viewer = $this->requireLogin();
         $this->requirePermission('list software');
-        $this->template->canEdit = $this->hasPermission('edit room');
+        $this->template->pEdit = $this->hasPermission('edit room');
 
         $configs = $this->schema('Classrooms_Room_Configuration');
         $this->template->configurations = $configs->find(
@@ -355,7 +375,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->allFacets = self::$AllRoomFacets;
         $this->template->softwareLicenses = $softwareLicenses;
         $this->template->bundles = $configs->find($configs->isBundle->isTrue(), ['orderBy' => 'model']);
-        $this->template->notes = $notes->find($notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']);
+        $this->template->notes = $location->id ? $notes->find(
+            $notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']
+        ) : [];
     }
 
     public function editTutorial () 
@@ -414,7 +436,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->images = $location->images;
     	$this->template->room = $location;
     	$this->template->tutorial = $tutorial;
-    	$this->template->notes = $notes->find($notes->path->like($tutorial->getNotePath().'%'), ['orderBy' => '-createdDate']);
+    	$this->template->notes = $tutorial->id ? $notes->find(
+            $notes->path->like($tutorial->getNotePath().'%'), ['orderBy' => '-createdDate']
+        ) : [];
     }
 
     public function editBuilding () {}

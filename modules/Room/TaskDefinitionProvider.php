@@ -9,6 +9,7 @@ class Classrooms_Room_TaskDefinitionProvider extends Bss_AuthZ_TaskDefinitionPro
         return array(
             'list rooms' => 'list all rooms',
             'edit room' => 'edit a room',
+            'view schedules' => 'view schedules in a room',
         );
     }
 }

@@ -12,7 +12,7 @@
 		for (const id in data) {
 			ids.push(id);
 		}
-		console.log(ids);
+		// console.log(ids);
 		$('.room-card').each(function (i, item) {
 			if (ids.includes($(item).attr('id'))) {
 				$(this).show(500);
@@ -50,10 +50,19 @@
 			}
 			else
 			{
-				console.log('deleted query');
-				$('.room-card').show(500);				
+				// console.log('deleted query');
+				$('.room-card').show(500);
 			}
 		}
 	});
+
+	$('.autocomplete').keyup(function(e){
+	    if (e.keyCode == 8) {
+	        if ($(this).val() === "") {
+	        	$('.room-card').show(500);
+	        }
+	    }
+	});
+
   });
 })(jQuery);

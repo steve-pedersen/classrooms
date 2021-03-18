@@ -39,7 +39,7 @@ class Classrooms_AuthN_NoAccountErrorHandler extends Classrooms_Master_ErrorHand
         if (($username = $identity->getProperty('username')))
         {
             $accountManager = new Classrooms_ClassData_AccountManager($this->getApplication());
-            $account = $accountManager->createFacultyAccount($identity);
+            $account = $accountManager->checkAndCreateFacultyAccount($identity);
 
             if ($account->isFaculty)
             {

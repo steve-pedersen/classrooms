@@ -7,9 +7,9 @@ class Classrooms_ClassData_AdminDashboardItemProvider extends At_Admin_Dashboard
     public function getSections (Bss_Master_UserContext $userContext)
     {
         return array(
-            // 'ClassData' => array(
-            //     'order' => 1,
-            // ),
+            'Services' => array(
+                'order' => 1,
+            ),
         );
     }
     

@@ -148,8 +148,121 @@ class Classrooms_ClassData_Importer
             }
         }
     }
+
+    public function syncDepartments ()
+    {
+        $schema = $this->schema('Classrooms_Department_Department');
+        $users = $this->schema('Classrooms_Department_User');
+        $accountManager = new Classrooms_ClassData_AccountManager($this->getApplication());
+        
+        $service = new Classrooms_ClassData_Service($this->getApplication());
+        $departments = $service->getOrganizations()[1]['organizations'];
+
+        $count = 0;
+        foreach ($departments as $key => $dept)
+        {
+            $department = $schema->findOne($schema->code->equals($key));
+            $department = $department && $department->id ? $department : $schema->createInstance();
+            $department->modifiedDate = $department && $department->id && $department->name == $dept['name'] && $department->code == $key && $department->modifiedDate ? $department->modifiedDate : new DateTime;
+            $department->name = $dept['name'];
+            $department->code = $key;
+            $department->createdDate = $department->createdDate ?? new DateTime;
+            $department->save();
+            $count++;
+        }
+        
+        $personnel = $service->getPersonnel()[1]['personnel'];
+        ksort($personnel);
+        $personnelChanges = [];
+        
+        foreach ($personnel['colleges'] as $cid => $college)
+        {
+            foreach ($college['departments'] as $key => $dept)
+            {   
+                $department = $schema->findOne($schema->code->equals($key));
+                $personnelChanges[$department->name] = ['add' => [], 'remove' => []];
+                if (!empty($dept['people']))
+                {
+                    foreach ($dept['people'] as $id => $person)
+                    {
+                        if (!($user = $users->findOne($users->sfStateId->equals($id))))
+                        {
+                            $user = $users->createInstance();
+                            $user->firstName = $person['firstName'];
+                            $user->lastName = $person['lastName'];
+                            $user->position = $person['role'];
+                            $user->sfStateId = $id;
+                            $user->createdDate = new DateTime;
+                        }
+                        $user->modifiedDate = $user->deleted && $user->modifiedDate ? new DateTime : $user->modifiedDate;
+                        $user->deleted = false;
+                        $user->save();
+
+                        if (!$department->users->has($user))
+                        {
+                            $department->users->add($user);
+                            $department->users->save();
+                            $personnelChanges[$department->name]['add'][] = $user->sfStateId;
+                            $user->addNote($user->sfStateId . ' added to ' . $department->name, $viewer);
+                        }
+
+                        $account = $accountManager->createDepartmentUserAccount(null, $user);
+                    }
+                }
+
+                // remove as necessary
+                foreach ($department->users as $user)
+                {   
+                    if (!in_array($user->sfStateId, array_keys($dept['people'])))
+                    {   
+                        $department->users->remove($user);
+                        $department->users->save();
+                        $user->deleted = true;
+                        $user->save();
+
+                        $personnelChanges[$department->name]['remove'][] = $user->sfStateId;
+                    }
+                }
+            }
+        }
+
+        $added = 0;
+        $removed = 0;
+        foreach ($personnelChanges as $departmentName => $changes)
+        {
+            $department = $schema->findOne($schema->name->equals($departmentName));
+            if (!empty($changes['add']))
+            {
+                $department->addNote(count($changes['add']) . ' personnel added', $viewer, ['new' => $changes['add']]);
+                $added += count($changes['add']);
+            }
+            if (!empty($changes['remove']))
+            {
+                $department->addNote(count($changes['remove']) . ' personnel removed', $viewer, ['new' => $changes['remove']]);
+                $removed += count($changes['remove']);
+            }
+        }
+
+        return [$count, $added, $removed];
+    }
      
-    public function import ($semesterCode)
+    public function createFacultyAccounts ($accountsToCreate)
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', '-1');   
+
+        $users = $this->schema('Classrooms_ClassData_User');
+        $accounts = $this->schema('Bss_AuthN_Account');
+        $accountManager = new Classrooms_ClassData_AccountManager($this->getApplication());
+
+        foreach ($accountsToCreate as $userId)
+        {
+            $account = $accounts->findOne($accounts->username->equals($userId)) ?? $accounts->createInstance();
+            $accountManager->createFacultyAccount($account, $users->get($userId));
+        }
+    }
+
+    public function import ($semesterCode, $createFacultyAccount=false)
     {
         set_time_limit(0);
         ini_set('memory_limit', '-1');   
@@ -159,6 +272,7 @@ class Classrooms_ClassData_Importer
         $enrollments = $this->schema('Classrooms_ClassData_Enrollment');
         $this->allDepartments = $this->schema('Classrooms_Department_Department')->findValues(['name' => 'id']);
         $this->allCourses = $this->schema('Classrooms_ClassData_Course')->findValues(['id' => 'id']);
+        $accountsToCreate = [];
         
         $dataSource = $courses->getDefaultDataSource();
         $tx = $dataSource->createTransaction();
@@ -282,6 +396,12 @@ class Classrooms_ClassData_Importer
                                     {
                                         $this->addEnrollment($tx, $now, $enrollments, $userId, $courseId, $role, $semesterCode);
                                     }
+
+                                    // create faculty account
+                                    if ($createFacultyAccount && $role === 'instructor')
+                                    {
+                                        $accountsToCreate[] = $userId;
+                                    }
                                     break;
                                 case '-':
                                     $this->dropEnrollment($tx, $now, $enrollments, $userId, $courseId, $role);
@@ -302,6 +422,12 @@ class Classrooms_ClassData_Importer
         }
         
         $tx->commit();
+
+        if ($createFacultyAccount && !empty($accountsToCreate))
+        {
+            $this->createFacultyAccounts($accountsToCreate);
+        }
+
         return $now;
     }
 

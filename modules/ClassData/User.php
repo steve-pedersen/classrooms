@@ -22,6 +22,7 @@ class Classrooms_ClassData_User extends Bss_ActiveRecord_Base
             'modifiedDate' => ['datetime', 'nativeName' => 'modified_date'],
             'deleted' => 'bool',
             
+            'account' => ['1:1', 'to' => 'Bss_AuthN_Account', 'keyMap' => ['id' => 'username']],
             'enrollments' => ['N:M',
                 'to' => 'Classrooms_ClassData_CourseSection',
                 'via' => 'classroom_classdata_enrollments',
@@ -37,5 +38,18 @@ class Classrooms_ClassData_User extends Bss_ActiveRecord_Base
                 'orderBy' => ['-_map.year_semester', 'classNumber', 'sectionNumber'],
             ],
         ];
+    }
+
+    public function isFaculty ()
+    {
+        foreach ($this->enrollments as $course)
+        {
+            if ($this->enrollments->getProperty($course, 'role') === 'instructor')
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

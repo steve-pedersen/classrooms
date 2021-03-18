@@ -10,10 +10,6 @@ class Classrooms_ClassData_AdminController extends At_Admin_Controller
             'admin/classdata'               => ['callback' => 'index'],
             'admin/classdata/semesters'     => ['callback' => 'setSemesters'],
             'admin/classdata/import'        => ['callback' => 'import'],
-            // 'admin/departments'             => ['callback' => 'departments'],
-            // 'admin/departments/:id'         => ['callback' => 'editDepartment'],
-            // 'admin/departments/:id/courses' => ['callback' => 'departmentCourses'],
-            // 'admin/contacts'                => ['callback' => 'contacts']
         ];
     }
 
@@ -62,6 +58,7 @@ class Classrooms_ClassData_AdminController extends At_Admin_Controller
         if ($this->request->wasPostedByUser())
         {
             $importer = new Classrooms_ClassData_Importer($this->getApplication());
+            $createFacultyAccount = true;
 
             $semesterCodes = $this->application->siteSettings->semesters ?? '2213';
             if (!is_array($semesterCodes))
@@ -70,7 +67,7 @@ class Classrooms_ClassData_AdminController extends At_Admin_Controller
             }
             foreach ($semesterCodes as $semesterCode)
             {
-                $importer->import($semesterCode);
+                $importer->import($semesterCode, $createFacultyAccount);
             }
         }
     }

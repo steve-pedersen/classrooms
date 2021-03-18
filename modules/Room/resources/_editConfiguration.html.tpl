@@ -37,6 +37,12 @@
 		</div>
 	</div>
 
+<a class="collapse-button collapsed" data-toggle="collapse" data-parent="#accordion1" href="#advanced" aria-expanded="true" aria-controls="advanced" style="margin-left: 2em; font-weight: bold;">
+	Advanced Fields
+</a>
+<div id="accordion1">
+	<div class="panel-collapse collapse" role="tabpanel" id="advanced">
+
 	<div class="form-group">
 		<label for="uniprintQueue" class="col-sm-2 control-label">Uniprint Queue</label>
 		<div class="col-sm-10">
@@ -57,6 +63,10 @@
 			<input type="checkbox" class="checkbox" name="adBound" value="{$config->adBound}" {if $config->adBound}checked{/if}>
 		</div>
 	</div>
+
+	</div>
+</div>
+
 
 	<h5>TODO: Software for this configuration {if $selectedConfiguration->id}({$selectedConfiguration->model}){/if}</h5>
 <!-- 	<div class="form-group">

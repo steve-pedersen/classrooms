@@ -25,8 +25,9 @@ class Classrooms_ClassData_AccountManager
         return $this->schema('Classrooms_ClassData_User')->get($identity->getProperty('username'));
     }
 
-    public function createFacultyAccount ($identity)
+    public function checkAndCreateFacultyAccount ($identity)
     {
+        $deptUsers = $this->schema('Classrooms_Department_User');
         $accounts = $this->schema('Bss_AuthN_Account');
         $account = $accounts->createInstance();
         
@@ -37,86 +38,58 @@ class Classrooms_ClassData_AccountManager
             {
                 if ($classDataUser->enrollments->getProperty($user, 'role') === 'instructor')
                 {
-                    $account->username = $classDataUser->id;
-                    $account->emailAddress = $identity->getProperty('emailAddress') ?? $classDataUser->emailAddress ?? '';
-                    $account->firstName = $classDataUser->firstName;
-                    $account->lastName = $classDataUser->lastName;
-                    $account->createdDate = new DateTime;
-                    $account->isFaculty = true;
-                    $account->save();
-
-                    $account = $this->grantRole($account, $classDataUser);
+                    $account = $this->createFacultyAccount($account, $classDataUser);
                     break;
                 }
             }
         }
+        elseif ($departmentUser = $deptUsers->findOne($deptUsers->sfStateId->equals($identity->getProperty('username'))))
+        {
+            $account = $this->createDepartmentUserAccount($identity, $departmentUser);
+        }
 
         return $account;
     }
 
-    public function createUserAccount ($identity)
+    public function createFacultyAccount ($account, $classDataUser)
     {
-        $accounts = $this->schema('Bss_AuthN_Account');
-        $account = $accounts->createInstance();
-        
-        if ($classDataUser = $this->schema('Classrooms_ClassData_User')->get($identity->getProperty('username')))
-        {
-            $account->username = $classDataUser->id;
-            $account->emailAddress = $identity->getProperty('emailAddress') ?? $classDataUser->emailAddress ?? '';
-            $account->firstName = $classDataUser->firstName;
-            $account->lastName = $classDataUser->lastName;
-            $account->createdDate = new DateTime;
-            $account->save();
+        $account->username = $classDataUser->id;
+        $account->emailAddress = $classDataUser->emailAddress ?? '';
+        $account->firstName = $classDataUser->firstName;
+        $account->lastName = $classDataUser->lastName;
+        $account->createdDate = $account->createdDate ?? new DateTime;
+        $account->isFaculty = true;
+        $account->save();
 
-            $account = $this->grantRole($account, $classDataUser);
-        }
-        else
-        {
-            $account->username = $identity->getProperty('username');
-            $account->firstName = $identity->getProperty('firstName');
-            $account->lastName = $identity->getProperty('lastName');
-            $account->emailAddress = $identity->getProperty('emailAddress');
-            $account->createdDate = new DateTime;
-            $account->save();
-        }
-
-        return $account;
+        return $this->grantRole($account, $classDataUser, 'Faculty');
     }
 
-    public function grantRole ($account, $classDataUser)
+    public function createDepartmentUserAccount ($identity, $departmentUser)
+    {
+        $deptUsers = $this->schema('Classrooms_Department_User');
+        $accounts = $this->schema('Bss_AuthN_Account');
+        $account = $accounts->findOne($accounts->username->equals($departmentUser->sfStateId)) ?? $accounts->createInstance();
+        $account->username = $departmentUser->sfStateId;
+        $account->emailAddress = $departmentUser->emailAddress ?? '';
+        $account->firstName = $departmentUser->firstName;
+        $account->lastName = $departmentUser->lastName;
+        $account->createdDate = new DateTime;
+        $account->isFaculty = false;
+        $account->save();
+
+        return $this->grantRole($account, $departmentUser, 'Management');        
+    }
+
+    public function grantRole ($account, $userData, $role='Faculty')
     {
         $roles = $this->schema('Classrooms_AuthN_Role');
         $departments = $this->schema('Classrooms_Department_Department');
         $userDepartments = [];
         $isStudent = false;
 
-        foreach ($classDataUser->enrollments as $enrollment)
-        {
-            if ($classDataUser->enrollments->getProperty($enrollment, 'role') === 'instructor')
-            {
-                if (empty($userDepartments))
-                {
-                    $facultyRole = $roles->findOne($roles->name->equals('Faculty'));
-                    $account->roles->add($facultyRole);
-                    $account->roles->save();
-                }
-                if (!isset($userDepartments[$enrollment->department->id]))
-                {
-                    $userDepartments[$enrollment->department->id] = $enrollment->department;
-                }
-            }
-            // elseif ($classDataUser->enrollments->getProperty($enrollment, 'role') === 'student')
-            // {
-            //     $isStudent = true;        
-            // }
-        }
-
-        // if ($isStudent)
-        // {
-        //     $studentRole = $roles->findOne($roles->name->equals('Student'));
-        //     $account->roles->add($studentRole);
-        //     $account->roles->save();   
-        // }
+        $accountRole = $roles->findOne($roles->name->equals($role));
+        $account->roles->add($accountRole);
+        $account->roles->save();        
 
         return $account;
     }
