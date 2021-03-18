@@ -46,6 +46,14 @@
 			<dt>Description</dt>
 			<dd>{$room->description}</dd>
 			{/if}
+			{if $room->scheduledBy}
+			<dt>Scheduled By</dt>
+			<dd>{$room->scheduledBy}</dd>
+			{/if}
+			{if $room->supportedBy}
+			<dt>Supported By</dt>
+			<dd>{$room->supportedBy}</dd>
+			{/if}
 			<dt>Capacity</dt>
 			<dd>{if $room->capacity}{$room->capacity}{else}N/A{/if}</dd>
 		</dl>

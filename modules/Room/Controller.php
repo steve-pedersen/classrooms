@@ -38,7 +38,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
     public static $AllRoomFacets = [
         'lcd_proj'=>'LCD Projector', 'lcd_tv'=>'LCD TV', 'vcr_dvd'=>'VCR/DVD', 'hdmi'=>'HDMI', 'vga'=>'VGA', 'data'=>'Data/Ethernet',
-        'scr'=>'Scanner', 'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam'
+        'scr'=>'Screen', 'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam'
     ];
 
     public static function getRouteMap ()
@@ -300,6 +300,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $location->number = $locationData['number'];
                     $location->description = $locationData['description'];
                     $location->capacity = $locationData['capacity'];
+                    $location->scheduledBy = $locationData['scheduledBy'];
+                    $location->supportedBy = $locationData['supportedBy'];
                     $location->description = $locationData['description'];
                     $location->url = $locationData['url'];
                     $location->facets = isset($locationData['facets']) ? serialize($locationData['facets']) : '';
@@ -309,6 +311,17 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     if ($new)
                     {
                         $location->addNote('New room created', $viewer);
+                    }
+
+                    if (isset($data['internalNote']))
+                    {
+                        $internal = $this->schema('Classrooms_Room_InternalNote')->createInstance();
+                        $internal->message = $data['internalNote'];
+                        $internal->addedBy = $viewer;
+                        $internal->createdDate = new DateTime;
+                        $internal->location = $location;
+                        $internal->save();
+                        $internal->addNote('New internal note added', $viewer);
                     }
                     
                     if ((isset($data['config']['new']['model']) && $data['config']['new']['model'] !== '') || 

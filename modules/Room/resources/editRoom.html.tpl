@@ -101,6 +101,20 @@
 					</div>
 
 					<div class="form-group">
+						<label for="scheduledBy" class="col-sm-2 control-label">Scheduled By</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" name="room[scheduledBy]" value="{$location->scheduledBy}" placeholder="">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="supportedBy" class="col-sm-2 control-label">Supported By</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" name="room[supportedBy]" value="{$location->supportedBy}" placeholder="Academic Technology">
+						</div>
+					</div>
+
+					<div class="form-group">
 						<label for="url" class="col-sm-2 control-label">URL</label>
 						<div class="col-sm-10">
 							<input type="text" class="form-control" name="room[url]" value="{$location->url}" placeholder="Website URL if applicable">
@@ -130,7 +144,38 @@
 							</table>
 						</div>
 					</div>
-				
+
+					<div class="form-group">
+						<label for="internalNote" class="col-sm-2 control-label">Add Internal Note</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" name="internalNote" value="" placeholder="">
+						</div>
+					</div>
+
+					{if $location->internalNotes}
+					<div class="form-group">
+						<label for="internalNote" class="col-sm-2 control-label">
+							<a class="collapse-button collapsed" data-toggle="collapse" data-parent="#accordion1" href="#showNotes" aria-expanded="true" aria-controls="showNotes" style="margin-bottom: 1em;">
+							+ Past Notes
+						</a>
+						</label>
+						<div class="col-sm-10">
+						<div id="accordion1">
+							<div class="panel-collapse collapse" role="tabpanel" id="showNotes">
+								<ul class="">
+								{foreach $location->internalNotes as $note}
+									<li>
+										<strong>{$note->addedBy->fullname} on {$note->createdDate->format('Y/m/d')}:</strong> {$note->message}
+									</li>
+								{/foreach}
+								</ul>
+							</div>
+						</div>
+						</div>
+					</div>
+					{/if}
+
+
 				</div>
 
 				<h3>Configuration Bundles</h3>

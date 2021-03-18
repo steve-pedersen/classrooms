@@ -40,6 +40,8 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('number', 'string');
                 $def->addProperty('alternate_name', 'string');
                 $def->addProperty('description', 'string');
+                $def->addProperty('scheduled_by', 'string');
+                $def->addProperty('supported_by', 'string');
                 $def->addProperty('url', 'string');
                 $def->addProperty('type_id', 'int');
                 $def->addProperty('building_id', 'int');
@@ -51,6 +53,14 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addIndex('building_id');
                 $def->addIndex('type_id');
                 $def->addIndex('deleted');
+                $def->save();
+
+                $def = $this->createEntityType('classroom_room_internal_notes', $this->getDataSource('Classrooms_Room_InternalNote'));
+                $def->addProperty('id', 'int', ['primaryKey' => true, 'sequence' => true]);
+                $def->addProperty('location_id', 'int');
+                $def->addProperty('added_by_id', 'int');
+                $def->addProperty('message', 'string');
+                $def->addProperty('created_date', 'datetime');
                 $def->save();
 
                 $def = $this->createEntityType('classroom_room_configurations');
@@ -144,7 +154,6 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 );
 
                 break;
-         
         }
     }
 }

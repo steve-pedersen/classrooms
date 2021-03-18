@@ -21,6 +21,8 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
             'alternateName' => ['string', 'nativeName' => 'alternate_name'],
             'description' => 'string',
             'capacity' => 'string',
+            'scheduledBy' => ['string', 'nativeName' => 'scheduled_by'],
+            'supportedBy' => ['string', 'nativeName' => 'supported_by'],
             'facets' => 'string',
             'url' => 'string',
             'deleted' => 'bool',
@@ -39,6 +41,11 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
                 'to' => 'Classrooms_Files_File', 
                 'reverseOf' => 'room', 
                 'orderBy' => [ '+uploadedDate', 'remoteName' ]
+            ],
+            'internalNotes' => ['1:N', 
+                'to' => 'Classrooms_Room_InternalNote', 
+                'reverseOf' => 'location', 
+                'orderBy' => [ '+createdDate' ]
             ],
             
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],
