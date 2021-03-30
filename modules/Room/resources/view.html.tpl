@@ -80,15 +80,15 @@
 			
 		{foreach $allFacets as $key => $facet}
 			<tr>
-				<td style="vertical-align:middle;padding:10px;">
-					<img src="assets/images/avequipment-{$key}.png" class="img-responsive" style="max-width:80px;padding:5px;display:inline;">
+				<td style="vertical-align:middle;padding:6px;">
+					<img src="assets/images/avequipment-{$key}.png" class="img-responsive" style="max-width:50px;padding:3px;display:inline;">
 					<span style="margin-left:5px;font-weight:bold">{$facet}</span>
 				</td>
-				<td class="bg-{if $facets[$key]}success{else}default{/if}" style="vertical-align:middle;padding:10px;">
+				<td class="bg-{if $facets[$key]}success{else}default{/if}" style="vertical-align:middle;padding:6px;">
 				{if $facets[$key]}
-					<i class="glyphicon glyphicon-ok text-success" style="font-size:2rem;"></i>
+					<i class="glyphicon glyphicon-ok text-success" style="font-size:1.5rem;"></i>
 				{else}
-					<i class="glyphicon glyphicon-remove text-danger" style="font-size:2rem;"></i>
+					<i class="glyphicon glyphicon-remove text-danger" style="font-size:1.5rem;"></i>
 				{/if}
 				</td>
 			</tr>			

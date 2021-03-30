@@ -130,28 +130,30 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 $condition = $condition ? $condition->andIf($query) : $query;
             }
         }
+        if ($selectedEquipment)
+        {
+            $equip = null;
+            foreach ($selectedEquipment as $selected)
+            {
+                $query = $locations->facets->like('%:"' . $selected . '";%');
+                $equip = $equip ? $equip->andIf($query) : $query;
+            }
+            $condition = $condition ? $condition->andIf($equip) : $condition;
+        }
         if ($capacity)
         {
             $query = $locations->capacity->greaterThanOrEquals($capacity);
             $condition = $condition ? $condition->andIf($query) : $query;
         }
 
-        $rooms = $locations->find($condition, ['orderBy' => 'number']);
+        $rooms = $locations->find($condition, ['orderBy' => ['building_id', '-number']]);
 
         $sortedRooms = [];
         foreach ($rooms as $room)
         {
-            if ($selectedEquipment)
-            {
-                $roomEquipment = unserialize($room->facets);
-                foreach ($selectedEquipment as $selected)
-                {
-                    if (!array_key_exists($selected, $roomEquipment)) continue 2;
-                }
-            }
             $sortedRooms[$room->building->code . $room->number] = $room;
         }
-        ksort($sortedRooms);
+        ksort($sortedRooms, SORT_NATURAL);
 
         $this->template->selectedBuildings = $selectedBuildings;
         $this->template->selectedTypes = $selectedTypes;
