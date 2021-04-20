@@ -165,6 +165,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->rooms = $sortedRooms;
         $this->template->titles = $titles->getAll(['orderBy' => 'name']);
         $this->template->allFacets = self::$AllRoomFacets;
+        $this->template->defaultRoomText = $this->getApplication()->siteSettings->getProperty('default-room-text', 'There is no detailed information currently available for this room.');
     }
 
     public function listConfigurations ()

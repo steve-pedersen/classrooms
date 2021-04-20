@@ -39,14 +39,10 @@
 	<h3>Basic info</h3>
 	<div class="view-room-details">
 		<dl class="dl-horizontal">
-			<dt>Type</dt>
+			<dt>Room Type</dt>
 			<dd>{if $room->type}{$room->type->name}{else}Unknown{/if}</dd>
 			<dt>Building</dt>
 			<dd>{$room->building->name}</dd>
-			{if $room->description}
-			<dt>Description</dt>
-			<dd>{$room->description}</dd>
-			{/if}
 			{if $room->scheduledBy}
 			<dt>Scheduled By</dt>
 			<dd>{$room->scheduledBy}</dd>
@@ -57,6 +53,10 @@
 			{/if}
 			<dt>Capacity</dt>
 			<dd>{if $room->capacity}{$room->capacity}{else}N/A{/if}</dd>
+			{if $room->description}
+			<dt>Description</dt>
+			<dd>{$room->description}</dd>
+			{/if}
 		</dl>
 	</div>
 	{if $trackUrl}
@@ -135,7 +135,16 @@
 <div id="software" class="tab-pane fade {if $mode == 'software'}in active{/if}" style="margin-top:3em;">
  	<h3>Software/Equipment in this room</h3>
 	<div class="">
+
 		<div class="row">
+	{if $trackUrl}
+	<div class="col-sm-12">
+		<a href="{$trackUrl}" target="_blank" class="">View all computers and hardware in this room
+			<i class="glyphicon glyphicon-new-window"></i>
+		</a>
+	</div>
+	<br><br>
+	{/if}
 	{foreach $room->configurations as $config}
 		{if $config->softwareLicenses->count() > 0}
 			{if !$config->isBundle}
@@ -206,11 +215,13 @@
 <div id="notes" class="tab-pane fade {if $mode == 'notes'}in active{/if}" style="margin-top:3em;">
   	<h3>Notes</h3>
 	<hr>
+	<br>
 	{if count($room->internalNotes)}
+	<h4>Internal User Notes</h4>
 	<div class="form-group">
 		<label for="internalNote" class="col-sm-2 control-label">
 			<a class="collapse-button collapsed" data-toggle="collapse" data-parent="#accordion1" href="#showNotes" aria-expanded="true" aria-controls="showNotes" style="margin-bottom: 1em;">
-			+ Past Notes
+			+ Show Notes
 		</a>
 		</label>
 		<div class="col-sm-10">
@@ -228,7 +239,9 @@
 		</div>
 	</div>
 	{/if}
-	<hr>
+	<br><br>
+	<!-- <hr> -->
+	<h4>System Log Notes</h4>
 	{include file="partial:_view.notes.html.tpl"}
 </div>
 {/if}
