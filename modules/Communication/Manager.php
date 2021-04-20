@@ -159,27 +159,27 @@ class Classrooms_Communication_Manager
   public function processFacultyCommunicationEvent ($event, $faculty, $commData = null)
   {
 
-    // $accountSchema = $this->getSchema('Bss_AuthN_Account');
-    // $account = $accountSchema->findOne($accountSchema->username->equals($faculty->id));
+    $accountSchema = $this->getSchema('Bss_AuthN_Account');
+    $account = $accountSchema->findOne($accountSchema->username->equals($faculty->id));
 
-    // if (!$account)
-    // {
-    //   $account = $accountSchema->createInstance();
-    //   $account->firstName = $faculty->firstName;
-    //   $account->lastName = $faculty->lastName;
-    //   $account->username = $faculty->id;
-    //   $account->emailAddress = $faculty->emailAddress;
-    //   $account->createdDate = new DateTime;
-    //   $account->faculty = $faculty;
+    if (!$account)
+    {
+      $account = $accountSchema->createInstance();
+      $account->firstName = $faculty->firstName;
+      $account->lastName = $faculty->lastName;
+      $account->username = $faculty->id;
+      $account->emailAddress = $faculty->emailAddress;
+      $account->createdDate = new DateTime;
+      $account->faculty = $faculty;
 
-    //   $account->save();
+      $account->save();
 
-    //   if ($this->facultyRole)
-    //   {
-    //     $account->roles->add($this->facultyRole);
-    //     $account->roles->save();
-    //   }
-    // }
+      if ($this->facultyRole)
+      {
+        $account->roles->add($this->facultyRole);
+        $account->roles->save();
+      }
+    }
 
     $eventLog = $this->getSchema('Classrooms_Communication_Log')->createInstance();
     $eventLog->communication = $event->communication;

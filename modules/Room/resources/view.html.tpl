@@ -206,6 +206,29 @@
 <div id="notes" class="tab-pane fade {if $mode == 'notes'}in active{/if}" style="margin-top:3em;">
   	<h3>Notes</h3>
 	<hr>
+	{if count($room->internalNotes)}
+	<div class="form-group">
+		<label for="internalNote" class="col-sm-2 control-label">
+			<a class="collapse-button collapsed" data-toggle="collapse" data-parent="#accordion1" href="#showNotes" aria-expanded="true" aria-controls="showNotes" style="margin-bottom: 1em;">
+			+ Past Notes
+		</a>
+		</label>
+		<div class="col-sm-10">
+		<div id="accordion1">
+			<div class="panel-collapse collapse" role="tabpanel" id="showNotes">
+				<ul class="">
+				{foreach $room->internalNotes as $note}
+					<li>
+						<strong>{$note->addedBy->fullname} on {$note->createdDate->format('Y/m/d')}:</strong> {$note->message}
+					</li>
+				{/foreach}
+				</ul>
+			</div>
+		</div>
+		</div>
+	</div>
+	{/if}
+	<hr>
 	{include file="partial:_view.notes.html.tpl"}
 </div>
 {/if}
