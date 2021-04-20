@@ -103,6 +103,7 @@
 			</div>
 			
     	</div>
+    	{if $room->configured}
     	<div class="col-sm-5 config-info" >
     		<h4>Equipment</h4>
     		<ul class="list-unstyled">
@@ -119,6 +120,11 @@
     			</li>
     		</ul>
     	</div>
+    	{else}
+    	<div class="col-sm-5 config-info" >
+    		There is no detailed information currently available for this room.
+    	</div>    	
+    	{/if}
     	{if $room->tutorial->name}
     	<div class="col-sm-3 tutorial-info">
     		<h4>Tutorial</h4>

@@ -16,9 +16,11 @@ class Classrooms_AuthN_AccountExtension extends Bss_AuthN_AccountExtension imple
      */
     public function getExtensionProperties ()
     {
-        return array(
-            'roles' => array('N:M', 'to' => 'Classrooms_AuthN_Role', 'via' => 'ws_authn_account_roles', 'fromPrefix' => 'account', 'toPrefix' => 'role'),
-        );
+        return [
+            'roles' => ['N:M', 'to' => 'Classrooms_AuthN_Role', 'via' => 'ws_authn_account_roles', 'fromPrefix' => 'account', 'toPrefix' => 'role'],
+            'faculty' => ['1:1', 'to' => 'Classrooms_ClassData_User', 'keyMap' => ['username' => 'id']],
+            'user' => ['1:1', 'to' => 'Classrooms_ClassData_User', 'keyMap' => ['username' => 'id']],
+        ];
     }
     
     public function getSubjectProxies ($account)
@@ -35,7 +37,7 @@ class Classrooms_AuthN_AccountExtension extends Bss_AuthN_AccountExtension imple
     {
         return array('handleSettings');
     }
-        
+
      /**
      * Get the weight of these settings, which determines their order in
      * the form. A heavier item always comes after a lighter item. Two

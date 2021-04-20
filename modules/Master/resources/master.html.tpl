@@ -33,7 +33,10 @@
 	                <span class="icon-bar"></span>
 	              </button>
 	              {if $viewer && $viewer->faculty}
-	              	<a class="navbar-brand" href="{$baseUrl}/fr/request">Classrooms Database</a>
+	              	<a class="navbar-brand" href="{$baseUrl}" style="">
+	              		<img class="img-responsive" src="assets/images/brand.png" style="">
+	              		<span class="text">Classrooms Database</span>
+	              	</a>a>
 	              {else}
 	              	<a class="navbar-brand" href="{$baseUrl}" style="">
 	              		<img class="img-responsive" src="assets/images/brand.png" style="">

@@ -30,6 +30,27 @@ class Classrooms_Room_Type extends Bss_ActiveRecord_Base
         ];
     }
 
+    public function getLocations ($includeDeleted = false)
+    {
+        if (!$includeDeleted)
+        {
+            $locations = [];
+            foreach ($this->_fetch('locations') as $room)
+            {
+                if (!$room->deleted)
+                {
+                    $locations[$room->id] = $room;
+                }
+            }
+        }
+        else
+        {
+            $locations = $this->_fetch('locations');
+        }
+
+        return $locations;
+    }
+
     public function getNotePath ()
     {
         return $this->getNoteBase() . $this->id;

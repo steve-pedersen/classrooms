@@ -26,6 +26,7 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
             'facets' => 'string',
             'url' => 'string',
             'deleted' => 'bool',
+            'configured' => 'bool',
             'typeId' => ['int', 'nativeName' => 'type_id'],
             'buildingId' => ['int', 'nativeName' => 'building_id'],
 
@@ -53,6 +54,11 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
         ];
     }
 
+    public function getUrl ()
+    {
+        return $this->getApplication()->baseUrl('rooms/' . $this->id);
+    }
+
     public function getCodeNumber ()
     {
         return $this->building->code . ' ' . $this->number;
@@ -78,6 +84,19 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
         return $customConfigs;
     }
 
+    public function applyDefaults ($number, $building)
+    {
+        $siteSettings = $this->getApplication()->siteSettings;
+        $this->number = $number;
+        $this->configured = false;
+        $this->building = $building;
+        $this->description = $siteSettings->getProperty('default-room-description', 'This room has not been configured.');
+        $this->supportedBy = 'Unknown';
+        $this->save();
+
+        return $this;
+    }
+
     public function hasDiff ($data)
     {
         $updated = false;
@@ -88,7 +107,7 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
             {
                 if ($key === 'facets')
                 {   
-                    $facets = unserialize($this->facets);
+                    $facets = $this->facets ? unserialize($this->facets) : [];
                     if (array_diff_key($facets, $data['facets']) || array_diff_key($data['facets'], $facets))
                     {
                         $updated = true;
@@ -113,7 +132,7 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
             {
                 if ($key === 'facets')
                 {   
-                    $facets = unserialize($this->facets);
+                    $facets = $this->facets ? unserialize($this->facets) : [];
                     if ($removed = array_diff_key($facets, $data['facets']))
                     {
                         foreach ($removed as $k => $on)

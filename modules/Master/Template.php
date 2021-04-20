@@ -39,5 +39,17 @@ class Classrooms_Master_Template extends Bss_Master_Template
         // template is rendered.
         
         // $this->assign('someTemplateVariable', 'A value');
+        
+        $session = $this->request->getSession();
+        if (isset($session->flashContent))
+        {
+            $this->assign('flashContent', $session->flashContent);
+            unset($session->flashContent);
+        }
+        if (isset($session->flashClass))
+        {
+            $this->assign('flashClass', $session->flashClass);
+            unset($session->flashClass);
+        }
     }
 }

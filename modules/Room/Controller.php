@@ -309,13 +309,14 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $location->facets = isset($locationData['facets']) ? serialize($locationData['facets']) : '';
                     $location->createdDate = $location->createdDate ?? new DateTime;
                     $location->modifiedDate = new DateTime;
+                    $location->configured = true;
                     $location->save();
                     if ($new)
                     {
                         $location->addNote('New room created', $viewer);
                     }
 
-                    if (isset($data['internalNote']))
+                    if (isset($data['internalNote']) && $data['internalNote'])
                     {
                         $internal = $this->schema('Classrooms_Room_InternalNote')->createInstance();
                         $internal->message = $data['internalNote'];

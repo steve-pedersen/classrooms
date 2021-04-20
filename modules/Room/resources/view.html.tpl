@@ -2,6 +2,7 @@
 	Room <small>{$room->building->code} {$room->number}</small>
 </h1>
 
+
 {if $pEdit}
 <div class="row pull-right" style="margin-bottom:10px;">
 	<div class="col-sm-12">
@@ -39,7 +40,7 @@
 	<div class="view-room-details">
 		<dl class="dl-horizontal">
 			<dt>Type</dt>
-			<dd>{$room->type->name}</dd>
+			<dd>{if $room->type}{$room->type->name}{else}Unknown{/if}</dd>
 			<dt>Building</dt>
 			<dd>{$room->building->name}</dd>
 			{if $room->description}
@@ -146,7 +147,9 @@
 						<p><strong>Software:</strong></p>
 						<ul>
 						{foreach $config->softwareLicenses as $license}
-							<li>{$license->version->title->name} {$license->version->number}</li>
+							<li>
+								<strong>{$license->version->title->developer->name}:</strong> {$license->version->title->name} {$license->version->number}
+							</li>
 						{/foreach}
 						</ul>
 					</div>

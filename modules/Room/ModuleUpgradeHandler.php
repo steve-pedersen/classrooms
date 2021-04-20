@@ -10,6 +10,7 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
 {
     public function onModuleUpgrade ($fromVersion)
     {
+        $siteSettings = $this->getApplication()->siteSettings;
         switch ($fromVersion)
         {
             case 0:
@@ -49,10 +50,12 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('facets', 'string');
                 $def->addProperty('created_date', 'datetime');
                 $def->addProperty('modified_date', 'datetime');
+                $def->addProperty('configured', 'bool');
                 $def->addProperty('deleted', 'bool');
                 $def->addIndex('building_id');
                 $def->addIndex('type_id');
                 $def->addIndex('deleted');
+                $def->addIndex('configured');
                 $def->save();
 
                 $def = $this->createEntityType('classroom_room_internal_notes', $this->getDataSource('Classrooms_Room_InternalNote'));
@@ -120,7 +123,7 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                         ['code' => 'BH', 'name' => 'Burk Hall', 'created_date' => $now],
                         ['code' => 'BUS', 'name' => 'Business', 'created_date' => $now],
                         ['code' => 'CA', 'name' => 'Creative Arts', 'created_date' => $now],
-                        ['code' => 'DC', 'name' => 'Downtown Campus', 'created_date' => $now],
+                        ['code' => 'DTC', 'name' => 'Downtown Campus', 'created_date' => $now],
                         ['code' => 'EP', 'name' => 'Ethnic Studies & Psychology', 'created_date' => $now],
                         ['code' => 'FA', 'name' => 'Fine Arts', 'created_date' => $now],
                         ['code' => 'GYM', 'name' => 'Gymnasium', 'created_date' => $now],
@@ -152,6 +155,8 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                         'idList' => ['id']
                     ]
                 );
+
+                $siteSettings->defineProperty('default-room-description', 'Default room description', 'text');
 
                 break;
         }

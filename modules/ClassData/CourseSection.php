@@ -22,6 +22,7 @@ class Classrooms_ClassData_CourseSection extends Bss_ActiveRecord_Base
             'description' => 'string',  
             'createdDate' => ['datetime', 'nativeName' => 'created_date'],
             'modifiedDate' => ['datetime', 'nativeName' => 'modified_date'],
+            // 'classroomId' => ['string', 'nativeName' => 'classroom_id'],
             'deleted' => 'bool',
 
             'enrollments' => ['N:M',

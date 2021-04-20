@@ -31,18 +31,6 @@ abstract class Classrooms_Master_Controller extends Bss_Master_Controller
 
     protected function afterCallback ($callback)
     {
-        $session = $this->request->getSession();
-        if (isset($session->flashContent))
-        {
-            $this->template->flashContent = $session->flashContent;
-            unset($session->flashContent);
-        }
-        if (isset($session->flashClass))
-        {
-            $this->template->flashClass = $session->flashClass;
-            unset($session->flashClass);
-        }
-        
         parent::afterCallback($callback);
     }
 

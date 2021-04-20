@@ -151,6 +151,7 @@ class Classrooms_ClassData_Importer
 
     public function syncDepartments ()
     {
+        $viewer = $this->schema('Bss_AuthN_Account')->get(1);
         $schema = $this->schema('Classrooms_Department_Department');
         $users = $this->schema('Classrooms_Department_User');
         $accountManager = new Classrooms_ClassData_AccountManager($this->getApplication());
