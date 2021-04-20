@@ -12,7 +12,7 @@ class Classrooms_ClassData_CronJob extends Bss_Cron_Job
         {
             set_time_limit(0);
 
-            $createFacultyAccounts = true;
+            $createFacultyAccounts = false;
             $importer = new Classrooms_ClassData_Importer($this->getApplication());
             
             list($count, $added, $removed) = $importer->syncDepartments();

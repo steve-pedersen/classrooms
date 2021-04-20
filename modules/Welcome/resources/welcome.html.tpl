@@ -15,9 +15,47 @@
 </div>
 {else}
 <div class="welcome-module">
-	<a href="{$app->baseUrl('/rooms')}" class="btn btn-primary">View Rooms</a>
-	<a href="{$app->baseUrl('/software')}" class="btn btn-primary">View Software</a>
-	<a href="{$app->baseUrl('/configurations')}" class="btn btn-primary">View Configurations</a>
+	<div class="row">
+		<div class="col-md-4 col-sm-6 col-xs-12">
+			<a href="{$app->baseUrl('/rooms')}" class="">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h2 style="font-size:2rem">Rooms</h2>
+				</div>
+				<div class="panel-body">
+					<img style="max-height:100px;" src="assets/images/rooms.png" class="img-responsive">
+				</div>
+			</div>
+			</a>
+		</div>
+		<div class="col-md-4 col-sm-6 col-xs-12">
+			<a href="{$app->baseUrl('/software')}" class="">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h2 style="font-size:2rem">Software</h2>
+				</div>
+				<div class="panel-body">
+					<img style="max-height:100px;" src="assets/images/software.png" class="img-responsive">
+				</div>
+			</div>
+			</a>
+		</div>
+		<div class="col-md-4 col-sm-6 col-xs-12">
+			<a href="{$app->baseUrl('/configurations')}" class="">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h2 style="font-size:2rem">Configurations</h2>
+				</div>
+				<div class="panel-body">
+					<img style="max-height:100px;" src="assets/images/bundles.png" class="img-responsive">
+				</div>
+			</div>
+			</a>
+		</div>
+	</div>
+
+	<!-- <a href="{$app->baseUrl('/software')}" class="btn btn-primary"></a> -->
+	<!-- <a href="{$app->baseUrl('/configurations')}" class="btn btn-primary">View Configurations</a> -->
 	<!-- <a href="{$app->baseUrl('/departments')}" class="btn btn-primary">View Departments</a> -->
 </div>
 {/if}
