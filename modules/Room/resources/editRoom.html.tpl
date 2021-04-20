@@ -152,7 +152,7 @@
 						</div>
 					</div>
 
-					{if $location->internalNotes}
+					{if count($location->internalNotes)}
 					<div class="form-group">
 						<label for="internalNote" class="col-sm-2 control-label">
 							<a class="collapse-button collapsed" data-toggle="collapse" data-parent="#accordion1" href="#showNotes" aria-expanded="true" aria-controls="showNotes" style="margin-bottom: 1em;">

@@ -143,15 +143,26 @@
 				<div class="panel panel-default">
 					<div class="panel-heading"><strong>Configuration: {$config->model}</strong></div>
 					<div class="panel-body">
-						<p>{$config->deviceQuantity} {$config->deviceType}</p>
+						<p><strong>Hardware:</strong> {$config->deviceQuantity} {$config->deviceType}</p>
 						<p><strong>Software:</strong></p>
-						<ul>
+						<table class="table table-condensed table-bordered">
+							<thead>
+								<tr>
+									<th>Developer</th>
+									<th>Title</th>
+									<th>Version</th>
+								</tr>
+							</thead>
+						<tbody>
 						{foreach $config->softwareLicenses as $license}
-							<li>
-								<strong>{$license->version->title->developer->name}:</strong> {$license->version->title->name} {$license->version->number}
-							</li>
+							<tr>
+								<td>{$license->version->title->developer->name}</td>
+								<td><a href="software/{$license->version->title->id}">{$license->version->title->name}</a></td>
+								<td>{$license->version->number}</td>
+							</tr>
 						{/foreach}
-						</ul>
+						</tbody>
+						</table>
 					</div>
 				</div>
 			</div>
