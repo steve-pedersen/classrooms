@@ -46,7 +46,7 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
             'internalNotes' => ['1:N', 
                 'to' => 'Classrooms_Room_InternalNote', 
                 'reverseOf' => 'location', 
-                'orderBy' => [ '+createdDate' ]
+                'orderBy' => [ '-createdDate' ]
             ],
             
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],

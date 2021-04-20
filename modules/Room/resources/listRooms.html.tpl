@@ -122,7 +122,7 @@
     	</div>
     	{else}
     	<div class="col-sm-5 config-info" >
-    		There is no detailed information currently available for this room.
+    		 {$room->description}
     	</div>    	
     	{/if}
     	{if $room->tutorial->name}
