@@ -702,7 +702,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
         $locations = $this->schema('Classrooms_Room_Location');
         $buildings = $this->schema('Classrooms_Room_Building');
-        // $types = $this->schema('Classrooms_Room_Type');
+        $schedules = $this->schema('Classrooms_ClassData_CourseScheduledRoom');
         // $titles = $this->schema('Classrooms_Software_Title');
 
         $query = $this->request->getQueryParameter('s');
@@ -710,6 +710,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
         $condition = null;
         $bldgCond = null;
+        $userResults = [];
 
         // location match
         foreach ($queryParts as $i => $part)
@@ -721,16 +722,26 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
                 $attributes = $locations->number->lower()->like($patternParts[$i])->orIf(
                     $locations->alternateName->lower()->like($patternParts[$i])
-                    // $locations->capacity->lower()->greaterThanOrEquals($patternParts[$i])
                 );
                 $condition = $condition ? $condition->orIf($attributes) : $attributes;
             }
             else
             {
-                $attributes = $locations->number->lower()->like($pattern)->orIf(
-                    $locations->alternateName->lower()->like($pattern)
-                    // $locations->capacity->lower()->greaterThanOrEquals($pattern)
+                if ($this->hasPermission('admin'))
+                {
+                    $userAttributes = $schedules->faculty_id->like(substr($pattern, 1));
+                    if ($userRooms = $schedules->findValues(['faculty_id' => 'room_id'], $userAttributes))
+                    {
+                        $userResults = array_keys($userRooms);
+                    }
+                }
+
+                $attributes = $locations->anyTrue(
+                    $locations->number->lower()->like($pattern),
+                    $locations->alternateName->lower()->like($pattern),
+                    $locations->id->inList($userRooms)
                 );
+
                 $condition = $condition ? $condition->orIf($attributes) : $attributes;
             }
         }
@@ -789,7 +800,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $results = array(
                 'message' => 'Candidates found.',
                 'status' => 'success',
-                'data' => $options
+                'data' => $options,
+                'users' => $userResults
             );
         }
         else
@@ -797,7 +809,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $results = array(
                 'message' => 'No candidates found.',
                 'status' => 'error',
-                'data' => []
+                'data' => [],
+                'users' => []
             );
         }
 

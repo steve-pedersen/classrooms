@@ -68,7 +68,7 @@
 			<h2>Search</h2>
 		    <form class="form-inline" role="form" id="filterForm2">
 		    <div class="form-group">
-		    	<input type="text" name="s" class="form-control autocomplete" placeholder="Search...">
+		    	<input id="searchBox" type="text" name="s" class="form-control autocomplete" placeholder="Search...">
 		    </div>
 
 			</form>
@@ -76,6 +76,10 @@
 	</div>
 </div>
 
+<div id="userResultMessage" style="display:none;">
+	Showing rooms for the following users:
+	<span id="userResultList"></span>
+</div>
 
 {foreach $rooms as $room}
 	{assign var="facets" value=unserialize($room->facets)}
