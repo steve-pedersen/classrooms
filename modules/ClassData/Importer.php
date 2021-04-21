@@ -246,6 +246,107 @@ class Classrooms_ClassData_Importer
 
         return [$count, $added, $removed];
     }
+
+    public function importScheduledRooms ($termYear, $ignoreKeys = ['ON', 'OFF'])
+    {
+        $scheduleSchema = $this->schema('Classrooms_ClassData_CourseScheduledRoom');
+        $facultySchema = $this->schema('Classrooms_ClassData_User');
+        $courseSchema = $this->schema('Classrooms_ClassData_CourseSection');
+        $roomSchema = $this->schema('Classrooms_Room_Location');
+        $buildingSchema = $this->schema('Classrooms_Room_Building');
+        $accounts = $this->schema('Bss_AuthN_Account');
+
+        $accountManager = new Classrooms_ClassData_AccountManager($this->getApplication());
+        $service = new Classrooms_ClassData_Service($this->getApplication());
+        $schedules = [];
+        $facilities = $service->getFacilities()['facilities'];
+
+        foreach ($facilities as $fid => $facility)
+        {
+            if (isset($facility['building']) && isset($facility['room']) && !in_array($facility['building'], $ignoreKeys))
+            {
+                $roomNum = $facility['room'];
+                $bldgCode = $facility['building'];
+            }
+            else
+            {
+                continue;
+            }
+
+            $result = $service->getSchedules($termYear, $fid)['courseSchedules'];
+            
+            if (!empty($result['courses']))
+            {
+                // constructs a building name from the description. this is not ideal
+                if (!($building = $buildingSchema->findOne($buildingSchema->code->equals($bldgCode))))
+                {
+                    $building = $buildingSchema->createInstance();
+                    $building->code = $bldgCode;
+                    $roomNumLen = strlen($roomNum) + 1;
+                    $start = strlen($facility['description']) - $roomNumLen - 1;
+                    $end = strlen($facility['description']) - $roomNumLen;
+                    if (substr($facility['description'], $start, $end) === ' ')
+                    {
+                        $roomNumLen += 1;
+                    }
+                    $building->name = substr($facility['description'], 0, strlen($facility['description']) - $roomNumLen);
+                    $building->save();
+                }
+
+                if (!($room = $roomSchema->findOne($roomSchema->number->equals($roomNum))))
+                {
+                    $room = $roomSchema->createInstance()->applyDefaults($roomNum, $building);
+                }
+
+                foreach ($result['courses'] as $cid => $info)
+                {
+                    $course = $courseSchema->get($cid);
+                    $course->classroom_id = (int)$room->id;
+                    $course->save();
+
+                    $condition = $scheduleSchema->allTrue(
+                        $scheduleSchema->course_section_id->equals($cid),
+                        $scheduleSchema->room_id->equals($room->id)
+                    );
+                    $previousFaculty = $scheduleSchema->find($condition, ['arrayKey' => 'faculty_id']) ?? [];
+                    $currentFaculty = [];
+
+                    foreach ($course->instructors as $instructor)
+                    {
+                        if (!($account = $accounts->findOne($accounts->username->equals($instructor->id))))
+                        {
+                            $account = $accountManager->createFacultyAccount($accounts->createInstance(), $instructor);
+                        }
+
+                        if (!isset($previousFaculty[$instructor->id]))
+                        {
+                            $schedule = $scheduleSchema->createInstance();
+                            $schedule->termYear = $termYear;
+                            $schedule->course_section_id = $cid;
+                            $schedule->faculty_id = $instructor->id;
+                            $schedule->account_id = $account->id;
+                            $schedule->room_id = $room->id;
+                            $schedule->room_external_id = $fid;
+                            $schedule->createdDate = new DateTime;
+                            $schedule->save();
+                        }
+
+                        $currentFaculty[$instructor->id] = $schedule;
+                    }
+
+                    foreach ($previousFaculty as $id => $schedule)
+                    {
+                        if (!isset($currentFaculty[$id]))
+                        {
+                            $currentFaculty[$id]->userDeleted = true;
+                            $currentFaculty[$id]->modifiedDate = new DateTime;
+                            $currentFaculty[$id]->save();
+                        }
+                    }
+                }
+            }
+        }
+    }
      
     public function createFacultyAccounts ($accountsToCreate)
     {

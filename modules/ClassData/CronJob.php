@@ -27,6 +27,12 @@ class Classrooms_ClassData_CronJob extends Bss_Cron_Job
                 $importer->import($semesterCode, $createFacultyAccounts);
             }
 
+            // import schedule info
+            foreach ($semesterCodes as $semesterCode)
+            {
+                $importer->importScheduledRooms($semesterCode);
+            }
+
             return true;
         }
     }

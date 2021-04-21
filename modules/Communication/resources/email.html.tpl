@@ -102,7 +102,7 @@
                                                                     <td valign="middle" align="center" width="150" style="padding:10px">
                                                                         <h4 style="color:#fff;margin:0;padding:0;display:block;font-family:Helvetica;font-size:12px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:normal;text-align:center">Need Help?</h4><br>
                                                                           <a href="tel:4154055555" style="color:#fff;text-decoration:none;border:none;word-wrap:break-word;font-family:Helvetica,Arial,sans-serif;font-size:12px;" target="_blank">(415) 405-5562</a><br>
-                                                                          <a href="mailto:ilearn@sfsu.edu" style="color:#fff;text-decoration:none;border:none;word-wrap:break-word" target="_blank">at_desk@sfsu.edu</a>
+                                                                          <a href="mailto:at@sfsu.edu" style="color:#fff;text-decoration:none;border:none;word-wrap:break-word" target="_blank">at@sfsu.edu</a>
                                                                     </td>
                                                                 </tr>
                                                             </tbody>

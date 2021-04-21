@@ -1,4 +1,4 @@
-<h1>Faculty Communication</h1>
+<h1>Faculty Communication Template</h1>
 
 {if $sendSuccess}
 <div class="alert alert-info">
@@ -13,14 +13,14 @@
 	<div class="row">
 		<div class="col-xs-8">
 			<div class="form-group template-widget">
-				<label for="roomMasterTemplate">Master Template for Room Email Campaigns</label>
+				<label for="roomMasterTemplate">Master Template for Classroom Email Communications</label>
 				<p class="form-text text-muted">
-					The Master Template is an outline of the email. It should include intro text, then widget templates, and then any concluding text.
+					The Master Template is an outline of the email. It should include intro text, widget tokens, and then any concluding text.
 				</p>
-				<textarea name="roomMasterTemplate" id="roomMasterTemplate" class="wysiwyg form-control" rows="10">{$comm->roomMasterTemplate}</textarea>
+				<textarea name="roomMasterTemplate" id="roomMasterTemplate" class="wysiwyg form-control" rows="12">{$comm->roomMasterTemplate}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
-					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%SEMESTER%|</code>, <code>|%LAB_ROOM_WIDGET%|</code>, <code>|%NONLAB_ROOM_WIDGET%|</code>, <code>|%UNCONFIGURED_ROOM_WIDGET%|</code>
+					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%SEMESTER%|</code>, <code>|%LAB_ROOM_WIDGET%|</code>, <code>|%NONLAB_ROOM_WIDGET%|</code>, <code>|%UNCONFIGURED_ROOM_WIDGET%|</code>, <code>|%CONTACT_EMAIL%|</code>
 				</span>
 			</div>
 		</div>
@@ -29,7 +29,7 @@
 			<label id="testroommastertemplate">Test Master Template</label>
 			<p class="lead">This will send an email to your account showing how the email will look to you.</p>
 			<div class="form-group">
-				<!-- <label for="rooms-labs">Lab(s) to include</label> -->
+				<label for="rooms-labs" class="sr-only">Lab(s) to include</label>
 				<select name="rooms[lab][]" id="rooms-labs" class="multiselect form-control" multiple label="Lab(s) to include">
 					<!-- <option value="">Choose Lab(s)</option> -->
 				{foreach $labRooms as $room}

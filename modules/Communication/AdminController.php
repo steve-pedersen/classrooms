@@ -178,15 +178,18 @@ class Classrooms_Communication_AdminController extends At_Admin_Controller
     {
         $comm = $this->helper('activeRecord')->fromRoute('Classrooms_Communication_Communication', array('cid' => 'id'));
         $event = $this->helper('activeRecord')->fromRoute('Classrooms_Communication_Event', array('eid' => 'id'), array('allowNew' => true));
-
+        $this->addBreadcrumb('admin/communications', 'Manage Communications');
         $this->addBreadcrumb('admin/communications/'.$comm->id, 'Edit Communication');
+        
 
         if ($this->request->wasPostedByUser())
         {
             switch ($this->getPostCommand()) {
                 case 'save':
                     $event->sendDate = new DateTime($this->request->getPostParameter('sendDate'));
-                    $event->termYear = $this->request->getPostParameter('termYear');
+                    $year = $this->request->getPostParameter('year', '');
+                    $term = $this->request->getPostParameter('term', '');
+                    $event->termYear = $year . $term;
 
                     if ($event->isValid())
                     {
@@ -209,6 +212,18 @@ class Classrooms_Communication_AdminController extends At_Admin_Controller
             }
         }
 
+        $terms = ['1' => 'Winter', '3' => 'Spring', '5' => 'Summer', '7' => 'Fall'];
+        $years = [];
+        $rs = pg_query("select distinct year from classroom_classdata_course_sections");
+        while (($row = pg_fetch_row($rs)))
+        {
+            $years[(string)$row[0][0].$row[0][2].$row[0][3]] = $row[0];
+        }
+
+        $this->template->eventTerm = $event->inDatasource ? $event->termYear[3] : '';
+        $this->template->eventYear = $event->inDatasource ? substr($event->termYear, 0, 3) : '';
+        $this->template->terms = $terms;
+        $this->template->years = $years;
         $this->template->comm = $comm;
         $this->template->event = $event;
     }

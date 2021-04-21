@@ -170,7 +170,7 @@
                   <h2>Need Help?</h2>
                   <ul>
                     <li>x5-5562</li>
-                    <li>at_desk@sfsu.edu</li>
+                    <li><a href="mailto:at@sfsu.edu">at@sfsu.edu</a></li>
                   </ul>
                 </div>
               </div>
@@ -190,7 +190,7 @@
             </div>
             <div id="contact-local" class="col-sm-6">
               <ul class="list-unstyled">
-                <li><strong>Academic Technology</strong></li>
+                <li><strong><a href="https://at.sfsu.edu">Academic Technology</a></strong></li>
               </ul>
             </div>
           </div>

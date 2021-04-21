@@ -135,7 +135,7 @@
                   <h2>Need Help?</h2>
                   <ul>
                     <li>x5-5562</li>
-                    <li>at_desk@sfsu.edu</li>
+                    <li><a href="mailto:at@sfsu.edu">at@sfsu.edu</a></li>
                   </ul>
                 </div>
               </div>

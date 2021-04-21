@@ -17,6 +17,7 @@ class Classrooms_Communication_Manager
     $this->ctrl = $ctrl;
     $this->fixedEmail = $app->getConfiguration()->getProperty('communications.fixedEmail');
     $this->fixedName = $app->getConfiguration()->getProperty('communications.fixedName');
+    $this->contactEmail = $app->getConfiguration()->getProperty('communications.contactEmail', 'at@sfsu.edu');
     $this->replyTo = $app->getConfiguration()->getProperty('communications.replyTo');
     $this->subjectLine = $app->getConfiguration()->getProperty('communications.subjectLine', 'Classroom Database');
 
@@ -33,115 +34,49 @@ class Classrooms_Communication_Manager
       return;
     }
 
- 
+    $scheduleSchema = $this->getSchema('Classrooms_ClassData_CourseScheduledRoom');
     $facultySchema = $this->getSchema('Classrooms_ClassData_User');
     $courseSchema = $this->getSchema('Classrooms_ClassData_CourseSection');
     $roomSchema = $this->getSchema('Classrooms_Room_Location');
     $typeSchema = $this->getSchema('Classrooms_Room_Type');
-    $buildingSchema = $this->getSchema('Classrooms_Room_Building');
 
     // fetch and format the schedules data
-    $term = $event->termYear;
     $labType = $typeSchema->findOne($typeSchema->name->equals('Lab'));
 
-    $service = new Classrooms_ClassData_Service($this->app);
-    $schedules = [];
-    $facilities = $service->getFacilities()['facilities'];
+    $condition = $scheduleSchema->allTrue(
+      $scheduleSchema->termYear->equals($event->termYear),
+      $scheduleSchema->userDeleted->isNull()->orIf(
+        $scheduleSchema->userDeleted->isFalse()
+      )
+    );
+    $scheduledRooms = $scheduleSchema->find($condition, ['arrayKey' => 'faculty_id']);
+    $facultyRooms = [];
 
-    foreach ($facilities as $fid => $facility)
+    foreach ($scheduledRooms as $facultyId => $scheduledRoom)
     {
-        if (isset($facility['building']) && isset($facility['room']) && 
-            $facility['building'] !== 'OFF' && $facility['building'] !== 'ON')
-        {
-            $roomNum = $facility['room'];
-            $bldgCode = $facility['building'];
-        }
-        else
-        {
-            continue;
-        }
+      if (!isset($comms[$facultyId]))
+      {
+        $comms[$facultyId] = [
+          'labs' => [],
+          'nonlabs' => [],
+          'unconfigured' => [],
+        ];
+      }
 
-        $result = $service->getSchedules($term, $fid)['courseSchedules'];
-        
-        if (!empty($result['courses']))
-        {
-            if (!($building = $buildingSchema->findOne($buildingSchema->code->equals($bldgCode))))
-            {
-                $building = $buildingSchema->createInstance();
-                $building->code = $bldgCode;
-                $roomNumLen = strlen($roomNum) + 1;
-                $start = strlen($facility['description']) - $roomNumLen - 1;
-                $end = strlen($facility['description']) - $roomNumLen;
-                if (substr($facility['description'], $start, $end) === ' ')
-                {
-                    $roomNumLen += 1;
-                }
-                $building->name = substr($facility['description'], 0, strlen($facility['description']) - $roomNumLen);
-                $building->save();
-            }
+      $type = '';
+      switch ($scheduledRoom->room->type_id)
+      {
+          case $labType->id:
+              $type = 'labs';
+              break;
+          case null:
+              $type = 'unconfigured';
+              break;
+          default:
+              $type = 'nonlabs';
+      }
 
-            if (!($room = $roomSchema->findOne($roomSchema->number->equals($roomNum))))
-            {
-                $room = $roomSchema->createInstance()->applyDefaults($roomNum, $building);
-            }
-
-            foreach ($result['courses'] as $cid => $info)
-            {
-                $course = $courseSchema->get($cid);
-                $course->classroom_id = $room->id;
-
-                foreach ($course->instructors as $instructor)
-                {
-                    if (!isset($schedules[$instructor->id]))
-                    {
-                        $schedules[$instructor->id] = [];
-                    }
-
-                    $type = '';
-                    switch ($room->type_id)
-                    {
-                        case $labType->id:
-                            $type = 'labs';
-                            break;
-                        case null:
-                            $type = 'unconfigured';
-                            break;
-                        default:
-                            $type = 'nonlabs';
-                    }
-
-                    $schedules[$instructor->id][$cid] = [
-                        'course_section_id' => $cid,
-                        'room_id' => $room->id,
-                        'room_external_id' => $fid,
-                        'type' => $type,
-                        'schedules' => $info['schedules']
-                    ];
-                }
-            }
-        }
-    }
-
-    // organize for communication
-    $comms = [];
-    foreach ($schedules as $username => $courses)
-    {
-    	$comms[$username] = [];
-    	$facultyRooms = [
-    		'labs' => [],
-    		'nonlabs' => [],
-    		'unconfigured' => []
-    	];
-
-    	foreach ($courses as $sectionId => $info)
-    	{
-    		$course = $courseSchema->get($sectionId);
-    		$room = $roomSchema->get($info['room_id']);
-        $course->classroom_id = $info['room_id'];
-        $course->save();
-    		$facultyRooms[$info['type']][] = ['room' => $room, 'course' => $course];
-    	}
-    	$comms[$username] = $facultyRooms;
+      $comms[$facultyId][$type][] = ['room' => $scheduledRoom->room, 'course' => $scheduledRoom->course];
     }
 
     foreach ($comms as $username => $comm)
@@ -201,6 +136,7 @@ class Classrooms_Communication_Manager
       '|%FIRST_NAME%|' => $user->firstName,
       '|%LAST_NAME%|' => $user->lastName,
       '|%SEMESTER%|' => $event->formatTermYear(),
+      '|%CONTACT_EMAIL%|' => "<a href='mailto:$this->contactEmail'>$this->contactEmail</a>",
       '|%LAB_ROOM_WIDGET%|' => $this->getLabRoomWidget($comm['labs'], $communication->labRoom),
       '|%NONLAB_ROOM_WIDGET%|' => $this->getNonlabRoomWidget($comm['nonlabs'], $communication->nonlabRoom),
       '|%UNCONFIGURED_ROOM_WIDGET%|' => $this->getUnconfiguredRoomWidget($comm['unconfigured'], $communication->unconfiguredRoom),
@@ -208,8 +144,6 @@ class Classrooms_Communication_Manager
     
     $this->sendEmail($user, $params, $communication->roomMasterTemplate);
   }
-
-
 
   public function sendEmail($user, $params, $templateText)
   {
@@ -226,6 +160,8 @@ class Classrooms_Communication_Manager
       }
       else
       {
+        echo "<pre>"; var_dump(123); die;
+        
         $mail->AddAddress($user->emailAddress, $user->fullName);
       }
 
@@ -235,7 +171,7 @@ class Classrooms_Communication_Manager
       }
 
       $mail->getTemplate()->message = $preppedText;
-      $mail->getTemplate()->title = $siteSettings->getProperty('communications-title', 'Intructor Rooms');
+      $mail->getTemplate()->title = $siteSettings->getProperty('communications-title', 'Instructor Rooms');
       $mail->Send();
     }
   }

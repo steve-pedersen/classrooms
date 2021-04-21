@@ -69,6 +69,12 @@ class Classrooms_ClassData_AdminController extends At_Admin_Controller
             {
                 $importer->import($semesterCode, $createFacultyAccount);
             }
+
+            // import schedule info
+            foreach ($semesterCodes as $semesterCode)
+            {
+                $importer->importScheduledRooms($semesterCode);
+            }
         }
     }
 

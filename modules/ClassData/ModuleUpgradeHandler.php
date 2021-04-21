@@ -59,6 +59,22 @@ class Classrooms_ClassData_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseMod
                 $def->addProperty('deleted', 'bool');
                 $def->save();
 
+                $def = $this->createEntityType('classroom_classdata_course_scheduled_rooms', $this->getDataSource('Classrooms_ClassData_CourseScheduledRoom'));
+                $def->addProperty('id', 'string', ['primaryKey' => true, 'sequence' => true]);
+                $def->addProperty('term_year', 'string');
+                $def->addProperty('course_section_id', 'string');
+                $def->addProperty('faculty_id', 'string');
+                $def->addProperty('account_id', 'int');
+                $def->addProperty('room_id', 'int');
+                $def->addProperty('room_external_id', '');   
+                $def->addProperty('user_deleted', 'bool');     
+                $def->addProperty('created_date', 'datetime');
+                $def->addProperty('modified_date', 'datetime');
+                $def->addIndex('course_section_id');
+                $def->addIndex('faculty_id');
+                $def->addIndex('room_id');
+                $def->save();
+
                 $app = $this->getApplication();
                 $settings = $app->siteSettings;
                 $settings->defineProperty('semesters', 'The comma-separated list of semesters to pay attention to, each in format (YYYS where S=3 is Spring, S=7 is Fall). The first 3 digits shall be digits 1, 3, and 4 of the year, e.g. 2019=219.', 'string');

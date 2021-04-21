@@ -1,4 +1,13 @@
-<h1>{if !$event->inDatasource}New{/if} Event for {$event->termYear} Faculty Communication</h1>
+<h1>
+	Faculty Communication - 
+	<small>
+	{if !$event->inDatasource}
+		New Scheduled Email Event
+	{else}
+		Scheduled Email Event for {$event->formatTermYear()}
+	{/if}
+	</small>
+</h1>
 
 <form action="" method="post">
 	{generate_form_post_key}
@@ -6,16 +15,29 @@
 		<div class="col-xs-4">
 			<div class="form-group">
 				<label for="sendDate">Date</label>
-				<input type="text" name="sendDate" id="sendDate" value="{if $event->sendDate}{$event->sendDate->format('c')}{/if}" class="form-control datepicker timepicker">
+				<input type="text" name="sendDate" id="sendDate" value="{if $event->sendDate}{$event->sendDate->format('c')}{/if}" class="form-control datepicker timepicker" required>
 			</div>
 		</div>
 		<div class="col-xs-4">
 			<div class="form-group">
-				<label for="termYear">Semester Year</label>
-				<input type="text" name="termYear" id="termYear" value="{$event->termYear}" class="form-control">
-				<small class="text-muted">
-					The Year+Semester code for which this email even is being sscheduled for. This code takes the form YYYS where YYY is the year without a zero, e.g. 2019 is 219, and S is 1 for Winter, 3 for Spring, 5 for Summer, and 7 for Fall.
-				</small>
+				<label for="term">Semester</label>
+				<select name="term" id="term" value="{$eventTerm}" class="form-control" required>
+					<option value="">Semester...</option>
+					{foreach $terms as $code => $term}
+						<option value="{$code}" {if $code == $eventTerm}selected{/if}>{$term}</option>
+					{/foreach}
+				</select>
+			</div>
+		</div>
+		<div class="col-xs-4">
+			<div class="form-group">
+				<label for="year">Year</label>
+				<select name="year" id="year" value="{$eventYear}" class="form-control" required>
+					<option value="">Year...</option>
+					{foreach $years as $code => $year}
+						<option value="{$code}" {if $code == $eventYear}selected{/if}>{$year}</option>
+					{/foreach}
+				</select>
 			</div>
 		</div>
 	</div>
@@ -37,6 +59,7 @@
 {foreach item='entry' from=$event->logs}
 			<li class="list-group-item">
 				Sent to {$entry->faculty->fullName} ({$entry->emailAddress}) at {$entry->creationDate->format("c")}
+				<div>{$entry->message}</div>
 			</li>
 {/foreach}
 		</ul>
