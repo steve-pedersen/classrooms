@@ -66,8 +66,9 @@ class Classrooms_ClassData_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseMod
                 $def->addProperty('faculty_id', 'string');
                 $def->addProperty('account_id', 'int');
                 $def->addProperty('room_id', 'int');
-                $def->addProperty('room_external_id', '');   
-                $def->addProperty('user_deleted', 'bool');     
+                $def->addProperty('room_external_id', 'string');
+                $def->addProperty('user_deleted', 'bool');
+                $def->addProperty('schedules', 'string');
                 $def->addProperty('created_date', 'datetime');
                 $def->addProperty('modified_date', 'datetime');
                 $def->addIndex('course_section_id');

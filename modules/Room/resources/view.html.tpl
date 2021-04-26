@@ -68,6 +68,8 @@
 	<br><br>
 	{/if}
 
+{if $room->configured}
+
 	<table class="table table-bordered table-condensed table-responsive">
 		<thead>
 			<tr>
@@ -77,16 +79,16 @@
 		</thead>
 		<tbody>
 
-		{assign var="facets" value=unserialize($room->facets)}
+		{assign var="avEquipment" value=unserialize($room->avEquipment)}
 			
-		{foreach $allFacets as $key => $facet}
+		{foreach $allAvEquipment as $key => $equipment}
 			<tr>
 				<td style="vertical-align:middle;padding:6px;">
 					<img src="assets/images/avequipment-{$key}.png" class="img-responsive" style="max-width:50px;padding:3px;display:inline;">
-					<span style="margin-left:5px;font-weight:bold">{$facet}</span>
+					<span style="margin-left:5px;font-weight:bold">{$equipment}</span>
 				</td>
-				<td class="bg-{if $facets[$key]}success{else}default{/if}" style="vertical-align:middle;padding:6px;">
-				{if $facets[$key]}
+				<td class="bg-{if $avEquipment[$key]}success{else}default{/if}" style="vertical-align:middle;padding:6px;">
+				{if $avEquipment[$key]}
 					<i class="glyphicon glyphicon-ok text-success" style="font-size:1.5rem;"></i>
 				{else}
 					<i class="glyphicon glyphicon-remove text-danger" style="font-size:1.5rem;"></i>
@@ -96,31 +98,10 @@
 		{/foreach}
 		</tbody>
 	</table>
+{/if}
 
-<!-- 	<table class="table table-bordered table-striped table-condensed">
-		<thead>
-			<tr>
-				<th scope="Room#">Room #</th>
-			{foreach $allFacets as $key => $facet}
-				<th scope="{$facet}">{$facet}</th>
-			{/foreach}
-				<th scope="capacity">Cap</th>
-			</tr>
-		</thead>
-		<tbody>
-			{assign var="facets" value=unserialize($room->facets)}
-			<tr>
-				<th scope="col" class="">
-					{if $room->building->code}{/if}{$room->number}
-				</th>
-			{foreach $allFacets as $key => $facet}
-				<td>{if $facets[$key]}<i class="glyphicon glyphicon-ok text-success"></i>{else}<i class="glyphicon glyphicon-remove text-danger"></i>{/if}</td>
-			{/foreach}	
-				<td>{$room->capacity}</td>			
-			</tr>
-		</tbody>
-	</table> -->
 </div>
+
 
 <div id="tutorial" class="tab-pane fade {if $mode == 'tutorial'}in active{/if}" style="margin-top:3em;">
 	{if $room->tutorial}
@@ -153,6 +134,19 @@
 					<div class="panel-heading"><strong>Configuration: {$config->model}</strong></div>
 					<div class="panel-body">
 						<p><strong>Hardware:</strong> {$config->deviceQuantity} {$config->deviceType}</p>
+					{if $pEdit}
+						<dl class="dl-horizontal">
+							{if $config->location}<dt>Location</dt><dd>{$config->location}</dd>{/if}
+							{if $config->managementType}<dt>Management Type</dt><dd>{$config->managementType}</dd>{/if}
+							{if $config->imageStatus}<dt>Image Status</dt><dd>{$config->imageStatus}</dd>{/if}
+							{if $config->vintages}<dt>Vintages</dt><dd>{$config->vintages}</dd>{/if}
+							{if $config->uniprint}<dt>Uniprint</dt><dd>{$config->uniprint}</dd>{/if}
+							{if $config->uniprintQueue}<dt>Uniprint Queue</dt><dd>{$config->uniprintQueue}</dd>{/if}
+							{if $config->releaseStationIp}<dt>Release Station IP</dt><dd>{$config->releaseStationIp}</dd>{/if}
+							{if $config->adBound}<dt>AD Bound</dt><dd>{$config->adBound}</dd>{/if}
+							{if $config->modifiedDate}<dt>Last Modified</dt><dd>{$config->modifiedDate->format('m/d/Y')}</dd>{/if}
+						</dl>
+					{/if}
 						<p><strong>Software:</strong></p>
 						<table class="table table-condensed table-bordered">
 							<thead>

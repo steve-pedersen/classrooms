@@ -70,7 +70,7 @@ class Classrooms_Communication_Manager
               $type = 'labs';
               break;
           case null:
-              $type = 'unconfigured';
+              $type = $scheduledRoom->room->configured ? 'nonlabs' : 'unconfigured';
               break;
           default:
               $type = 'nonlabs';

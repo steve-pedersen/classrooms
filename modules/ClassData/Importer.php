@@ -299,7 +299,7 @@ class Classrooms_ClassData_Importer
                 }
 
                 foreach ($result['courses'] as $cid => $info)
-                {
+                {                    
                     $course = $courseSchema->get($cid);
                     $course->classroom_id = (int)$room->id;
                     $course->save();
@@ -328,6 +328,7 @@ class Classrooms_ClassData_Importer
                             $schedule->room_id = $room->id;
                             $schedule->room_external_id = $fid;
                             $schedule->createdDate = new DateTime;
+                            $schedule->schedules = serialize($info['schedules']);
                             $schedule->save();
                         }
 

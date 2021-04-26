@@ -19,6 +19,7 @@ class Classrooms_ClassData_CourseScheduledRoom extends Bss_ActiveRecord_Base
             'createdDate' => ['datetime', 'nativeName' => 'created_date'],
             'modifiedDate' => ['datetime', 'nativeName' => 'modified_date'],
             'userDeleted' => ['bool', 'nativeName' => 'user_deleted'],
+            'schedules' => 'string',
 
             'faculty' => ['1:1', 'to' => 'Classrooms_ClassData_User', 'keyMap' => ['faculty_id' => 'id']],
             'account' => ['1:1', 'to' => 'Bss_AuthN_Account', 'keyMap' => ['account_id' => 'id']],

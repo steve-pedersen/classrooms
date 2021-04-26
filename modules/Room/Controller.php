@@ -36,7 +36,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         'ucorpTag',
     );
 
-    public static $AllRoomFacets = [
+    public static $AllRoomAvEquipment = [
         'lcd_proj'=>'LCD Projector', 'lcd_tv'=>'LCD TV', 'vcr_dvd'=>'VCR/DVD', 'hdmi'=>'HDMI', 'vga'=>'VGA', 'data'=>'Data/Ethernet',
         'scr'=>'Screen', 'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam'
     ];
@@ -57,6 +57,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/configurations' => ['callback' => 'listConfigurations'],
             '/configurations/:id' => ['callback' => 'viewConfigurationBundle'],
             '/configurations/:id/edit' => ['callback' => 'editConfigurationBundle'],
+            '/schedules' => ['callback' => 'schedules'],
+            '/schedules/autocomplete' => ['callback' => 'autoCompleteAccounts'],
         ];
     }
 
@@ -76,7 +78,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->pEdit = $this->hasPermission('edit room');
         $this->template->pViewDetails = $this->hasPermission('view schedules');
     	$this->template->room = $location;
-    	$this->template->allFacets = self::$AllRoomFacets;
+    	$this->template->allAvEquipment = self::$AllRoomAvEquipment;
         $this->template->notes = $location->id ? $notes->find(
             $notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']
         ) : [];
@@ -135,7 +137,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $equip = null;
             foreach ($selectedEquipment as $selected)
             {
-                $query = $locations->facets->like('%:"' . $selected . '";%');
+                $query = $locations->avEquipment->like('%:"' . $selected . '";%');
                 $equip = $equip ? $equip->andIf($query) : $query;
             }
             $condition = $condition ? $condition->andIf($equip) : $condition;
@@ -164,8 +166,70 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->types = $types;
         $this->template->rooms = $sortedRooms;
         $this->template->titles = $titles->getAll(['orderBy' => 'name']);
-        $this->template->allFacets = self::$AllRoomFacets;
+        $this->template->allAvEquipment = self::$AllRoomAvEquipment;
         $this->template->defaultRoomText = $this->getApplication()->siteSettings->getProperty('default-room-text', 'There is no detailed information currently available for this room.');
+    }
+
+    public function schedules ()
+    {
+        $viewer = $this->requireLogin();
+        $this->requirePermission('admin');
+        $scheduleSchema = $this->schema('Classrooms_ClassData_CourseScheduledRoom');
+
+        $semesters = $this->guessRelevantSemesters();
+        $userId = $this->request->getQueryParameter('u');
+        $termYear = $this->request->getQueryParameter('t', $semesters['curr']['code']);
+
+        $condition = $scheduleSchema->allTrue(
+            $scheduleSchema->termYear->equals($termYear),
+            $scheduleSchema->userDeleted->isNull()->orIf(
+                $scheduleSchema->userDeleted->isFalse()
+            )
+        );
+
+        $user = null;
+        if ($userId)
+        {	
+        	$user = $this->schema('Classrooms_ClassData_User')->get($userId);
+        	$condition = $condition->andIf($scheduleSchema->faculty_id->equals($userId));
+        }
+
+        $scheduledRooms = [];
+        $result = $scheduleSchema->find($condition, ['orderBy' => 'room_id']);
+        
+        foreach ($result as $schedule)
+        {
+        	$key1 = $schedule->room->building->code . $schedule->room->number;
+        	if (!isset($scheduledRooms[$key1]))
+        	{
+        		$scheduledRooms[$key1] = [
+        			'room' => $schedule->room, 
+        			'schedules' => []
+        		];
+        	}
+
+        	// $key2 = explode(' ', $schedule->course->classNumber)[1] . '-' . $schedule->course->sectionNumber;
+        	// echo "<pre>"; var_dump($key2); die;
+        	$key2 = $schedule->faculty->lastName . $schedule->faculty->firstName;
+
+        	if (!isset($scheduledRooms[$key1]['schedules'][$key2]))
+        	{
+        		$scheduledRooms[$key1]['schedules'][$key2] = [];
+        	}
+        	$scheduledRooms[$key1]['schedules'][$key2][] = $schedule;
+        }
+        
+        foreach ($scheduledRooms as $key => $sr)
+        {
+        	ksort($sr['schedules'], SORT_NATURAL);
+        	$scheduledRooms[$key]['schedules'] = $sr['schedules'];
+        }
+        ksort($scheduledRooms, SORT_NATURAL);
+
+        $this->template->scheduledRooms = $scheduledRooms;
+        $this->template->semesters = $semesters;
+        $this->template->selectedTerm = $termYear;
+        $this->template->selectedUser = $userId;
     }
 
     public function listConfigurations ()
@@ -298,8 +362,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     {
                         $location->addNote('Room details updated', $viewer, $location->getDiff($locationData));
                     }
-                    $location->building_id = $locationData['building'];
-                    $location->type_id = $locationData['type'];
+                    $location->building_id = $locationData['building'] ? $locationData['building'] : null;
+                    $location->type_id = $locationData['type'] ? $locationData['type'] : null;
                     $location->number = $locationData['number'];
                     $location->description = $locationData['description'];
                     $location->capacity = $locationData['capacity'];
@@ -307,7 +371,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $location->supportedBy = $locationData['supportedBy'];
                     $location->description = $locationData['description'];
                     $location->url = $locationData['url'];
-                    $location->facets = isset($locationData['facets']) ? serialize($locationData['facets']) : '';
+                    $location->avEquipment = isset($locationData['avEquipment']) ? serialize($locationData['avEquipment']) : '';
                     $location->createdDate = $location->createdDate ?? new DateTime;
                     $location->modifiedDate = new DateTime;
                     $location->configured = true;
@@ -398,8 +462,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->customConfigurations = $customConfigurations;
         $this->template->types = $types->getAll();
         $this->template->buildings = $buildings->getAll(['orderBy' => 'code']);
-        $this->template->roomFacets = $location->facets ? unserialize($location->facets) : [];
-        $this->template->allFacets = self::$AllRoomFacets;
+        $this->template->roomAvEquipment = $location->avEquipment ? unserialize($location->avEquipment) : [];
+        $this->template->allAvEquipment = self::$AllRoomAvEquipment;
         $this->template->softwareLicenses = $softwareLicenses;
         $this->template->bundles = $configs->find($configs->isBundle->isTrue(), ['orderBy' => 'model']);
         $this->template->notes = $location->id ? $notes->find(
@@ -698,6 +762,93 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         return [$removed, $added];
     }
 
+    public function autoCompleteAccounts ()
+    {
+        $role = $this->request->getQueryParameter('role');
+        $roleRestrict = null;
+
+        if ($role)
+        {
+            $roleRestrict = $this->schema('Classrooms_AuthN_Role')->get($role);
+        }
+
+        $roles = $this->schema('Classrooms_AuthN_Role');
+        $adminRole = $roles->findOne($roles->name->equals('Administrator'));
+
+        $query = $this->request->getQueryParameter('s');
+        $queryParts = explode(' ', $query);
+
+        $accounts = $this->schema('Bss_AuthN_Account');
+
+        $conds = array();
+
+        foreach ($queryParts as $part)
+        {
+            $search = '%' . $part . '%';
+            $conds[] = $accounts->anyTrue(
+                $accounts->firstName->lower()->like(strtolower($search)),
+                $accounts->lastName->lower()->like(strtolower($search)),
+                $accounts->emailAddress->lower()->like(strtolower($search)),
+                $accounts->username->lower()->like(strtolower($search))
+            );
+        }
+
+        $candidates = array();
+
+        if (!empty($conds))
+        {
+            $cond = array_shift($conds);
+
+            foreach ($conds as $c)
+            {
+                $cond = $cond->orIf($c);
+            }
+
+            $candidates = $accounts->find($cond, array('orderBy' => array('+lastName', '+firstName'), 'arrayKey' => 'username'));
+
+            $authZ = $this->getAuthorizationManager();
+            foreach ($candidates as $i => $candidate)
+            {
+                if ($candidate->roles->has($adminRole) || $authZ->hasPermission($candidate, 'admin') || 
+                    strlen($candidate->username) !== 9)
+                {
+                    unset($candidates[$i]);
+                }
+            }
+        }
+
+        if ($candidates)
+        {
+            $options = array();
+            foreach ($candidates as $candidate)
+            {
+                $options[$candidate->id] = array(
+                    'id' => $candidate->id,
+                    'firstName' => $candidate->firstName,
+                    'lastName' => $candidate->lastName,
+                    'username' => $candidate->username,
+                );
+            }
+
+            $results = array(
+                'message' => 'Candidates found.',
+                'status' => 'success',
+                'data' => $options
+            );
+        }
+        else
+        {
+            $results = array(
+                'message' => 'No candidates found.',
+                'status' => 'error',
+                'data' => ''
+            );
+        }
+
+        echo json_encode($results);
+        exit;
+    }
+
     public function autoComplete ()
     {
         $locations = $this->schema('Classrooms_Room_Location');
@@ -816,5 +967,78 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
         echo json_encode($results);
         exit;
+    }
+
+
+    protected function guessRelevantSemesters ()
+    {
+        $year = '2' . date('y');
+        $month = date('n');
+        $day = date('d');
+        $prev = $curr = $next1 = $next2 = '';
+
+        if ($month == 12 && $d > 15)
+        {
+            $year += 1;
+            $prev = ($year - 1) . '7';
+            $curr = $year . '1';
+            $next1 = $year . '3';
+            $next2 = $year . '5';
+        }
+        elseif ($month < 2)
+        {
+            $prev = ($year - 1) . '7';
+            $curr = $year . '1';
+            $next1 = $year . '3';
+            $next2 = $year . '5';           
+        }
+        elseif ($month < 5)
+        {
+            $prev = $year . '1';
+            $curr = $year . '3';
+            $next1 = $year . '5';
+            $next2 = $year . '7';    
+        }
+        elseif ($month < 8)
+        {
+            $prev = $year . '3';
+            $curr = $year . '5';
+            $next1 = $year . '7';
+            $next2 = ($year + 1) . '1';  
+        }
+        else
+        {
+            $prev = $year . '5';
+            $curr = $year . '7';
+            $next1 = ($year + 1) . '1';
+            $next2 = ($year + 1) . '3';    
+        }
+
+        $semesters = [
+            'prev' => ['code' => $prev, 'disp' => $this->codeToDisplay($prev)],
+            'curr' => ['code' => $curr, 'disp' => $this->codeToDisplay($curr)],
+            'next1' => ['code' => $next1, 'disp' => $this->codeToDisplay($next1)],
+            'next2' => ['code' => $next2, 'disp' => $this->codeToDisplay($next2)],
+        ];
+
+        return $semesters;
+    }
+
+    public function codeToDisplay ($code)
+    {
+        $year = $code[0] . '0' . $code[1] . $code[2];
+        switch ($code[3])
+        {
+            case '1':
+                return 'Winter ' . $year;
+            case '3':
+                return 'Spring ' . $year;
+            case '5':
+                return 'Summer ' . $year;
+            case '7':
+                return 'Fall ' . $year;
+        }
+
+        return $code;
     }
 }

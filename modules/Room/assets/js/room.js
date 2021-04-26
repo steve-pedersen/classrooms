@@ -83,5 +83,76 @@
 	    }
 	});
 
+
+
+    var autoCompleteAccountsUrl = $('base').attr('href') + 'schedules/autocomplete';
+
+    var transformAccounts = function (data) {
+      var results = [];
+      // console.log(data);
+      for (var id in data) {
+        var info = data[id];
+        results.push({
+          value: id,
+          username: info.username,
+          // label: info.username
+          label: info.firstName + ' ' + info.lastName + ' (' + info.username + ')' 
+        });
+      }
+
+      return results;
+    };
+
+    $('.account-autocomplete').autocomplete({
+      delay: 200,
+      minLength: 3,
+      appendTo: ".search-container",
+      source: function (request, response) {
+        var term = request.term;
+        // console.log(autoCompleteAccountsUrl + '?s=' + term);
+        if (term.length > 2) {
+          $.ajax(`${autoCompleteAccountsUrl}?s=${term}`, {
+            type: 'get',
+            dataType: 'json',
+            success: function (o) {
+              switch (o.status) {
+                case 'success':
+                  // console.log('success!', o.data);
+                  response(transformAccounts(o.data));
+                  break;
+                case 'error':
+                  //console.log(o.message);
+                  break;
+                default:
+                  //console.log('unknown error');
+                  break;
+              }
+            }
+          });
+        }
+      },
+      select: function (event, ui) {
+        event.stopPropagation();
+        event.preventDefault();
+        var item = ui.item;
+        var $self = $(this);
+        var shadowId = this.id + '-shadow';
+        var $shadow = $('#' + shadowId);
+
+        // console.log(item, $self, shadowId, $shadow);
+
+        if ($shadow.length === 0) {
+          $shadow = $('<input type="hidden" name="u">');
+          $shadow.attr('id', shadowId);
+          $('#autcompleteContainer').prepend($shadow);
+        }
+
+        $shadow.attr('value', item.username); // search by username
+        this.value = item.label;
+      }
+    });
+
+
+
   });
 })(jQuery);

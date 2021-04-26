@@ -122,21 +122,21 @@
 					</div>
 
 					<div class="form-group">
-						<label for="url" class="col-sm-2 control-label">Facets</label>
+						<label for="url" class="col-sm-2 control-label">A/V Equipment</label>
 						<div class="col-sm-10">
 							<table class="table table-bordered">
 								<thead>
 									<tr>
-									{foreach $allFacets as $key => $facet}
-										<th scope="{$facet}">{$facet}</th>
+									{foreach $allAvEquipment as $key => $equipment}
+										<th scope="{$equipment}">{$equipment}</th>
 									{/foreach}
 									</tr>
 								</thead>
 								<tbody>
 									<tr>
-									{foreach $allFacets as $key => $facet}
+									{foreach $allAvEquipment as $key => $equipment}
 										<td class="text-centers">
-											<input type="checkbox" name="room[facets][{$key}]" {if $roomFacets[$key]}checked{/if}>
+											<input type="checkbox" name="room[avEquipment][{$key}]" {if $roomAvEquipment[$key]}checked{/if}>
 										</td>
 									{/foreach}
 									</tr>
@@ -178,7 +178,10 @@
 
 				</div>
 
-				<h3>Configuration Bundles</h3>
+		<div class="panel panel-default">
+			<div class="panel-heading"><h3>Configuration Bundles</h3></div>
+			<div class="panel-body">
+				
 				<div class="form-horizontal">
 					<div class="form-group">
 						<label for="bundles" class="col-sm-2 control-label">Available Bundles</label>
@@ -208,6 +211,9 @@
 						</div>
 					</div>
 				</div>
+			</div>
+		</div>
+
 
 				{include file="partial:_configurations.html.tpl"}
 

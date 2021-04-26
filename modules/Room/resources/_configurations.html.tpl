@@ -1,6 +1,7 @@
 {assign var="config" value=$selectedConfiguration}
 
-
+<div class="panel panel-default">
+<div class="panel-heading">
 <h3>Custom Configurations 
 	<small>
 	{if $config->id && $location->configurations && $location->configurations->count() > 1}
@@ -10,7 +11,9 @@
 	{/if}
 	</small>
 </h3>
+</div>
 
+<div class="panel-body">
 {if $config->id}
 <div class="form-horizontal">
 	<div class="form-group">
@@ -272,4 +275,6 @@
 		</div>
 	</div>
 
+</div>
+</div>
 </div>

@@ -23,7 +23,7 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
             'capacity' => 'string',
             'scheduledBy' => ['string', 'nativeName' => 'scheduled_by'],
             'supportedBy' => ['string', 'nativeName' => 'supported_by'],
-            'facets' => 'string',
+            'avEquipment' => ['string', 'nativeName' => 'av_equipment'],
             'url' => 'string',
             'deleted' => 'bool',
             'configured' => 'bool',
@@ -105,10 +105,10 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
             if ($updated) break;
             if (isset($data[$key]) && !is_object($value))
             {
-                if ($key === 'facets')
+                if ($key === 'avEquipment')
                 {   
-                    $facets = $this->facets ? unserialize($this->facets) : [];
-                    if (array_diff_key($facets, $data['facets']) || array_diff_key($data['facets'], $facets))
+                    $avEquipment = $this->avEquipment ? unserialize($this->avEquipment) : [];
+                    if (array_diff_key($avEquipment, $data['avEquipment']) || array_diff_key($data['avEquipment'], $avEquipment))
                     {
                         $updated = true;
                     }
@@ -130,10 +130,10 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
         {
             if (isset($data[$key]) && !is_object($value))
             {
-                if ($key === 'facets')
+                if ($key === 'avEquipment')
                 {   
-                    $facets = $this->facets ? unserialize($this->facets) : [];
-                    if ($removed = array_diff_key($facets, $data['facets']))
+                    $avEquipment = $this->avEquipment ? unserialize($this->avEquipment) : [];
+                    if ($removed = array_diff_key($avEquipment, $data['avEquipment']))
                     {
                         foreach ($removed as $k => $on)
                         {
@@ -142,7 +142,7 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
                         }
                     }
 
-                    if ($added = array_diff_key($data['facets'], $facets))
+                    if ($added = array_diff_key($data['avEquipment'], $avEquipment))
                     {
                         foreach ($added as $k => $on)
                         {

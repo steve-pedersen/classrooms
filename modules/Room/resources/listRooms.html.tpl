@@ -40,9 +40,9 @@
 		    </div> -->
 		    <div class="form-group">
 				<select id="filter-equipment" class="multiselect form-control" name="equipment[]" multiple label="Equipment">
-				{foreach $allFacets as $key => $equipment}
+				{foreach $allAvEquipment as $key => $equipment}
 					<option value="{$key}" {if $selectedEquipment && in_array($key, $selectedEquipment)}selected{/if}>
-						{$allFacets[$key]}
+						{$allAvEquipment[$key]}
 					</option>
 				{/foreach}
 				</select>  
@@ -82,7 +82,7 @@
 </div>
 
 {foreach $rooms as $room}
-	{assign var="facets" value=unserialize($room->facets)}
+	{assign var="avEquipment" value=unserialize($room->avEquipment)}
 
 <div class="panel panel-default room-card" id="{$room->id}">
   <div class="panel-body">
@@ -118,8 +118,8 @@
     			{/if}
     		{/foreach}
     			<li><strong>A/V: </strong>
-				{foreach $facets as $key => $facet}
-					{$allFacets[$key]}{if !$facet@last}, {/if}
+				{foreach $avEquipment as $key => $equipment}
+					{$allAvEquipment[$key]}{if !$equipment@last}, {/if}
 				{/foreach}
     			</li>
     		</ul>
@@ -144,34 +144,3 @@
 </div>
 
 {/foreach}
-
-
-<!-- <table class="table table-bordered table-striped table-condensed">
-	<thead>
-		<tr>
-			<th scope="Room#">Room #</th>
-		{foreach $allFacets as $key => $facet}
-			<th scope="{$facet}">{$facet}</th>
-		{/foreach}
-			<th scope="capacity">Cap</th>
-		</tr>
-	</thead>
-	<tbody>
-	{foreach $rooms as $room}
-		{assign var="facets" value=unserialize($room->facets)}
-		<tr>
-			<th scope="col" class="">
-				<a href="rooms/{$room->id}">{if $room->building->code}{/if}{$room->number}</a>
-			</th>
-		{foreach $allFacets as $key => $facet}
-			<td>{if $facets[$key]}<i class="glyphicon glyphicon-ok text-success"></i>{else}<i class="glyphicon glyphicon-remove text-danger"></i>{/if}</td>
-		{/foreach}	
-			<td>{$room->capacity}</td>			
-		</tr>
-	{foreachelse}
-		<tr>
-			<td colspan="{count($allFacets) + 2}">There are no rooms that meet your search criteria.</td>
-		</tr>
-	{/foreach}
-	</tbody>
-</table> -->
