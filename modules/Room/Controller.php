@@ -75,7 +75,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         
         $this->template->trackUrl = $trackRoomUrlApi;
         $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
-        $this->template->pEdit = $this->hasPermission('edit room');
+        $this->template->pEdit = true ?? $this->hasPermission('edit room');
         $this->template->pViewDetails = $this->hasPermission('view schedules');
     	$this->template->room = $location;
     	$this->template->allAvEquipment = self::$AllRoomAvEquipment;
@@ -88,7 +88,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
     	$viewer = $this->getAccount();
         // $this->requirePermission('list rooms');
-        $this->template->pEdit = $this->hasPermission('edit room');
+        $this->template->pEdit = true ?? $this->hasPermission('edit room');
         
         $locations = $this->schema('Classrooms_Room_Location');
         $buildings = $this->schema('Classrooms_Room_Building')->getAll(['orderBy' => 'name']);
@@ -236,7 +236,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
         $viewer = $this->requireLogin();
         $this->requirePermission('list software');
-        $this->template->pEdit = $this->hasPermission('edit room');
+        $this->template->pEdit = true ?? $this->hasPermission('edit room');
 
         $configs = $this->schema('Classrooms_Room_Configuration');
         $this->template->configurations = $configs->find(
