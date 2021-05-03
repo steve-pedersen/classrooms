@@ -11,7 +11,7 @@
 
 {if !$userContext->account}
 <div class="welcome-module">
-    <a href="{$app->baseUrl('login?returnTo=/purchase')}" class="btn btn-primary">Log In</a>
+    <a href="{$app->baseUrl('login?returnTo=/')}" class="btn btn-primary">Log In</a>
 </div>
 {else}
 <div class="welcome-module">
