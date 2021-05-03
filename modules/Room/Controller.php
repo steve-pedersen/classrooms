@@ -235,7 +235,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function listConfigurations ()
     {
         $viewer = $this->requireLogin();
-        $this->requirePermission('list software');
+        // $this->requirePermission('list software');
         $this->template->pEdit = true ?? $this->hasPermission('edit room');
 
         $configs = $this->schema('Classrooms_Room_Configuration');
