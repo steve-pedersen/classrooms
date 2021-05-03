@@ -173,7 +173,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function schedules ()
     {
         $viewer = $this->requireLogin();
-        $this->requirePermission('admin');
+        // $this->requirePermission('admin');
         $scheduleSchema = $this->schema('Classrooms_ClassData_CourseScheduledRoom');
 
         $semesters = $this->guessRelevantSemesters();
@@ -259,7 +259,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function editConfigurationBundle ()
     {
         $viewer = $this->requireLogin();
-        $this->requirePermission('edit room');
+        // $this->requirePermission('edit room');
         $this->addBreadcrumb('configurations', 'List Configurations');
 
         $titles = $this->schema('Classrooms_Software_Title');
@@ -322,7 +322,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
     	$this->addBreadcrumb('rooms', 'List Rooms');
         $viewer = $this->requireLogin();
-        $this->requirePermission('edit room');
+        // $this->requirePermission('edit room');
 
         $location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id', ['allowNew' => true]);
         $configs = $this->schema('Classrooms_Room_Configuration');
@@ -474,7 +474,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function editTutorial () 
     {
         $viewer = $this->requireLogin();
-        $this->requirePermission('edit room');
+        // $this->requirePermission('edit room');
 
     	$location = $this->requireExists($this->schema('Classrooms_Room_Location')->get($this->getRouteVariable('roomid')));
     	$tutorial = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Tutorial', 'id', ['allowNew' => true]);
@@ -586,7 +586,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function editConfiguration ()
     {
         $viewer = $this->requireLogin();
-        $this->requirePermission('edit room');
+        // $this->requirePermission('edit room');
 
         $rooms = $this->schema('Classrooms_Software_Title');
         $configs = $this->schema('Classrooms_Software_License');
