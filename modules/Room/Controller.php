@@ -878,14 +878,14 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             }
             else
             {
-                if ($this->hasPermission('admin'))
-                {
-                    $userAttributes = $schedules->faculty_id->like(substr($pattern, 1));
-                    if ($userRooms = $schedules->findValues(['faculty_id' => 'room_id'], $userAttributes))
-                    {
-                        $userResults = array_keys($userRooms);
-                    }
-                }
+                // if ($this->hasPermission('admin'))
+                // {
+                //     $userAttributes = $schedules->faculty_id->like(substr($pattern, 1));
+                //     if ($userRooms = $schedules->findValues(['faculty_id' => 'room_id'], $userAttributes))
+                //     {
+                //         $userResults = array_keys($userRooms);
+                //     }
+                // }
 
                 $attributes = $locations->anyTrue(
                     $locations->number->lower()->like($pattern),
@@ -952,7 +952,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 'message' => 'Candidates found.',
                 'status' => 'success',
                 'data' => $options,
-                'users' => $userResults
+                // 'users' => $userResults
             );
         }
         else
