@@ -331,6 +331,12 @@ class Classrooms_ClassData_Importer
                             $schedule->schedules = serialize($info['schedules']);
                             $schedule->save();
                         }
+                        else
+                        {
+                            $schedule = $scheduleSchema->findOne($condition->andIf(
+                                $scheduleSchema->faculty_id->equals($instructor->id))
+                            );
+                        }
 
                         $currentFaculty[$instructor->id] = $schedule;
                     }
