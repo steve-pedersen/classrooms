@@ -17,7 +17,7 @@ class Classrooms_Master_UserContext extends Bss_Master_UserContext
         {
             if ($this->getAuthorizationManager()->hasPermission($account, 'admin'))
             {
-                $this->response->redirect('admin');
+                $this->response->redirect('/');
             }
             else //if not admin, go to 
             {
