@@ -87,8 +87,8 @@
 <div class="panel panel-default room-card" id="{$room->id}">
   <div class="panel-body">
     <div class="row equal" style="min-height: 8rem;">
-    	<div class="col-sm-4 room-number" style="display:inline;">
-			
+    	
+    	<div class="col-sm-4 room-number" style="display:inline;">	
 			<div class="col-sm-6">
 	    		<ul class="list-unstyled">
 		    		<li>
@@ -105,8 +105,8 @@
 				<img src="assets/images/buildings-{$room->building->code|lower}.jpg" class="img-responsive" style="max-width:100px;" alt="{$room->building->code} building">
 				</a>
 			</div>
-			
     	</div>
+
     	{if $room->configured}
     	<div class="col-sm-5 config-info" >
     		<h4>Equipment</h4>
@@ -125,11 +125,12 @@
     		</ul>
     	</div>
     	{else}
-    	<div class="col-sm-5 config-info" >
-    		 {$room->description}
+    	<div class="col-sm-5 config-info">
+    		<h4>Equipment</h4>
+    		{$room->description}
     	</div>    	
     	{/if}
-    	{if $room->tutorial->name}
+
     	<div class="col-sm-3 tutorial-info">
     		<h4>Tutorial</h4>
     		{if $room->tutorial->name}
@@ -138,7 +139,6 @@
     			No tutorial set up for this room.
     		{/if}
     	</div>
-    	{/if}
     </div>
   </div>
 </div>
