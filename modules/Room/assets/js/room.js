@@ -21,21 +21,21 @@
 			}
 		});
 
-		if (users && users.length && $('#searchBox').val()) {
-			var message = '';
-			for (var i = 0; i < users.length; i++) {
-				message += users[i];
-				if (i < users.length - 1) {
-					message += ', ';
-				}
-			}
+		// if (users && users.length && $('#searchBox').val()) {
+		// 	var message = '';
+		// 	for (var i = 0; i < users.length; i++) {
+		// 		message += users[i];
+		// 		if (i < users.length - 1) {
+		// 			message += ', ';
+		// 		}
+		// 	}
 
-			$('#userResultList').text(message);
-			$('#userResultMessage').show();
-		} else {
-			$('#userResultList').text('');
-			$('#userResultMessage').hide();		
-		}
+		// 	$('#userResultList').text(message);
+		// 	$('#userResultMessage').show();
+		// } else {
+		// 	$('#userResultList').text('');
+		// 	$('#userResultMessage').hide();		
+		// }
 	}
 
 	$('.autocomplete').autocomplete({
@@ -52,7 +52,7 @@
 					success: function (o) {
 						switch (o.status) {
 							case 'success':
-								response(filterRooms(o.data, o.users));
+								response(filterRooms(o.data));
 								break;
 							case 'error':
 								response(filterRooms(o.data));
@@ -76,10 +76,11 @@
 	    if (e.keyCode == 8) {
 	        if ($(this).val() === "") {
 	        	$('.room-card').show(500);
-	        } else {
-				$('#userResultList').text('');
-				$('#userResultMessage').hide();		        	
-	        }
+	        } 
+	   //      else {
+				// $('#userResultList').text('');
+				// $('#userResultMessage').hide();		        	
+	   //      }
 	    }
 	});
 
