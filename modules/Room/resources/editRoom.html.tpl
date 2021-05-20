@@ -6,10 +6,12 @@
 
 <div class="row pull-right" style="margin-bottom: 2em;">
 	<div class="col-sm-12">
-		<a href="buildings/new/edit" class="btn btn-info">Add New Building</a>
-		<a href="types/new/edit" class="btn btn-info">Add New Room Type</a>
-	{if $location->id}
-		<a href="rooms/{$location->id}/tutorials/new/edit" class="btn btn-info">Add New Tutorial</a>
+	{if $location->inDatasource}
+		{if $location->tutorial}
+			<a href="rooms/{$location->id}/tutorials/{$location->tutorial->id}/edit" class="btn btn-info">Edit Tutorial</a>
+		{else}
+			<a href="rooms/{$location->id}/tutorials/new/edit" class="btn btn-success">Add New Tutorial</a>
+		{/if}
 	{/if}
 	</div>
 </div>
@@ -48,17 +50,18 @@
 {/if}
 
 <form action="" method="post">
-	<div class="container"> 
-
-		<div class="row">
-			<div class="col-xs-12 edit-details">
-				<h2>Room Details</h2>
-
+<div class="container"> 
+<div class="row">
+	<div class="col-xs-12 edit-details">
+				
+		<div class="panel panel-default details">
+			<div class="panel-heading"><h2>Room Details</h2></div>
+			<div class="panel-body">
 				<div class="form-horizontal">
 					<div class="form-group">
 						<label for="building" class="col-sm-2 control-label">Building</label>
 						<div class="col-sm-10">
-							<select name="room[building]" id="building" class="form-control">
+							<select name="room[building]" id="building" class="form-control" required>
 								<option value="">Choose Building</option>
 							{foreach $buildings as $building}
 								<option value="{$building->id}"{if $location->building_id == $building->id} selected{/if}>{$building->code} - {$building->name}</option>
@@ -70,7 +73,7 @@
 					<div class="form-group">
 						<label for="type" class="col-sm-2 control-label">Type</label>
 						<div class="col-sm-10">
-							<select name="room[type]" id="type" class="form-control">
+							<select name="room[type]" id="type" class="form-control" required>
 								<option value="">Choose Room Type</option>
 							{foreach $types as $type}
 								<option value="{$type->id}"{if $location->type_id == $type->id} selected{/if}>{$type->name}</option>
@@ -145,41 +148,13 @@
 						</div>
 					</div>
 
-					<div class="form-group">
-						<label for="internalNote" class="col-sm-2 control-label">Add Internal Note</label>
-						<div class="col-sm-10">
-							<input type="text" class="form-control" name="internalNote" value="" placeholder="">
-						</div>
-					</div>
-
-					{if count($location->internalNotes)}
-					<div class="form-group">
-						<label for="internalNote" class="col-sm-2 control-label">
-							<a class="collapse-button collapsed" data-toggle="collapse" data-parent="#accordion1" href="#showNotes" aria-expanded="true" aria-controls="showNotes" style="margin-bottom: 1em;">
-							+ Past Notes
-						</a>
-						</label>
-						<div class="col-sm-10">
-						<div id="accordion1">
-							<div class="panel-collapse collapse" role="tabpanel" id="showNotes">
-								<ul class="">
-								{foreach $location->internalNotes as $note}
-									<li>
-										<strong>{$note->addedBy->fullname} on {$note->createdDate->format('Y/m/d')}:</strong> {$note->message}
-									</li>
-								{/foreach}
-								</ul>
-							</div>
-						</div>
-						</div>
-					</div>
-					{/if}
-
-
 				</div>
+				
+			</div>
+		</div>
 
-		<div class="panel panel-default">
-			<div class="panel-heading"><h3>Configuration Bundles</h3></div>
+		<div class="panel panel-default bundles">
+			<div class="panel-heading"><h2>Configuration Bundles</h2></div>
 			<div class="panel-body">
 				
 				<div class="form-horizontal">
@@ -214,11 +189,44 @@
 			</div>
 		</div>
 
+		{include file="partial:_configurations.html.tpl"}
 
-				{include file="partial:_configurations.html.tpl"}
+		<div class="panel panel-default notes">
+			<div class="panel-heading"><h2>Internal Notes</h2></div>
+			<div class="panel-body">
+				<div class="form-group">
+					<label for="internalNote" class="col-sm-2 control-label">Add Internal Note</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" name="internalNote" value="" placeholder="">
+					</div>
+				</div>
+
+				{if count($location->internalNotes)}
+				<div class="form-group">
+					<label for="internalNote" class="col-sm-2 control-label">
+						<a class="collapse-button collapsed" data-toggle="collapse" data-parent="#accordion1" href="#showNotes" aria-expanded="true" aria-controls="showNotes" style="margin-bottom: 1em;">
+							Past Notes &nbsp;
+						</a>
+					</label>
+					<div class="col-sm-10">
+					<div id="accordion1">
+						<div class="panel-collapse collapse" role="tabpanel" id="showNotes">
+							<ul class="">
+							{foreach $location->internalNotes as $note}
+								<li>
+									<strong>{$note->addedBy->fullname} on {$note->createdDate->format('Y/m/d')}:</strong> {$note->message}
+								</li>
+							{/foreach}
+							</ul>
+						</div>
+					</div>
+					</div>
+				</div>
+				{/if}
 
 			</div>
 		</div>
+
 
 		<div class="controls">
 			{generate_form_post_key}
@@ -227,7 +235,10 @@
 			<a href="rooms/{$location->id}" class="btn btn-default">Cancel</a>
 			<button type="submit" name="command[delete]" class="btn btn-danger pull-right">Delete</button>
 		</div>
+
 	</div>
+</div>
+</div>
 </form>
 
 {if $notes}

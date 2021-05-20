@@ -39,6 +39,11 @@ class Classrooms_Master_Template extends Bss_Master_Template
         // template is rendered.
         
         // $this->assign('someTemplateVariable', 'A value');
+
+        $account = $this->handler->userContext->account;
+        $authZ = $this->application->authorizationManager;
+        $this->assign('pEdit', $authZ->hasPermission($account, 'edit'));
+        $this->assign('pAdmin', $authZ->hasPermission($account, 'admin'));
         
         $session = $this->request->getSession();
         if (isset($session->flashContent))

@@ -1,7 +1,7 @@
 <div class="container">
 	<div class="row">
 		<div class="col-xs-12">
-		{if $type->id}
+		{if $type->inDatasource}
 			<h1>Edit Room Type <small>{$type->name} {$type->code}</small></h1>
 		{else}
 			<h1>New Room Type</h1>
@@ -31,7 +31,9 @@
 			{generate_form_post_key}
 			<input type="hidden" name="typeId" value="{$type->id}">
 			<button type="submit" name="command[save]" class="btn btn-primary">Save Type</button>
+			{if $type->inDatasource}
 			<button type="submit" name="command[delete]" class="btn btn-danger">Delete Type</button>
+			{/if}
 			<a href="rooms" class="btn btn-link pull-right">Cancel</a>
 		</div>
 	</div>

@@ -85,4 +85,15 @@ class Classrooms_Room_Building extends Bss_ActiveRecord_Base
 
         return $updated;
     }
+
+    public function getImage ()
+    {
+        $fname = $this->application->baseUrl('assets/images/buildings-' . strtolower($this->code) . '.jpg');
+        if (fopen($fname, 'r'))
+        {
+            return $fname;
+        }
+
+        return 'assets/images/building.png';
+    }
 }

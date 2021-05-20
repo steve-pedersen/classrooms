@@ -31,10 +31,7 @@
 	      <span>Add image...</span>
 	      <input type="file" name="file" />
 	    </span>
-	    <button type="submit" class="btn btn-primary start">
-	      <i class="glyphicon glyphicon-upload"></i>
-	      <span>Start upload</span>
-	    </button>
+
 	    <!-- The global file processing state -->
 	    <span class="fileupload-process"></span>
 	  </div>
@@ -73,7 +70,7 @@
 					<div class="form-group">
 						<label for="name" class="control-label">Tutorial Title</label>
 						<div class="">
-							<input type="text" class="form-control" name="name" value="{if $tutorial->name}{$tutorial->name}{else}Room Tutorial: {$room->codeNumber}{/if}">
+							<input disabled type="text" class="form-control" name="name" value="{if $tutorial->name}{$tutorial->name}{else}Room Tutorial: {$room->codeNumber}{/if}">
 						</div>
 					</div>
 					<div class="form-group">
@@ -91,7 +88,9 @@
 					</div>
 					<div class="form-group">
 						<label for="youtubeEmbedCode">YouTube Embed Code</label>
-						<input type="text" name="youtubeEmbedCode" class="form-control" value="{$tutorial->youtubeEmbedCode}">
+						<textarea rows="3" name="youtubeEmbedCode" class="form-control">
+							{$tutorial->youtubeEmbedCode|trim}
+						</textarea>
 					</div>
 					<div class="form-group">
 						<label for="description" class="control-label">Description</label>

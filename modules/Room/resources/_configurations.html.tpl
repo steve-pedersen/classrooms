@@ -2,7 +2,7 @@
 
 <div class="panel panel-default">
 <div class="panel-heading">
-<h3>Custom Configurations 
+<h2>Custom Configurations 
 	<small>
 	{if $config->id && $location->configurations && $location->configurations->count() > 1}
 		({$config->model} {$model->location})
@@ -10,7 +10,7 @@
 		(default)
 	{/if}
 	</small>
-</h3>
+</h2>
 </div>
 
 <div class="panel-body">
@@ -96,7 +96,7 @@
 </div>
 
 	<br>
-	<h5>Software for this configuration {if $selectedConfiguration->id}({$selectedConfiguration->model}){/if}</h5>
+	<h5>Software for this configuration {if $selectedConfiguration->id}- <span class="text-info">{$selectedConfiguration->model}</span>{/if}</h5>
 	<div class="form-group">
 		<label for="config" class="col-sm-2 control-label">Available Titles</label>
 		<div class="col-sm-10">

@@ -7,7 +7,11 @@
 <div class="row pull-right" style="margin-bottom:10px;">
 	<div class="col-sm-12">
 		<a href="rooms/{$room->id}/edit" class="btn btn-info">Edit Room</a>
-		<a href="rooms/{$room->id}/tutorials/{if $room->tutorial}{$room->tutorial->id}{else}new{/if}/edit" class="btn btn-info">Edit Tutorial</a>
+	{if $location->tutorial}
+		<a href="rooms/{$room->id}/tutorials/{$room->tutorial->id}/edit" class="btn btn-info">Edit Tutorial</a>
+	{else}
+		<a href="rooms/{$room->id}/tutorials/new/edit" class="btn btn-success">Add New Tutorial</a>
+	{/if}
 	</div>
 </div>
 {/if}
@@ -56,6 +60,10 @@
 			{if $room->description}
 			<dt>Description</dt>
 			<dd>{$room->description}</dd>
+			{/if}
+			{if $room->url}
+			<dt>URL</dt>
+			<dd>{$room->url}</dd>
 			{/if}
 		</dl>
 	</div>
@@ -208,35 +216,29 @@
 {if $notes && $pEdit}
 <div id="notes" class="tab-pane fade {if $mode == 'notes'}in active{/if}" style="margin-top:3em;">
   	<h3>Notes</h3>
-	<hr>
-	<br>
+
 	{if count($room->internalNotes)}
-	<h4>Internal User Notes</h4>
-	<div class="form-group">
-		<label for="internalNote" class="col-sm-2 control-label">
-			<a class="collapse-button collapsed" data-toggle="collapse" data-parent="#accordion1" href="#showNotes" aria-expanded="true" aria-controls="showNotes" style="margin-bottom: 1em;">
-			+ Show Notes
-		</a>
-		</label>
-		<div class="col-sm-10">
-		<div id="accordion1">
-			<div class="panel-collapse collapse" role="tabpanel" id="showNotes">
-				<ul class="">
-				{foreach $room->internalNotes as $note}
-					<li>
-						<strong>{$note->addedBy->fullname} on {$note->createdDate->format('Y/m/d')}:</strong> {$note->message}
-					</li>
-				{/foreach}
-				</ul>
-			</div>
-		</div>
+	<div class="panel panel-default">
+		<div class="panel-heading"><h4>Internal Notes</h4></div>
+		<div class="panel-body">
+			<ul class="list-unstyled">
+			{foreach $room->internalNotes as $note}
+				<li>
+					<strong style="margin-right:1em;">{$note->addedBy->fullName} ({$note->createdDate->format('Y-m-d h:i a')}):</strong> {$note->message}
+				</li>
+			{/foreach}
+			</ul>		
 		</div>
 	</div>
 	{/if}
-	<br><br>
-	<!-- <hr> -->
-	<h4>System Log Notes</h4>
-	{include file="partial:_view.notes.html.tpl"}
+
+	<div class="panel panel-default">
+		<div class="panel-heading"><h4>System Log Notes</h4></div>
+		<div class="panel-body">
+			{include file="partial:_view.notes.html.tpl"}			
+		</div>
+	</div>
+
 </div>
 {/if}
 

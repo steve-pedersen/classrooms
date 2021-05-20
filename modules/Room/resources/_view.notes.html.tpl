@@ -3,11 +3,12 @@
 
 {foreach $notes as $note}
 	<li>
-		{$note->createdBy->fullName} ({$note->createdDate->format('Y-m-d h:i a')}): {$note->message}
+		<strong style="margin-right:1em;">{$note->createdBy->fullName} ({$note->createdDate->format('Y-m-d h:i a')}):</strong>
+		{$note->message}
 		
 		{if $note->oldValues}
-		<a class="collapse-button collapsed" data-toggle="collapse" data-parent="#accordion" href="#noteHistory{$note->id}" aria-expanded="true" aria-controls="noteHistory{$note->id}" style="margin-left: 2em; font-weight: bold;">
-			Show History
+		<a class="collapse-button collapsed" data-toggle="collapse" data-parent="#accordion" href="#noteHistory{$note->id}" aria-expanded="true" aria-controls="noteHistory{$note->id}" style="margin-left: 2em; font-weight: bold;float:right;">
+			Show History &nbsp;
 		</a>
 		<div id="accordion">
 			<div class="panel-collapse collapse" role="tabpanel" id="noteHistory{$note->id}">

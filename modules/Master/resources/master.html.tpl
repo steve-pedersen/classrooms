@@ -32,27 +32,18 @@
 	                <span class="icon-bar"></span>
 	                <span class="icon-bar"></span>
 	              </button>
-	              {if $viewer && $viewer->faculty}
-	              	<a class="navbar-brand" href="{$baseUrl}" style="">
-	              		<img class="img-responsive" src="assets/images/brand.png" style="">
-	              		<span class="text">Classrooms Database</span>
-	              	</a>a>
-	              {else}
-	              	<a class="navbar-brand" href="{$baseUrl}" style="">
-	              		<img class="img-responsive" src="assets/images/brand.png" style="">
-	              		<span class="text">Classrooms Database</span>
-	              	</a>
-<!-- 	              	<a class="navbar-brand" href="{$baseUrl}" style="">
-	              		Classrooms Database
-	              	</a> -->
-	              {/if}
+					<a class="navbar-brand" href="{$baseUrl}" style="">
+						<img class="img-responsive" src="assets/images/brand.png" style="">
+						<span class="text">Classrooms Database</span>
+					</a>
 	            </div> 
 				<nav class="collapse navbar-collapse" id="navbar-at-collapse">
+				<form method="post" action="logout" id="logout-form">
 	            <ul class="nav navbar-nav navbar-right">
 					{if $viewer}
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle navbar-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-							{if $viewer->faculty && !$pAdmin}
+							{if !$pEdit}
 								Hello, Professor {$viewer->faculty->lastName}
 							{else}
 								Hello, {$viewer->firstName}
@@ -71,10 +62,8 @@
 								<li>
 									<a class="btn btn-link navbar-link" href="software">Software</a>
 								</li>
-								<li>
-									<form method="post" action="logout">
-										<button class="btn btn-link logout navbar-btn" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
-									</form>
+								<li class="text-center">
+									<button class="btn btn-link logout navbar-btn" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
 								</li>
 							</ul>
 						</li>
@@ -84,6 +73,7 @@
 						</li>
 					{/if} 
 	            </ul>
+	            </form>
 	            </nav>
 						
 	            <!-- Collect the nav links, forms, and other content for toggling -->
@@ -169,7 +159,7 @@
                 <div class="half">
                   <h2>Need Help?</h2>
                   <ul>
-                    <li>x5-5562</li>
+                    <li>(415) 405-5555</li>
                     <li><a href="mailto:at@sfsu.edu">at@sfsu.edu</a></li>
                   </ul>
                 </div>

@@ -7,12 +7,12 @@
     // AUTO-COMPLETE
 	var autoCompleteUrl = document.baseURI + 'rooms/autocomplete';
 
-	var filterRooms = function (data, users = null) {
+	var filterRooms = function (data) {
 		var ids = new Array;
 		for (const id in data) {
 			ids.push(id);
 		}
-		// console.log(ids);
+
 		$('.room-card').each(function (i, item) {
 			if (ids.includes($(item).attr('id'))) {
 				$(this).show(500);
@@ -20,22 +20,6 @@
 				$(this).hide(500);
 			}
 		});
-
-		// if (users && users.length && $('#searchBox').val()) {
-		// 	var message = '';
-		// 	for (var i = 0; i < users.length; i++) {
-		// 		message += users[i];
-		// 		if (i < users.length - 1) {
-		// 			message += ', ';
-		// 		}
-		// 	}
-
-		// 	$('#userResultList').text(message);
-		// 	$('#userResultMessage').show();
-		// } else {
-		// 	$('#userResultList').text('');
-		// 	$('#userResultMessage').hide();		
-		// }
 	}
 
 	$('.autocomplete').autocomplete({
@@ -77,10 +61,6 @@
 	        if ($(this).val() === "") {
 	        	$('.room-card').show(500);
 	        } 
-	   //      else {
-				// $('#userResultList').text('');
-				// $('#userResultMessage').hide();		        	
-	   //      }
 	    }
 	});
 
@@ -90,13 +70,12 @@
 
     var transformAccounts = function (data) {
       var results = [];
-      // console.log(data);
+
       for (var id in data) {
         var info = data[id];
         results.push({
           value: id,
           username: info.username,
-          // label: info.username
           label: info.firstName + ' ' + info.lastName + ' (' + info.username + ')' 
         });
       }
@@ -110,7 +89,7 @@
       appendTo: ".search-container",
       source: function (request, response) {
         var term = request.term;
-        // console.log(autoCompleteAccountsUrl + '?s=' + term);
+
         if (term.length > 2) {
           $.ajax(`${autoCompleteAccountsUrl}?s=${term}`, {
             type: 'get',
@@ -118,7 +97,6 @@
             success: function (o) {
               switch (o.status) {
                 case 'success':
-                  // console.log('success!', o.data);
                   response(transformAccounts(o.data));
                   break;
                 case 'error':
@@ -140,8 +118,6 @@
         var shadowId = this.id + '-shadow';
         var $shadow = $('#' + shadowId);
 
-        // console.log(item, $self, shadowId, $shadow);
-
         if ($shadow.length === 0) {
           $shadow = $('<input type="hidden" name="u">');
           $shadow.attr('id', shadowId);
@@ -152,8 +128,6 @@
         this.value = item.label;
       }
     });
-
-
 
   });
 })(jQuery);

@@ -50,7 +50,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/rooms/:id/edit' => ['callback' => 'editRoom', ':id' => '[0-9]+|new'],
             '/rooms/:roomid/tutorials/:id/edit' => ['callback' => 'editTutorial', ':id' => '[0-9]+|new'],
             '/rooms/:id/configurations/:cid/edit' => ['callback' => 'editConfiguration'],
+            '/buildings' => ['callback' => 'listBuildings'],
             '/buildings/:id/edit' => ['callback' => 'editBuilding', ':id' => '[0-9]+|new'],
+            '/types' => ['callback' => 'listTypes'],
             '/types/:id/edit' => ['callback' => 'editType', ':id' => '[0-9]+|new'],
             '/rooms/:id/tutorials/upload' => ['callback' => 'uploadImages'],
             '/rooms/:id/files/:fileid/download' => ['callback' => 'downloadImage'],
@@ -66,7 +68,6 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
         $location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id');
     	$this->addBreadcrumb('rooms', 'List Rooms');
-        $this->addBreadcrumb('rooms/' . $location->id . '/edit', 'Edit');
         
         $notes = $this->schema('Classrooms_Notes_Entry');
         
@@ -75,7 +76,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         
         $this->template->trackUrl = $trackRoomUrlApi;
         $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
-        $this->template->pEdit = true ?? $this->hasPermission('edit room');
+        // $this->template->pEdit = true ?? $this->hasPermission('edit room');
         $this->template->pViewDetails = $this->hasPermission('view schedules');
     	$this->template->room = $location;
     	$this->template->allAvEquipment = self::$AllRoomAvEquipment;
@@ -87,12 +88,18 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function listRooms ()
     {
     	$viewer = $this->getAccount();
-        // $this->requirePermission('list rooms');
-        $this->template->pEdit = true ?? $this->hasPermission('edit room');
         
         $locations = $this->schema('Classrooms_Room_Location');
-        $buildings = $this->schema('Classrooms_Room_Building')->getAll(['orderBy' => 'name']);
-        $types = $this->schema('Classrooms_Room_Type')->getAll(['orderBy' => 'name']);
+        $buildings = $this->schema('Classrooms_Room_Building');
+        $buildings = $buildings->find(
+            $buildings->deleted->isNull()->orIf($buildings->deleted->isFalse()),
+            ['orderBy' => 'name']
+        );
+        $types = $this->schema('Classrooms_Room_Type');
+        $types = $types->find(
+            $types->deleted->isNull()->orIf($types->deleted->isFalse()),
+            ['orderBy' => 'name']
+        );
         $titles = $this->schema('Classrooms_Software_Title');
 
         $selectedBuildings = $this->request->getQueryParameter('buildings');
@@ -173,7 +180,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function schedules ()
     {
         $viewer = $this->requireLogin();
-        // $this->requirePermission('admin');
+        $this->requirePermission('edit');
         $scheduleSchema = $this->schema('Classrooms_ClassData_CourseScheduledRoom');
 
         $semesters = $this->guessRelevantSemesters();
@@ -235,8 +242,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function listConfigurations ()
     {
         $viewer = $this->requireLogin();
-        // $this->requirePermission('list software');
-        $this->template->pEdit = true ?? $this->hasPermission('edit room');
+        $this->requirePermission('edit');
 
         $configs = $this->schema('Classrooms_Room_Configuration');
         $this->template->configurations = $configs->find(
@@ -249,6 +255,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function viewConfigurationBundle ()
     {
         $viewer = $this->requireLogin();
+        $this->requirePermission('edit');
         $config = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Configuration', 'id');
         $this->addBreadcrumb('configurations', 'List Configurations');
         $this->addBreadcrumb('configurations/' . $config->id . '/edit', 'Edit');
@@ -259,7 +266,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function editConfigurationBundle ()
     {
         $viewer = $this->requireLogin();
-        // $this->requirePermission('edit room');
+        $this->requirePermission('edit');
         $this->addBreadcrumb('configurations', 'List Configurations');
 
         $titles = $this->schema('Classrooms_Software_Title');
@@ -322,7 +329,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
     	$this->addBreadcrumb('rooms', 'List Rooms');
         $viewer = $this->requireLogin();
-        // $this->requirePermission('edit room');
+        $this->requirePermission('edit');
 
         $location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id', ['allowNew' => true]);
         $configs = $this->schema('Classrooms_Room_Configuration');
@@ -474,7 +481,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function editTutorial () 
     {
         $viewer = $this->requireLogin();
-        // $this->requirePermission('edit room');
+        $this->requirePermission('edit');
 
     	$location = $this->requireExists($this->schema('Classrooms_Room_Location')->get($this->getRouteVariable('roomid')));
     	$tutorial = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Tutorial', 'id', ['allowNew' => true]);
@@ -532,8 +539,87 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         ) : [];
     }
 
-    public function editBuilding () {}
-    public function editType () {}
+    public function listBuildings ()
+    {
+        $this->requirePermission('edit');
+        $schema = $this->schema('Classrooms_Room_Building');
+        $this->template->buildings = $schema->find(
+            $schema->deleted->isNull()->orIf($schema->deleted->isFalse())
+        );
+    }
+
+    public function editBuilding () 
+    {
+        $this->requirePermission('edit');
+        $building = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Building', 'id', ['allowNew' => true]);
+        $this->addBreadcrumb('buildings', 'List Buildings');
+
+        if ($this->request->wasPostedByUser())
+        {
+            switch ($this->getPostCommand())
+            {
+                case 'save':
+                    if ($this->processSubmission($building, ['name', 'code']))
+                    {
+                        $this->flash('Building saved.');
+                    }
+                    break;
+
+                case 'delete':
+                    if ($building->inDatasource)
+                    {
+                        $building->deleted = true;
+                        $building->save();
+                    }
+                    $this->flash('Building deleted');
+                    break;
+            }
+            $this->response->redirect('buildings');
+        }
+
+        $this->template->building = $building;
+    }
+
+    public function listTypes ()
+    {
+        $this->requirePermission('edit');
+        $schema = $this->schema('Classrooms_Room_Type');
+        $this->template->types = $schema->find(
+            $schema->deleted->isNull()->orIf($schema->deleted->isFalse())
+        );
+    }
+
+    public function editType () 
+    {
+        $this->requirePermission('edit');
+        $type = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Type', 'id', ['allowNew' => true]);
+        $this->addBreadcrumb('types', 'List types');
+
+        if ($this->request->wasPostedByUser())
+        {
+            switch ($this->getPostCommand())
+            {
+                case 'save':
+                    if ($this->processSubmission($type, ['name']))
+                    {
+                        $this->flash('Room type saved.');
+                    }
+                    break;
+
+                case 'delete':
+                    if ($type->inDatasource)
+                    {
+                        $type->deleted = true;
+                        $type->save();
+                    }
+                    $this->flash('Room type deleted');
+                    break;
+            }
+            $this->response->redirect('types');
+        }
+
+        $this->template->type = $type;
+    }
 
     public function fetchInstructorsRooms ($terms='2213')
     {
@@ -586,7 +672,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function editConfiguration ()
     {
         $viewer = $this->requireLogin();
-        // $this->requirePermission('edit room');
+        $this->requirePermission('edit');
 
         $rooms = $this->schema('Classrooms_Software_Title');
         $configs = $this->schema('Classrooms_Software_License');
@@ -853,8 +939,6 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
         $locations = $this->schema('Classrooms_Room_Location');
         $buildings = $this->schema('Classrooms_Room_Building');
-        $schedules = $this->schema('Classrooms_ClassData_CourseScheduledRoom');
-        // $titles = $this->schema('Classrooms_Software_Title');
 
         $query = $this->request->getQueryParameter('s');
         $queryParts = explode(' ', $query);
@@ -878,19 +962,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             }
             else
             {
-                // if ($this->hasPermission('admin'))
-                // {
-                //     $userAttributes = $schedules->faculty_id->like(substr($pattern, 1));
-                //     if ($userRooms = $schedules->findValues(['faculty_id' => 'room_id'], $userAttributes))
-                //     {
-                //         $userResults = array_keys($userRooms);
-                //     }
-                // }
-
                 $attributes = $locations->anyTrue(
                     $locations->number->lower()->like($pattern),
-                    $locations->alternateName->lower()->like($pattern),
-                    $locations->id->inList($userRooms)
+                    $locations->alternateName->lower()->like($pattern)
                 );
 
                 $condition = $condition ? $condition->orIf($attributes) : $attributes;
@@ -952,7 +1026,6 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 'message' => 'Candidates found.',
                 'status' => 'success',
                 'data' => $options,
-                // 'users' => $userResults
             );
         }
         else
@@ -961,14 +1034,12 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 'message' => 'No candidates found.',
                 'status' => 'error',
                 'data' => [],
-                'users' => []
             );
         }
 
         echo json_encode($results);
         exit;
     }
-
 
     protected function guessRelevantSemesters ()
     {

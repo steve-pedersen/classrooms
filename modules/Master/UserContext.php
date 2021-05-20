@@ -15,26 +15,19 @@ class Classrooms_Master_UserContext extends Bss_Master_UserContext
         
         if ($account)
         {
-            if ($this->getAuthorizationManager()->hasPermission($account, 'admin'))
+            if ($this->getAuthorizationManager()->hasPermission($account, 'edit'))
             {
                 $this->response->redirect('/');
             }
-            else //if not admin, go to 
+            else
             {
-                 
                 if ($return = $this->request->getQueryParameter('returnTo'))
                 {
-                    
                     $this->response->redirect($return);
-                }
-                elseif ($this->getAuthorizationManager()->hasPermission($account, 'request own item'))
-                {
-                    $this->response->redirect('fr/request');
                 }
                 else
                 {
-
-                    $this->response->redirect('/');
+                    $this->response->redirect('rooms');
                 }
             }
         }

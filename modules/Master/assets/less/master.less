@@ -43,6 +43,24 @@
   }
 }
 
+.collapse-button:after {
+    /* symbol for "opening" panels */
+    font-family: 'Glyphicons Halflings';
+    content: "\2212";
+    float: right;
+    color: @brand-info;
+}
+.collapse-button.collapsed:after {
+    /* symbol for "collapsed" panels */
+    content: "\2b";
+}
+
+div.filters {
+  .form-group {
+    margin-bottom: 1em;
+  }
+}
+
 .room-card {
   .row.equal {
       overflow: hidden; 

@@ -2,7 +2,7 @@
 
 /**
  */
-class Classrooms_Communication_AdminController extends At_Admin_Controller
+class Classrooms_Communication_Controller extends Classrooms_Master_Controller
 {
     public static function getRouteMap ()
     {
@@ -16,19 +16,19 @@ class Classrooms_Communication_AdminController extends At_Admin_Controller
 
     public function communications ()
     {
-        $this->addBreadcrumb('', 'Manage Communications');
-
         $viewer = $this->requireLogin();
-
+        $this->requirePermission('edit');
+        $this->addBreadcrumb($this->baseUrl(''), 'Home');
         $this->setPageTitle('Manage Communications');
 
         $schema = $this->schema('Classrooms_Communication_Communication');
 
-        $this->template->communications = $schema->getAll();
+        $this->template->communications = $schema->getAll(['orderBy' => '-creationDate']);
     }
 
     public function editCommunication ()
     {
+        $this->requirePermission('edit');
         $siteSettings = $this->getApplication()->siteSettings;
         $this->addBreadcrumb('admin/communications', 'Manage Communication');
         $comm = $this->helper('activeRecord')->fromRoute('Classrooms_Communication_Communication', 'id', array('allowNew' => true));
@@ -115,15 +115,12 @@ class Classrooms_Communication_AdminController extends At_Admin_Controller
                                 );
 
                                 $course = $courseSchema->findOne($courseSchema->year->equals($now));
-                                // echo "<pre>"; var_dump($course); die;
                                 
                                 $labs = [];
                                 if (!empty($selectedLabs))
                                 {
                                     foreach ($selectedLabs as $id => $room)
                                     {
-
-                                        // $course = $courseSchema->findOne($courseSchema->classroomId->isNotNull()->andIf($courseSchema->classroomId->inList($selectedLabs)));
                                         $labs[] = ['room' => $room, 'course' => $course];
                                     }
                                 }
@@ -133,7 +130,6 @@ class Classrooms_Communication_AdminController extends At_Admin_Controller
                                 {
                                     foreach ($selectedNonlabs as $id => $room)
                                     {
-                                        // $course = $courseSchema->findOne($courseSchema->classroomId->isNotNull()->andIf($courseSchema->classroomId->inList($selectedNonlabs)));
                                         $nonlabs[] = ['room' => $room, 'course' => $course];
                                     }
                                 }
@@ -143,7 +139,6 @@ class Classrooms_Communication_AdminController extends At_Admin_Controller
                                 {
                                     foreach ($selectedUnconfigured as $id => $room)
                                     {
-                                        // $course = $courseSchema->findOne($courseSchema->classroomId->isNotNull()->andIf($courseSchema->classroomId->inList($selectedUnconfigured)));
                                         $unconfigured[] = ['room' => $room, 'course' => $course];
                                     }
                                 }
@@ -176,12 +171,12 @@ class Classrooms_Communication_AdminController extends At_Admin_Controller
 
     public function editCommunicationEvent ()
     {
+        $this->requirePermission('edit');
         $comm = $this->helper('activeRecord')->fromRoute('Classrooms_Communication_Communication', array('cid' => 'id'));
         $event = $this->helper('activeRecord')->fromRoute('Classrooms_Communication_Event', array('eid' => 'id'), array('allowNew' => true));
         $this->addBreadcrumb('admin/communications', 'Manage Communications');
-        $this->addBreadcrumb('admin/communications/'.$comm->id, 'Edit Communication');
+        $this->addBreadcrumb('admin/communications/' . $comm->id, 'Edit Communication');
         
-
         if ($this->request->wasPostedByUser())
         {
             switch ($this->getPostCommand()) {

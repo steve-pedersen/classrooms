@@ -6,7 +6,7 @@
     </div>
 	{/if}
 
-<div class="row">
+<div class="row filters">
 	<div class="col-sm-9">
 		<div class="well multiselect-filter">
 			<h2>Filter</h2>
@@ -64,11 +64,12 @@
 		</div>	
 	</div>
 	<div class="col-sm-3">
-		<div class="well multiselect-filter" >
+		<div class="well multiselect-filter" style="">
 			<h2>Search</h2>
+			<!-- <p class=""><small>Search by building name <strong>or</strong> room number</small></p> -->
 		    <form class="form-inline" role="form" id="filterForm2">
 		    <div class="form-group">
-		    	<input id="searchBox" type="text" name="s" class="form-control autocomplete" placeholder="Search...">
+		    	<input id="searchBox" type="text" name="s" class="form-control autocomplete" placeholder="Building or room #">
 		    </div>
 
 			</form>
@@ -102,7 +103,7 @@
 			</div>
 			<div class="col-sm-6 building-image text-center">
 				<a href="rooms/{$room->id}" class="room-link">
-				<img src="assets/images/buildings-{$room->building->code|lower}.jpg" class="img-responsive" style="max-width:100px;" alt="{$room->building->code} building">
+				<img src="{$room->building->image}" class="img-responsive" style="max-width:100px;" alt="{$room->building->code} building">
 				</a>
 			</div>
     	</div>
@@ -117,17 +118,19 @@
     				<li>{$config->deviceQuantity} {$config->deviceType}</li>
     			{/if}
     		{/foreach}
+    		{if $avEquipment}
     			<li><strong>A/V: </strong>
 				{foreach $avEquipment as $key => $equipment}
 					{$allAvEquipment[$key]}{if !$equipment@last}, {/if}
 				{/foreach}
     			</li>
+    		{/if}
     		</ul>
     	</div>
     	{else}
     	<div class="col-sm-5 config-info">
     		<h4>Equipment</h4>
-    		{$room->description}
+    		<span class="{if !$avEquipment}text-muted{/if}">{$room->description}</span>
     	</div>    	
     	{/if}
 
@@ -136,7 +139,7 @@
     		{if $room->tutorial->name}
     			<a href="rooms/{$room->id}?mode=tutorial" style="font-weight:bold;">{$room->tutorial->name}</a>
     		{else}
-    			No tutorial set up for this room.
+    			<span class="text-muted">No tutorial set up for this room.</span>
     		{/if}
     	</div>
     </div>
