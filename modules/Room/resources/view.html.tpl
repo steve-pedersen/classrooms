@@ -7,7 +7,7 @@
 <div class="row pull-right" style="margin-bottom:10px;">
 	<div class="col-sm-12">
 		<a href="rooms/{$room->id}/edit" class="btn btn-info">Edit Room</a>
-	{if $location->tutorial}
+	{if $room->tutorial}
 		<a href="rooms/{$room->id}/tutorials/{$room->tutorial->id}/edit" class="btn btn-info">Edit Tutorial</a>
 	{else}
 		<a href="rooms/{$room->id}/tutorials/new/edit" class="btn btn-success">Add New Tutorial</a>
