@@ -89,6 +89,7 @@ class Classrooms_Room_Building extends Bss_ActiveRecord_Base
     public function getImage ()
     {
         $fname = 'assets/images/buildings-' . strtolower($this->code) . '.jpg';
+        return $fname;
         if (file_exists($fname))
         {
             return $fname;
