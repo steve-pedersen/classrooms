@@ -61,6 +61,13 @@
 				{/foreach}
 				</select>
 			</div>
+			<div class="form-group">
+				<div class="checkbox">
+					<label>
+						<input name="rooms[noroom]" type="checkbox"> Include a few sample courses that aren't in physical rooms
+					</label>
+				</div>
+			</div>
 			<button type="submit" name="command[send][roomMasterTemplate]" aria-describedby="testroommastertemplate" class="btn btn-light">Send Test</button>
 		</div>
 	</div>
