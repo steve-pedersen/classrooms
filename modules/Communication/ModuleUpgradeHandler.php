@@ -46,6 +46,12 @@ class Classrooms_Communication_ModuleUpgradeHandler extends Bss_ActiveRecord_Bas
                 $siteSettings->defineProperty('communications-title', 'Email title text', 'text');
 
                 break;
+
+            case 1:
+                $def = $this->alterEntityType('classroom_communication_communications', 'Classrooms_Communication_Communication');
+                $def->addProperty('no_room', 'string');
+                $def->save();
+                break;
         }
     }
 }

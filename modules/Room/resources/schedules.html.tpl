@@ -6,12 +6,14 @@
 		<div class="well multiselect-filter">
 			<h2>Filter</h2>
 			<form class="form-inline" role="form" id="filterForm">
+		    {if !$pFaculty}
 		    <div class="form-group" id="autcompleteContainer">
 		    	<!-- <label for="u" class="">Capacity</label> -->
 				<input type="text" id="auto" name="auto" value="{$selectedUser}" class="form-control account-autocomplete" placeholder="Search user..."> 
 				<!-- <input type="hidden" name="record" value="0"> -->
 		    	<div class="search-container"></div>
 		    </div>
+		    {/if}
 		    
 		    <div class="form-group">
 				<select class="form-control" name="t">
@@ -64,7 +66,7 @@
 			</div>
 			<div class="col-sm-6 building-image text-center">
 				<a href="rooms/{$room->id}" class="room-link">
-				<img src="assets/images/buildings-{$room->building->code|lower}.jpg" class="img-responsive" style="max-width:100px;" alt="{$room->building->code} building">
+				<img src="{$room->building->getImage()}" class="img-responsive" style="max-width:100px;" alt="{$room->building->code} building">
 				</a>
 			</div>
 			
@@ -94,7 +96,7 @@
 	    					<ul class="list-unstyled">
 	    					{foreach $details as $detail}
 	    						<li>
-	    							{$detail.stnd_mtg_pat} {$detail.start_time} to {$detail.end_time}
+	    							{$detail.info.stnd_mtg_pat} {$detail.info.start_time} to {$detail.info.end_time}
 	    						</li>
 	    					{/foreach}
 	    					</ul>
@@ -111,3 +113,53 @@
 </div>
 
 {/foreach}
+
+{if $onlineCourses}
+<div class="panel panel-default room-card" id="{$room->id}">
+  <div class="panel-body">
+    <div class="row equal" style="min-height: 8rem;">
+    	<div class="col-sm-12 room-number" style="display:inline;">
+			
+    					<h3>
+				Courses not in physical rooms
+			</h3>
+    		<h4>Schedules</h4>
+    		<table class="table table-condensed table-striped">
+    			<thead>
+    				<tr>
+    					<th>Instructor</th>
+    					<th>Course</th>
+    					<th>Details</th>
+    				</tr>
+    			</thead>
+    			<tbody>
+
+	    			{foreach $onlineCourses as $schedule}
+
+	    			{assign var="details" value=unserialize($schedule->schedules)}
+	    			<tr>
+	    				<td>
+	    					{$schedule->faculty->lastName}, {$schedule->faculty->firstName} {$schedule->faculty->id}
+	    				</td>
+	    				<td>{$schedule->course->fullDisplayName}</td>
+	    				<td>
+	    					<ul class="list-unstyled">
+	    					{foreach $details as $detail}
+	    						<li>
+	    							{$detail.info.stnd_mtg_pat} {$detail.info.start_time} to {$detail.info.end_time}
+	    						</li>
+	    					{/foreach}
+	    					</ul>
+	    				</td>
+	    			</tr>
+	    			{/foreach}
+
+    			</tbody>
+    		</table>
+
+    	
+    </div>
+  </div>
+</div>
+
+{/if}

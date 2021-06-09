@@ -34,7 +34,7 @@ class Classrooms_Communication_Manager
       return;
     }
 
-    $scheduleSchema = $this->getSchema('Classrooms_ClassData_CourseScheduledRoom');
+    $scheduleSchema = $this->getSchema('Classrooms_ClassData_CourseSchedule');
     $facultySchema = $this->getSchema('Classrooms_ClassData_User');
     $courseSchema = $this->getSchema('Classrooms_ClassData_CourseSection');
     $roomSchema = $this->getSchema('Classrooms_Room_Location');
@@ -49,10 +49,10 @@ class Classrooms_Communication_Manager
         $scheduleSchema->userDeleted->isFalse()
       )
     );
-    $scheduledRooms = $scheduleSchema->find($condition, ['arrayKey' => 'faculty_id']);
+    $schedules = $scheduleSchema->find($condition, ['arrayKey' => 'faculty_id']);
     $facultyRooms = [];
 
-    foreach ($scheduledRooms as $facultyId => $scheduledRoom)
+    foreach ($schedules as $facultyId => $schedule)
     {
       if (!isset($comms[$facultyId]))
       {
@@ -60,23 +60,28 @@ class Classrooms_Communication_Manager
           'labs' => [],
           'nonlabs' => [],
           'unconfigured' => [],
+          'norooms' => [],
         ];
       }
 
       $type = '';
-      switch ($scheduledRoom->room->type_id)
+      switch ($schedule->room->type_id)
       {
           case $labType->id:
               $type = 'labs';
               break;
           case null:
-              $type = $scheduledRoom->room->configured ? 'nonlabs' : 'unconfigured';
+              $type = $schedule->room->configured ? 'nonlabs' : 'unconfigured';
               break;
           default:
               $type = 'nonlabs';
       }
+      if (!$schedule->room_id)
+      {
+        $type = 'norooms';
+      }
 
-      $comms[$facultyId][$type][] = ['room' => $scheduledRoom->room, 'course' => $scheduledRoom->course];
+      $comms[$facultyId][$type][] = ['room' => $schedule->room, 'course' => $schedule->course];
     }
 
     foreach ($comms as $username => $comm)
@@ -93,7 +98,6 @@ class Classrooms_Communication_Manager
 
   public function processFacultyCommunicationEvent ($event, $faculty, $commData = null)
   {
-
     $accountSchema = $this->getSchema('Bss_AuthN_Account');
     $account = $accountSchema->findOne($accountSchema->username->equals($faculty->id));
 
@@ -140,6 +144,7 @@ class Classrooms_Communication_Manager
       '|%LAB_ROOM_WIDGET%|' => $this->getLabRoomWidget($comm['labs'], $communication->labRoom),
       '|%NONLAB_ROOM_WIDGET%|' => $this->getNonlabRoomWidget($comm['nonlabs'], $communication->nonlabRoom),
       '|%UNCONFIGURED_ROOM_WIDGET%|' => $this->getUnconfiguredRoomWidget($comm['unconfigured'], $communication->unconfiguredRoom),
+      '|%NOROOM_WIDGET%|' => $this->getNoRoomWidget($comm['norooms'], $communication->noRoom),
     );
     
     $this->sendEmail($user, $params, $communication->roomMasterTemplate);
@@ -160,8 +165,6 @@ class Classrooms_Communication_Manager
       }
       else
       {
-        echo "<pre>"; var_dump(123); die;
-        
         $mail->AddAddress($user->emailAddress, $user->fullName);
       }
 
@@ -217,6 +220,19 @@ class Classrooms_Communication_Manager
       $template->intro = $intro;
       $template->rooms = $rooms;
       return trim($template->fetch($this->ctrl->getModule()->getResource('unconfiguredRoom.email.tpl')));
+    }
+
+    return '';
+  }
+  private function getNoRoomWidget ($rooms, $intro)
+  {
+    if (!empty($rooms) && $intro)
+    {
+      $template = $this->ctrl->createTemplateInstance();
+      $template->disableMasterTemplate();
+      $template->intro = $intro;
+      $template->rooms = $rooms;
+      return trim($template->fetch($this->ctrl->getModule()->getResource('noRoom.email.tpl')));
     }
 
     return '';

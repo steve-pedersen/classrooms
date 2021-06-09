@@ -29,15 +29,7 @@
 				{/foreach}
 				</select>     
 		    </div>
-		<!--     <div class="form-group">
-				<select id="filter-titles" class="multiselect form-control" name="titles[]" multiple label="Software Titles">
-				{foreach $titles as $title}
-					<option value="{$title->id}" {if $selectedTitles && in_array($title->id, $selectedTitles)}selected{/if}>
-						{$title->name}
-					</option>
-				{/foreach}
-				</select>  
-		    </div> -->
+
 		    <div class="form-group">
 				<select id="filter-equipment" class="multiselect form-control" name="equipment[]" multiple label="Equipment">
 				{foreach $allAvEquipment as $key => $equipment}
@@ -52,6 +44,15 @@
 		    	<!-- <label for="cap" class="">Capacity</label> -->
 				<input type="text" id="cap" name="cap" value="{$capacity}" class="form-control" placeholder="Capacity..."> 
 		    </div>
+		    {if $pFaculty}
+		    <div class="form-group">
+					<div class="checkbox">
+						<label>
+							<input name="display" type="checkbox"> Show my rooms only
+						</label>
+					</div>
+		    </div>
+		    {/if}
 		    <div class="form-group">    
 		        <button type="submit" class="btn btn-info filter-col">
 		            Apply

@@ -12,7 +12,7 @@ class Classrooms_ClassData_CronJob extends Bss_Cron_Job
         {
             set_time_limit(0);
 
-            $createFacultyAccounts = false;
+            $createFacultyAccounts = true;
             $importer = new Classrooms_ClassData_Importer($this->getApplication());
             
             list($count, $added, $removed) = $importer->syncDepartments();
@@ -30,7 +30,18 @@ class Classrooms_ClassData_CronJob extends Bss_Cron_Job
             // import schedule info
             foreach ($semesterCodes as $semesterCode)
             {
-                $importer->importScheduledRooms($semesterCode);
+                $rs = pg_query("
+                    SELECT DISTINCT(user_id) FROM classroom_classdata_enrollments 
+                    WHERE year_semester = '{$semesterCode}' AND role = 'instructor'
+                ");                
+
+                $instructors = [];
+                while (($row = pg_fetch_row($rs)))
+                {
+                    $instructors[] = $row[0];
+                }
+                
+                $importer->importSchedules($semesterCode, $instructors);
             }
 
             return true;

@@ -44,6 +44,7 @@ class Classrooms_Master_Template extends Bss_Master_Template
         $authZ = $this->application->authorizationManager;
         $this->assign('pEdit', $authZ->hasPermission($account, 'edit'));
         $this->assign('pAdmin', $authZ->hasPermission($account, 'admin'));
+        $this->assign('pFaculty', $account && !$authZ->hasPermission($account, 'edit'));
         
         $session = $this->request->getSession();
         if (isset($session->flashContent))

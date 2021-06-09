@@ -66,7 +66,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
                     break;
 
                 case 'save':
-                    $this->processSubmission($comm, ['roomMasterTemplate', 'labRoom', 'nonlabRoom', 'unconfiguredRoom']);
+                    $this->processSubmission($comm, ['roomMasterTemplate', 'labRoom', 'nonlabRoom', 'unconfiguredRoom', 'noRoom']);
 
                     if ($comm->isValid())
                     {
@@ -83,7 +83,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
 
                 case 'send':
                     $viewer = $this->getAccount();
-                    $this->processSubmission($comm, ['roomMasterTemplate', 'labRoom', 'nonlabRoom', 'unconfiguredRoom']);
+                    $this->processSubmission($comm, ['roomMasterTemplate', 'labRoom', 'nonlabRoom', 'unconfiguredRoom', 'noRoom']);
                     $command = $this->request->getPostParameter('command');
                     $which = array_keys($command['send']);
                     $which = array_pop($which);
@@ -93,7 +93,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
                         $manager = new Classrooms_Communication_Manager($this->getApplication(), $this);
                         $event = $this->schema('Classrooms_Communication_Event')->createInstance();
                         $now = date('Y');
-                        $event->termYear = $now[0] . $now[2] . $now[3] . '3';
+                        $event->termYear = $now[0] . $now[2] . $now[3] . '7';
                         $event->communication = $comm;
                         
                         $rooms = $this->request->getPostParameter('rooms');
@@ -143,9 +143,22 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
                                     }
                                 }
 
+                                $norooms = [];
+                                for ($i = 0; $i < 3; $i++)
+                                {
+                                    $course = new stdClass();
+                                    $course->fullDisplayName = 'Sample class without a room ' . $i+1;
+                                    $norooms[] = ['course' => $course];
+                                }
+
                                 if (!empty($labs) || !empty($nonlabs) || !empty($unconfigured))
                                 {
-                                    $manager->sendRoomMasterTemplate(['labs' => $labs, 'nonlabs' => $nonlabs, 'unconfigured' => $unconfigured], $viewer, $event
+                                    $manager->sendRoomMasterTemplate(
+                                        ['labs' => $labs, 
+                                        'nonlabs' => $nonlabs, 
+                                        'unconfigured' => $unconfigured,
+                                        'norooms' => $norooms], 
+                                        $viewer, $event
                                     );
                                     $this->template->sendSuccess = 'You should receive a test email momentarily for the Lab template.';
                                 }

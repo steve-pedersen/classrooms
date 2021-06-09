@@ -89,6 +89,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
     	$viewer = $this->getAccount();
         
+        $schedules = $this->schema('Classrooms_ClassData_CourseSchedule');
         $locations = $this->schema('Classrooms_Room_Location');
         $buildings = $this->schema('Classrooms_Room_Building');
         $buildings = $buildings->find(
@@ -108,8 +109,17 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $selectedEquipment = $this->request->getQueryParameter('equipment');
         $capacity = $this->request->getQueryParameter('cap');
         $s = $this->request->getQueryParameter('s');
+
+        $condition = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
         
-		$condition = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
+        $userRooms = [];
+        if ($this->request->getQueryParameter('display'))
+        {
+            $userRooms = $schedules->findValues('room_id', 
+                $schedules->room_id->isNotNull()->andIf($schedules->faculty_id->equals($viewer->username))
+            );
+            $condition = $condition->andIf($locations->id->inList($userRooms));
+        }
         if ($selectedBuildings)
         {
             $building = null;
@@ -175,13 +185,15 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->titles = $titles->getAll(['orderBy' => 'name']);
         $this->template->allAvEquipment = self::$AllRoomAvEquipment;
         $this->template->defaultRoomText = $this->getApplication()->siteSettings->getProperty('default-room-text', 'There is no detailed information currently available for this room.');
+        $this->template->pFaculty = $viewer && !$this->hasPermission('edit');
     }
 
     public function schedules ()
     {
         $viewer = $this->requireLogin();
-        $this->requirePermission('edit');
-        $scheduleSchema = $this->schema('Classrooms_ClassData_CourseScheduledRoom');
+        $restrictResults = $viewer && !$this->hasPermission('edit');
+        // $this->requirePermission('edit');
+        $scheduleSchema = $this->schema('Classrooms_ClassData_CourseSchedule');
 
         $semesters = $this->guessRelevantSemesters();
         $userId = $this->request->getQueryParameter('u');
@@ -191,14 +203,29 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $scheduleSchema->termYear->equals($termYear),
             $scheduleSchema->userDeleted->isNull()->orIf(
                 $scheduleSchema->userDeleted->isFalse()
-            )
+            ),
+            $scheduleSchema->room_id->isNotNull()
         );
+        $onlineCourses = null;
+        if ($restrictResults)
+        {
+            $condition = $condition->andIf($scheduleSchema->faculty_id->equals($viewer->username));
+            $condition2 = $scheduleSchema->allTrue(
+                $scheduleSchema->faculty_id->equals($viewer->username),
+                $scheduleSchema->termYear->equals($termYear),
+                $scheduleSchema->userDeleted->isNull()->orIf(
+                    $scheduleSchema->userDeleted->isFalse()
+                ),
+                $scheduleSchema->room_id->isNull()
+            );
+            $onlineCourses = $scheduleSchema->find($condition2);
+        }
 
         $user = null;
         if ($userId)
-        {	
-        	$user = $this->schema('Classrooms_ClassData_User')->get($userId);
-        	$condition = $condition->andIf($scheduleSchema->faculty_id->equals($userId));
+        {   
+            $user = $this->schema('Classrooms_ClassData_User')->get($userId);
+            $condition = $condition->andIf($scheduleSchema->faculty_id->equals($userId));
         }
 
         $scheduledRooms = [];
@@ -206,30 +233,28 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         
         foreach ($result as $schedule)
         {
-        	$key1 = $schedule->room->building->code . $schedule->room->number;
-        	if (!isset($scheduledRooms[$key1]))
-        	{
-        		$scheduledRooms[$key1] = [
-        			'room' => $schedule->room, 
-        			'schedules' => []
-        		];
-        	}
+            $key1 = $schedule->room->building->code . $schedule->room->number;
+            if (!isset($scheduledRooms[$key1]))
+            {
+                $scheduledRooms[$key1] = [
+                    'room' => $schedule->room, 
+                    'schedules' => []
+                ];
+            }
 
-        	// $key2 = explode(' ', $schedule->course->classNumber)[1] . '-' . $schedule->course->sectionNumber;
-        	// echo "<pre>"; var_dump($key2); die;
-        	$key2 = $schedule->faculty->lastName . $schedule->faculty->firstName;
+            $key2 = $schedule->faculty->lastName . $schedule->faculty->firstName;
 
-        	if (!isset($scheduledRooms[$key1]['schedules'][$key2]))
-        	{
-        		$scheduledRooms[$key1]['schedules'][$key2] = [];
-        	}
-        	$scheduledRooms[$key1]['schedules'][$key2][] = $schedule;
+            if (!isset($scheduledRooms[$key1]['schedules'][$key2]))
+            {
+                $scheduledRooms[$key1]['schedules'][$key2] = [];
+            }
+            $scheduledRooms[$key1]['schedules'][$key2][] = $schedule;
         }
         
         foreach ($scheduledRooms as $key => $sr)
         {
-        	ksort($sr['schedules'], SORT_NATURAL);
-        	$scheduledRooms[$key]['schedules'] = $sr['schedules'];
+            ksort($sr['schedules'], SORT_NATURAL);
+            $scheduledRooms[$key]['schedules'] = $sr['schedules'];
         }
         ksort($scheduledRooms, SORT_NATURAL);
 
@@ -237,6 +262,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->semesters = $semesters;
         $this->template->selectedTerm = $termYear;
         $this->template->selectedUser = $userId;
+        $this->template->pFaculty = $restrictResults;
+        $this->template->onlineCourses = $onlineCourses;
     }
 
     public function listConfigurations ()

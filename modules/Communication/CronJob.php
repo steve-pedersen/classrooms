@@ -24,7 +24,7 @@ class Classrooms_Communication_CronJob extends Bss_Cron_Job
 
             $events = $eventSchema->find(
                 $eventSchema->allTrue(
-                    $eventSchema->sendDate->beforeOrEquals($startTime),
+                    $eventSchema->sendDate->afterOrEquals($startTime),
                     $eventSchema->sent->isFalse()
                 )
             );

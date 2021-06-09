@@ -36,6 +36,11 @@
 			<a data-toggle="pill" href="rooms/{$room->id}?mode=notes#notes">Notes</a>
 		</li>
 	{/if}
+	{if $pFaculty}
+		<li>
+			<a  href="schedules">My Course Schedules</a>
+		</li>
+	{/if}
 </ul>
 
 <div class="tab-content">

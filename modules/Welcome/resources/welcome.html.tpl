@@ -8,12 +8,13 @@
 {/if}
 </div>
 
-
 {if !$userContext->account}
 <div class="welcome-module">
     <a href="{$app->baseUrl('login?returnTo=/')}" class="btn btn-primary">Log In</a>
 </div>
-{else}
+<br><br>
+{/if}
+
 <div class="welcome-module">
 	<div class="row">
 		<div class="col-md-3 col-sm-6 col-xs-12">
@@ -28,6 +29,7 @@
 			</div>
 			</a>
 		</div>
+		{if $userContext->account}
 		<div class="col-md-3 col-sm-6 col-xs-12">
 			<a href="{$app->baseUrl('/schedules')}" class="">
 			<div class="panel panel-default">
@@ -40,6 +42,8 @@
 			</div>
 			</a>
 		</div>
+		{/if}
+	{if $pAdmin}
 		<div class="col-md-3 col-sm-6 col-xs-12">
 			<a href="{$app->baseUrl('/software')}" class="">
 			<div class="panel panel-default">
@@ -106,9 +110,6 @@
 			</a>
 		</div>	
 	</div>
+	{/if}
 
-	<!-- <a href="{$app->baseUrl('/software')}" class="btn btn-primary"></a> -->
-	<!-- <a href="{$app->baseUrl('/configurations')}" class="btn btn-primary">View Configurations</a> -->
-	<!-- <a href="{$app->baseUrl('/departments')}" class="btn btn-primary">View Departments</a> -->
 </div>
-{/if}

@@ -31,5 +31,6 @@ class Classrooms_Master_UserContext extends Bss_Master_UserContext
                 }
             }
         }
+        $this->response->redirect('rooms');
     }
 }

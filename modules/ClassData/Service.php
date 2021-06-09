@@ -52,6 +52,19 @@ class Classrooms_ClassData_Service
         return [$code, $data];
     }
 
+    public function getUserSchedules ($semester='', $userId='')
+    {
+        $url = $this->signResource("userschedule/$userId/semester/$semester", []);
+        list($code, $data) = $this->request($url);
+
+        if ($code == 200)
+        {
+            return $data;
+        }
+
+        return [$code, $data];
+    }
+
     public function getSchedules ($semester='', $facilityId='')
     {
         $url = $this->signResource("schedules", ['term' => $semester, 'facility' => $facilityId]);

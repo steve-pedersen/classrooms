@@ -20,7 +20,7 @@
 				<textarea name="roomMasterTemplate" id="roomMasterTemplate" class="wysiwyg form-control" rows="12">{$comm->roomMasterTemplate}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
-					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%SEMESTER%|</code>, <code>|%LAB_ROOM_WIDGET%|</code>, <code>|%NONLAB_ROOM_WIDGET%|</code>, <code>|%UNCONFIGURED_ROOM_WIDGET%|</code>, <code>|%CONTACT_EMAIL%|</code>
+					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%SEMESTER%|</code>, <code>|%LAB_ROOM_WIDGET%|</code>, <code>|%NONLAB_ROOM_WIDGET%|</code>, <code>|%UNCONFIGURED_ROOM_WIDGET%|</code>, <code>|%NO_ROOM_WIDGET%|</code>, <code>|%CONTACT_EMAIL%|</code>
 				</span>
 			</div>
 		</div>
@@ -91,6 +91,16 @@
 				<label for="unconfiguredRoom">Unconfigured Room</label>
 				<p class="lead">Choose a heading and introduction to go before rooms of this type are listed.</p>
 				<textarea name="unconfiguredRoom" id="unconfiguredRoom" class="wysiwyg form-control" rows="10">{$comm->unconfiguredRoom}</textarea>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="form-group template-widget">
+				<label for="noRoom">No Room - Course without a physical location, e.g. online</label>
+				<p class="lead">Choose a heading and introduction to go before courses of this type are listed.</p>
+				<textarea name="noRoom" id="noRoom" class="wysiwyg form-control" rows="10">{$comm->noRoom}</textarea>
 			</div>
 		</div>
 	</div>

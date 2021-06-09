@@ -24,5 +24,12 @@ class Classrooms_Welcome_Controller extends Classrooms_Master_Controller
             $this->template->welcomeText = $welcomeText;
         }
 
+        if (!$this->getAccount())
+        {
+            $this->response->redirect('rooms');
+        }
+
+        $this->template->pAdmin = $this->hasPermission('edit');
+        $this->template->pFaculty = $this->getAccount();
     }
 }

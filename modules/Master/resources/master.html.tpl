@@ -59,9 +59,11 @@
 								<li>
 									<a class="btn btn-link navbar-link" href="rooms">Rooms</a>
 								</li>
+								{if $pEdit}
 								<li>
 									<a class="btn btn-link navbar-link" href="software">Software</a>
 								</li>
+								{/if}
 								<li class="text-center">
 									<button class="btn btn-link logout navbar-btn" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
 								</li>

@@ -43,8 +43,6 @@ class Classrooms_ClassData_Importer
         return $this->application;
     }
 
-    // public static function getExtensionName () { return 'importer'; }
-    // public static function getExtensionPointName () { return 'at:classrooms:classdata/importer'; }
     public function getDataSource ($alias = 'default')
     {
         return $this->getApplication()->dataSourceManager->getDataSource($alias);
@@ -54,42 +52,6 @@ class Classrooms_ClassData_Importer
         return $this->application->schemaManager->getSchema($name);
     }
 
-    // public function findAccount ($uniqueId)
-    // {
-    //     $account = null;
-    //     $dataSource = $this->getDataSource(self::DATASOURCE_ALIAS);
-    //     $query = $dataSource->createSelectQuery(self::ACCOUNTS_TABLE);
-        
-    //     foreach (self::$SimsAccountFieldMap as $classdataField => $accountField)
-    //     {
-    //         $query->project($classdataField);
-    //     }
-        
-    //     $condition = $dataSource->createCondition(
-    //         $dataSource->createTypedValue('SFSUid', 'symbol'),
-    //         Bss_DataSource_Condition::OP_EQUALS,
-    //         $dataSource->createTypedValue($uniqueId, 'string')
-    //     );
-        
-    //     $query->setCondition($condition);
-    //     $rs = $query->execute(true);
-        
-    //     while ($rs->next())
-    //     {
-    //         $account = new stdClass;
-            
-    //         foreach (self::$SimsAccountFieldMap as $classdataField => $accountField)
-    //         {
-    //             $account->$accountField = $rs->getValue($classdataField, 'string');
-    //         }
-            
-    //         break;
-    //     }
-        
-    //     return $account;
-    // }
-
-    
     public function findEnrollments ($accountId)
     {
         $enrollments = $this->schema('Classrooms_ClassData_Enrollment');
@@ -98,7 +60,6 @@ class Classrooms_ClassData_Importer
         return $enrollments->find($enrollments->sfsuId->lower()->equals(strtolower($accountId)));
     }
     
-
     public function findEnrollmentsByCourses ($courseKeys)
     {
         $courseKeys = (array)$courseKeys;
@@ -108,7 +69,6 @@ class Classrooms_ClassData_Importer
         
         return $enrollments->find($enrollments->externalCourseKey->inList($courseKeys));
     }
-    
 
     public function findCourses ($keys, $keyType = 'ssid')
     {
@@ -247,6 +207,88 @@ class Classrooms_ClassData_Importer
         return [$count, $added, $removed];
     }
 
+    public function importSchedules ($semester, $facultyList)
+    {
+        $facultyList = is_array($facultyList) ? $facultyList : [$facultyList];
+        $scheduleSchema = $this->schema('Classrooms_ClassData_CourseSchedule');
+        $facultySchema = $this->schema('Classrooms_ClassData_User');
+        $courseSchema = $this->schema('Classrooms_ClassData_CourseSection');
+        $roomSchema = $this->schema('Classrooms_Room_Location');
+        $buildingSchema = $this->schema('Classrooms_Room_Building');
+        $accounts = $this->schema('Bss_AuthN_Account');
+
+        $accountManager = new Classrooms_ClassData_AccountManager($this->getApplication());
+        $service = new Classrooms_ClassData_Service($this->getApplication());
+
+        foreach ($facultyList as $facultyId)
+        {
+            $service = new Classrooms_ClassData_Service($this->getApplication());
+            $result = $service->getUserSchedules($semester, $facultyId);
+            foreach ($result['courses'] as $cid => $data)
+            {
+                if (!empty($data['schedule']))
+                {
+                    foreach ($data['schedule'] as $sched)
+                    {
+                        $room = null;
+                        if ($sched['facility']['building'] !== 'ON' && $sched['facility']['building'] !== 'OFF')
+                        {
+                            $building = $this->parseBuilding($sched['facility']);
+                            $cond = $roomSchema->allTrue(
+                                $roomSchema->number->equals($sched['facility']['room']),
+                                $roomSchema->building_id->equals($building->id)
+                            );
+                            if (!($room = $roomSchema->findOne($cond)))
+                            {
+                                $room = $roomSchema->createInstance()->applyDefaults($sched['facility']['room'], $building);
+                            }
+                        }
+                    }
+
+                    $course = $courseSchema->get($data['id']);
+                    $cond = $scheduleSchema->allTrue(
+                        $scheduleSchema->course_section_id->equals($course->id),
+                        $scheduleSchema->faculty_id->equals($facultyId)
+                    );
+                    if (!($schedule = $scheduleSchema->findOne($cond)))
+                    {
+                        $schedule = $scheduleSchema->createInstance();
+                        $schedule->createdDate = new DateTime;
+                    }
+                    $schedule->course_section_id = $course->id;
+                    $schedule->faculty_id = $facultyId;
+                    $schedule->termYear = $semester;
+                    $schedule->schedules = serialize($data['schedule']);
+                    $schedule->room_id = $room ? $room->id : null;
+                    $schedule->save();
+                }  
+            }
+        }
+    }
+
+    // constructs a building name from the description. this is not ideal
+    protected function parseBuilding ($data)
+    {
+        $buildings = $this->schema('Classrooms_Room_Building');
+        if ($building = $buildings->findOne($buildings->code->equals($data['building'])))
+        {
+            return $building;
+        }
+        $building = $buildings->createInstance();
+        $building->code = $data['building'];
+        $roomNumLen = strlen($data['room']) + 1;
+        $start = strlen($data['description']) - $roomNumLen - 1;
+        $end = strlen($data['description']) - $roomNumLen;
+        if (substr($data['description'], $start, $end) === ' ')
+        {
+            $roomNumLen += 1;
+        }
+        $building->name = substr($data['description'], 0, strlen($data['description']) - $roomNumLen);
+        $building->save();
+
+        return $building;
+    }
+
     public function importScheduledRooms ($termYear, $ignoreKeys = ['ON', 'OFF'])
     {
         $scheduleSchema = $this->schema('Classrooms_ClassData_CourseScheduledRoom');
@@ -277,23 +319,12 @@ class Classrooms_ClassData_Importer
             
             if (!empty($result['courses']))
             {
-                // constructs a building name from the description. this is not ideal
                 if (!($building = $buildingSchema->findOne($buildingSchema->code->equals($bldgCode))))
                 {
-                    $building = $buildingSchema->createInstance();
-                    $building->code = $bldgCode;
-                    $roomNumLen = strlen($roomNum) + 1;
-                    $start = strlen($facility['description']) - $roomNumLen - 1;
-                    $end = strlen($facility['description']) - $roomNumLen;
-                    if (substr($facility['description'], $start, $end) === ' ')
-                    {
-                        $roomNumLen += 1;
-                    }
-                    $building->name = substr($facility['description'], 0, strlen($facility['description']) - $roomNumLen);
-                    $building->save();
+                    $building = $this->parseBuilding($facility);
                 }
 
-                if (!($room = $roomSchema->findOne($roomSchema->number->equals($roomNum))))
+                if (!($room = $roomSchema->findOne($roomSchema->number->equals($roomNum)->andIf($roomSchema->building_id->equals($building->id)))))
                 {
                     $room = $roomSchema->createInstance()->applyDefaults($roomNum, $building);
                 }

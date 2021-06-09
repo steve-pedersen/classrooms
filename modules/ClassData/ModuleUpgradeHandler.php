@@ -86,6 +86,26 @@ class Classrooms_ClassData_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseMod
                 $settings->defineProperty('classdata-default-email', 'A default email address that will be applied to users when they do have one provided by the CS datasource.', 'string');
                 break;
             
+            case 1:
+                $def = $this->createEntityType('classroom_classdata_course_schedules', $this->getDataSource('Classrooms_ClassData_CourseSchedule'));
+                $def->addProperty('id', 'string', ['primaryKey' => true, 'sequence' => true]);
+                $def->addProperty('term_year', 'string');
+                $def->addProperty('course_type', 'string');
+                $def->addProperty('course_section_id', 'string');
+                $def->addProperty('faculty_id', 'string');
+                $def->addProperty('account_id', 'int');
+                $def->addProperty('room_id', 'int');
+                $def->addProperty('room_external_id', 'string');
+                $def->addProperty('user_deleted', 'bool');
+                $def->addProperty('schedules', 'string');
+                $def->addProperty('created_date', 'datetime');
+                $def->addProperty('modified_date', 'datetime');
+                $def->addIndex('course_section_id');
+                $def->addIndex('faculty_id');
+                $def->addIndex('room_id');
+                $def->save();    
+
+                break;    
         }
     }
 }
