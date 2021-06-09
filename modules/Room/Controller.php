@@ -185,7 +185,6 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->titles = $titles->getAll(['orderBy' => 'name']);
         $this->template->allAvEquipment = self::$AllRoomAvEquipment;
         $this->template->defaultRoomText = $this->getApplication()->siteSettings->getProperty('default-room-text', 'There is no detailed information currently available for this room.');
-        $this->template->pFaculty = $viewer && !$this->hasPermission('edit');
     }
 
     public function schedules ()

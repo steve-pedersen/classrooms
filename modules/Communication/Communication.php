@@ -23,6 +23,7 @@ class Classrooms_Communication_Communication extends Bss_ActiveRecord_Base
             'labRoom' => ['string', 'nativeName' => 'lab_room'],
             'nonlabRoom' => ['string', 'nativeName' => 'nonlab_room'],
             'unconfiguredRoom' => ['string', 'nativeName' => 'unconfigured_room'],
+            'noRoom' => ['string', 'nativeName' => 'no_room'],
             'creationDate' => ['datetime', 'nativeName' => 'creation_date'],
 
             'events' => ['1:N', 'to' => 'Classrooms_Communication_Event', 'reverseOf' => 'communication', 'orderBy' => ['-creationDate']],

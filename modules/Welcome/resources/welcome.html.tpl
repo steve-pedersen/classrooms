@@ -43,7 +43,7 @@
 			</a>
 		</div>
 		{/if}
-	{if $pAdmin}
+	{if $pEdit}
 		<div class="col-md-3 col-sm-6 col-xs-12">
 			<a href="{$app->baseUrl('/software')}" class="">
 			<div class="panel panel-default">

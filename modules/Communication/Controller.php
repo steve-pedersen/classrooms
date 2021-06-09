@@ -87,7 +87,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
                     $command = $this->request->getPostParameter('command');
                     $which = array_keys($command['send']);
                     $which = array_pop($which);
-
+                    
                     if ($which)
                     {
                         $manager = new Classrooms_Communication_Manager($this->getApplication(), $this);
@@ -147,11 +147,11 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
                                 for ($i = 0; $i < 3; $i++)
                                 {
                                     $course = new stdClass();
-                                    $course->fullDisplayName = 'Sample class without a room ' . $i+1;
+                                    $course->fullDisplayName = 'Sample class without a room ' . ($i+1);
                                     $norooms[] = ['course' => $course];
                                 }
 
-                                if (!empty($labs) || !empty($nonlabs) || !empty($unconfigured))
+                                if (!empty($labs) || !empty($nonlabs) || !empty($unconfigured) || !empty($norooms))
                                 {
                                     $manager->sendRoomMasterTemplate(
                                         ['labs' => $labs, 
@@ -160,7 +160,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
                                         'norooms' => $norooms], 
                                         $viewer, $event
                                     );
-                                    $this->template->sendSuccess = 'You should receive a test email momentarily for the Lab template.';
+                                    $this->template->sendSuccess = 'You should receive a test email momentarily for the template.';
                                 }
                                 else
                                 {

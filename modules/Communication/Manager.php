@@ -99,7 +99,10 @@ class Classrooms_Communication_Manager
   public function processFacultyCommunicationEvent ($event, $faculty, $commData = null)
   {
     $accountSchema = $this->getSchema('Bss_AuthN_Account');
-    $account = $accountSchema->findOne($accountSchema->username->equals($faculty->id));
+    if (!($account = $accountSchema->get($faculty->id)))
+    {
+      $account = $accountSchema->findOne($accountSchema->username->equals($faculty->id));
+    }
 
     if (!$account)
     {
@@ -133,7 +136,7 @@ class Classrooms_Communication_Manager
   }
 
   public function sendRoomMasterTemplate ($comm, $user, $event)
-  {
+  { 
     $communication = $event->communication;
 
     $params = array(
@@ -144,7 +147,7 @@ class Classrooms_Communication_Manager
       '|%LAB_ROOM_WIDGET%|' => $this->getLabRoomWidget($comm['labs'], $communication->labRoom),
       '|%NONLAB_ROOM_WIDGET%|' => $this->getNonlabRoomWidget($comm['nonlabs'], $communication->nonlabRoom),
       '|%UNCONFIGURED_ROOM_WIDGET%|' => $this->getUnconfiguredRoomWidget($comm['unconfigured'], $communication->unconfiguredRoom),
-      '|%NOROOM_WIDGET%|' => $this->getNoRoomWidget($comm['norooms'], $communication->noRoom),
+      '|%NO_ROOM_WIDGET%|' => $this->getNoRoomWidget($comm['norooms'], $communication->noRoom),
     );
     
     $this->sendEmail($user, $params, $communication->roomMasterTemplate);
