@@ -13,6 +13,9 @@
 				<!-- <input type="hidden" name="record" value="0"> -->
 		    	<div class="search-container"></div>
 		    </div>
+		    <div class="form-group">
+		    	<div class="loader"></div>
+		    </div>
 		    {/if}
 		    
 		    <div class="form-group">

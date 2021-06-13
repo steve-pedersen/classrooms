@@ -8,6 +8,7 @@
 	var autoCompleteUrl = document.baseURI + 'rooms/autocomplete';
 
 	var filterRooms = function (data) {
+		$('.loader').hide();
 		var ids = new Array;
 		for (const id in data) {
 			ids.push(id);
@@ -30,6 +31,7 @@
 			var term = request.term;
 
 			if (term.length > 1) {
+				// $('.loader').show();
 				$.ajax(autoCompleteUrl + '?s=' + term, {
 					type: 'get',
 					dataType: 'json',
@@ -60,6 +62,7 @@
 	    if (e.keyCode == 8) {
 	        if ($(this).val() === "") {
 	        	$('.room-card').show(500);
+	        	$('.loader').hide();
 	        } 
 	    }
 	});

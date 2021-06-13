@@ -241,6 +241,7 @@ class Classrooms_ClassData_Importer
                             if (!($room = $roomSchema->findOne($cond)))
                             {
                                 $room = $roomSchema->createInstance()->applyDefaults($sched['facility']['room'], $building);
+                                $room->addNote('New room created automatically with default settings.', $accounts->get(1));
                             }
                         }
                     }
@@ -289,6 +290,7 @@ class Classrooms_ClassData_Importer
         return $building;
     }
 
+    // no longer being used
     public function importScheduledRooms ($termYear, $ignoreKeys = ['ON', 'OFF'])
     {
         $scheduleSchema = $this->schema('Classrooms_ClassData_CourseScheduledRoom');

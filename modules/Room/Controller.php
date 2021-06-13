@@ -422,7 +422,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                         $internal->createdDate = new DateTime;
                         $internal->location = $location;
                         $internal->save();
-                        $internal->addNote('New internal note added', $viewer);
+                        $internal->addNote('New internal note added: '.$data['internalNote'], $viewer);
                     }
                     
                     if ((isset($data['config']['new']['model']) && $data['config']['new']['model'] !== '') || 
@@ -645,54 +645,6 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         }
 
         $this->template->type = $type;
-    }
-
-    public function fetchInstructorsRooms ($terms='2213')
-    {
-        $service = new Classrooms_ClassData_Service($this->getApplication());
-        $locations = $this->schema('Classrooms_Room_Location');
-        $courseSections = $this->schema('Classrooms_ClassData_CourseSection');
-        $locations = $locations->find(
-            $locations->deleted->isNull()->orIf($locations->deleted->isFalse()),
-            ['orderBy' => ['buildingId', 'number']]
-        );
-
-        $instructorsRooms = [];
-        foreach ($locations as $location)
-        {
-            foreach (explode(',', $terms) as $term)
-            {
-                $instructorsRooms[$term] = [];
-                $facilityId = $location->building->code . str_pad($location->number, 4, '0', STR_PAD_LEFT);
-                $schedules = $service->getSchedules($term, $facilityId);
-                
-                foreach ($schedules['courseSchedules']['courses'] as $id => $courseSchedule)
-                {
-                    $courseSection = $courseSections->get($id);
-                    $instructors = $courseSection->getInstructors();
-
-                    foreach ($instructors as $instructor)
-                    {
-                        if (!isset($instructorsRooms[$term][$instructor->id]))
-                        {
-                            $instructorsRooms[$term][$instructor->id] = [];
-                        }
-
-                        foreach ($courseSchedule as $schedule)
-                        {	
-                            $instructorsRooms[$term][$instructor->id] = [
-                                'course_section_id' => $id,
-                                'location_id' => $location->id,
-                                'facility_id' => $schedules['courseSchedules']['facility']['id'],
-                                'schedule' => array_shift($schedule)
-                            ];
-                        }                        
-                    }
-                }
-            }
-        }
-
-        return $instructorsRooms;
     }
 
     public function editConfiguration ()

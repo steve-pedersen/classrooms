@@ -66,11 +66,14 @@
 	</div>
 	<div class="col-sm-3">
 		<div class="well multiselect-filter" style="">
-			<h2>Search</h2>
+			<h2>Search </h2>
 			<!-- <p class=""><small>Search by building name <strong>or</strong> room number</small></p> -->
 		    <form class="form-inline" role="form" id="filterForm2">
 		    <div class="form-group">
 		    	<input id="searchBox" type="text" name="s" class="form-control autocomplete" placeholder="Building or room #">
+		    </div>
+		    <div class="form-group">
+		    	<div class="loader"></div>
 		    </div>
 
 			</form>
