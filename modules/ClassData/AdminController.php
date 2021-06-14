@@ -58,7 +58,7 @@ class Classrooms_ClassData_AdminController extends At_Admin_Controller
         if ($this->request->wasPostedByUser())
         {
             $importer = new Classrooms_ClassData_Importer($this->getApplication());
-            $createFacultyAccount = false;
+            $createFacultyAccount = true;
 
             $semesterCodes = $this->application->siteSettings->semesters ?? '2213';
             if (!is_array($semesterCodes))
