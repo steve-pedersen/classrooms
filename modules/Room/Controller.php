@@ -257,6 +257,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         }
         ksort($scheduledRooms, SORT_NATURAL);
 
+        $this->template->selectedSemester = $this->codeToDisplay($termYear);
         $this->template->scheduledRooms = $scheduledRooms;
         $this->template->semesters = $semesters;
         $this->template->selectedTerm = $termYear;
