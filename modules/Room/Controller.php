@@ -37,8 +37,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     );
 
     public static $AllRoomAvEquipment = [
-        'lcd_proj'=>'LCD Projector', 'lcd_tv'=>'LCD TV', 'vcr_dvd'=>'VCR/DVD', 'hdmi'=>'HDMI', 'vga'=>'VGA', 'data'=>'Data/Ethernet',
-        'scr'=>'Screen', 'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam'
+        'lcd_proj'=>'LCD Projector', 'lcd_tv'=>'LCD TV', 'vcr_dvd'=>'VCR/DVD', 'hdmi'=>'HDMI', 'vga'=>'VGA',
+        'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam', 'zoom'=>'Zoom Enabled'
     ];
 
     public static function getRouteMap ()
@@ -588,6 +588,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 case 'save':
                     if ($this->processSubmission($building, ['name', 'code']))
                     {
+                        $building->save();
                         $this->flash('Building saved.');
                     }
                     break;
@@ -629,6 +630,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 case 'save':
                     if ($this->processSubmission($type, ['name']))
                     {
+                        $type->save();
                         $this->flash('Room type saved.');
                     }
                     break;
