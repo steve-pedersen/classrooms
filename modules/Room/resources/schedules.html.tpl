@@ -1,5 +1,7 @@
 
-<h1>Room Schedules</h1>
+<h1>Room Schedules
+ - <small>{$selectedSemester}</small>
+</h1>
 
 <div class="row">
 	<div class="col-sm-12">

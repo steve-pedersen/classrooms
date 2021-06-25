@@ -100,7 +100,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
                         $labIds = isset($rooms['lab']) && !empty($rooms['lab']) ? $rooms['lab'] : [];
                         $nonlabIds = isset($rooms['nonlab']) && !empty($rooms['nonlab']) ? $rooms['nonlab'] : [];
                         $unconfiguredIds = isset($rooms['unconfigured']) && !empty($rooms['unconfigured']) ? $rooms['unconfigured'] : [];
-                        $norooms = isset($rooms['noroom']);
+                        $noroomIds = isset($rooms['noroom']);
 
                         switch ($which) 
                         {
@@ -145,7 +145,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
                                 }
 
                                 $norooms = [];
-                                if ($norooms)
+                                if ($noroomIds)
                                 {
                                     for ($i = 0; $i < 3; $i++)
                                     {

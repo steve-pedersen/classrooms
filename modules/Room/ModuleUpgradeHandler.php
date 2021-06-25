@@ -159,6 +159,12 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $siteSettings->defineProperty('default-room-description', 'Default room description', 'text');
 
                 break;
+
+            case 1:
+            	$siteSettings->defineProperty('scheduled-by', 'List of departments to be shown in Scheduled By field of room edit page.', 'text');
+            	$siteSettings->defineProperty('supported-by', 'List of departments to be shown in Supported By field of room edit page.', 'text');
+            	$siteSettings->defineProperty('supported-by-text', 'Default text to be displayed in room and/or emails for the selected department. Requires key from supported-by field.', 'text');
+            	break;
         }
     }
 }

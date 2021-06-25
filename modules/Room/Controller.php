@@ -37,8 +37,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     );
 
     public static $AllRoomAvEquipment = [
-        'lcd_proj'=>'LCD Projector', 'lcd_tv'=>'LCD TV', 'vcr_dvd'=>'VCR/DVD', 'hdmi'=>'HDMI', 'vga'=>'VGA', 'data'=>'Data/Ethernet',
-        'scr'=>'Screen', 'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam'
+        'lcd_proj'=>'LCD Projector', 'lcd_tv'=>'LCD TV', 'vcr_dvd'=>'VCR/DVD', 'hdmi'=>'HDMI', 'vga'=>'VGA',
+        'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam', 'zoom'=>'Zoom Enabled'
     ];
 
     public static function getRouteMap ()
@@ -46,6 +46,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         return [
             '/rooms' => ['callback' => 'listRooms'],
             '/rooms/autocomplete' => ['callback' => 'autoComplete'],
+            '/rooms/metadata' => ['callback' => 'roomMetadata'],
             '/rooms/:id' => ['callback' => 'view'],
             '/rooms/:id/edit' => ['callback' => 'editRoom', ':id' => '[0-9]+|new'],
             '/rooms/:roomid/tutorials/:id/edit' => ['callback' => 'editTutorial', ':id' => '[0-9]+|new'],
@@ -257,6 +258,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         }
         ksort($scheduledRooms, SORT_NATURAL);
 
+        $this->template->selectedSemester = $this->codeToDisplay($termYear);
         $this->template->scheduledRooms = $scheduledRooms;
         $this->template->semesters = $semesters;
         $this->template->selectedTerm = $termYear;
@@ -363,6 +365,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $buildings = $this->schema('Classrooms_Room_Building');
         $licenses = $this->schema('Classrooms_Software_License');
         $notes = $this->schema('Classrooms_Notes_Entry');
+        $siteSettings = $this->getApplication()->siteSettings;
         
         $customConfigurations = $location->customConfigurations;
         if ($cid = $this->request->getQueryParameter('configuration', null))
@@ -499,9 +502,47 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->allAvEquipment = self::$AllRoomAvEquipment;
         $this->template->softwareLicenses = $softwareLicenses;
         $this->template->bundles = $configs->find($configs->isBundle->isTrue(), ['orderBy' => 'model']);
-        $this->template->notes = $location->id ? $notes->find(
+        $this->template->notes = $location->inDatasource ? $notes->find(
             $notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']
         ) : [];
+        $this->template->scheduledBy = unserialize($siteSettings->getProperty('scheduled-by'));
+        $this->template->supportedBy = unserialize($siteSettings->getProperty('supported-by'));
+        $this->template->supportedByText = unserialize($siteSettings->getProperty('supported-by-text'));
+    }
+
+    public function roomMetadata ()
+    {
+        $viewer = $this->requireLogin();
+        $this->requirePermission('edit');
+
+        $siteSettings = $this->getApplication()->siteSettings;
+
+        if ($this->request->wasPostedByUser())
+        {
+            $data = $this->request->getPostParameters();
+            
+            if ($data['scheduledBy']['new'] !== '')
+            {
+                $data['scheduledBy'][$data['scheduledBy']['new']] = $data['scheduledBy']['new'];
+            }
+            unset($data['scheduledBy']['new']);
+
+            if ($data['supportedBy']['new'] !== '')
+            {
+                $data['supportedBy'][$data['supportedBy']['new']] = $data['supportedBy']['new'];
+            }
+            unset($data['supportedBy']['new']);
+
+            $siteSettings->setProperty('scheduled-by', serialize($data['scheduledBy']));
+            $siteSettings->setProperty('supported-by', serialize($data['supportedBy']));
+            $siteSettings->setProperty('supported-by-text', serialize($data['supportedByText']));
+            $this->flash('Room metadata updated.');
+            $this->response->redirect('rooms/metadata');
+        }
+
+        $this->template->scheduledBy = unserialize($siteSettings->getProperty('scheduled-by'));
+        $this->template->supportedBy = unserialize($siteSettings->getProperty('supported-by'));
+        $this->template->supportedByText = unserialize($siteSettings->getProperty('supported-by-text'));
     }
 
     public function editTutorial () 
@@ -587,6 +628,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 case 'save':
                     if ($this->processSubmission($building, ['name', 'code']))
                     {
+                        $building->save();
                         $this->flash('Building saved.');
                     }
                     break;
@@ -628,6 +670,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 case 'save':
                     if ($this->processSubmission($type, ['name']))
                     {
+                        $type->save();
                         $this->flash('Room type saved.');
                     }
                     break;

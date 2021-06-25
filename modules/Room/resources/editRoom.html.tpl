@@ -61,7 +61,7 @@
 					<div class="form-group">
 						<label for="building" class="col-sm-2 control-label">Building</label>
 						<div class="col-sm-10">
-							<select name="room[building]" id="building" class="form-control" required>
+							<select name="room[building]" id="building" class="form-control" required {if $location->building_id}disabled{/if}>
 								<option value="">Choose Building</option>
 							{foreach $buildings as $building}
 								<option value="{$building->id}"{if $location->building_id == $building->id} selected{/if}>{$building->code} - {$building->name}</option>
@@ -85,7 +85,7 @@
 					<div class="form-group">
 						<label for="number" class="col-sm-2 control-label">Room #</label>
 						<div class="col-sm-2">
-							<input type="text" class="form-control" name="room[number]" value="{$location->number}" placeholder="#">
+							<input type="text" class="form-control" name="room[number]" value="{$location->number}" placeholder="#" {if $location->number}disabled{/if}>
 						</div>
 					</div>
 
@@ -106,14 +106,30 @@
 					<div class="form-group">
 						<label for="scheduledBy" class="col-sm-2 control-label">Scheduled By</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" name="room[scheduledBy]" value="{$location->scheduledBy}" placeholder="">
+							<select class="form-control" name="room[scheduledBy]">
+								<option value="">Select...</option>
+							{foreach $scheduledBy as $sb}
+								<option value="{$sb}" {if $location->scheduledBy == $sb}selected{/if}>
+									{$sb}
+								</option>
+							{/foreach}
+							</select>
+							<p class="help-block"><a href="rooms/metadata" class="text-muted">Edit these options here</a></p>
 						</div>
 					</div>
 
 					<div class="form-group">
 						<label for="supportedBy" class="col-sm-2 control-label">Supported By</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" name="room[supportedBy]" value="{$location->supportedBy}" placeholder="Academic Technology">
+							<select class="form-control" name="room[supportedBy]">
+								<option value="">Select...</option>
+							{foreach $supportedBy as $sb}
+								<option value="{$sb}" {if $location->supportedBy == $sb}selected{/if}>
+									{$sb}
+								</option>
+							{/foreach}
+							</select>
+							<p class="help-block"><a href="rooms/metadata" class="text-muted">Edit these options here</a></p>
 						</div>
 					</div>
 

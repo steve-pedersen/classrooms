@@ -210,6 +210,7 @@ class Classrooms_ClassData_Importer
     public function importSchedules ($semester, $facultyList)
     {
         $facultyList = is_array($facultyList) ? $facultyList : [$facultyList];
+        $ignoreKeys = ['ON', 'OFF'];
         $scheduleSchema = $this->schema('Classrooms_ClassData_CourseSchedule');
         $facultySchema = $this->schema('Classrooms_ClassData_User');
         $courseSchema = $this->schema('Classrooms_ClassData_CourseSection');
@@ -231,7 +232,7 @@ class Classrooms_ClassData_Importer
                     foreach ($data['schedule'] as $sched)
                     {
                         $room = null;
-                        if ($sched['facility']['building'] !== 'ON' && $sched['facility']['building'] !== 'OFF')
+                        if (!in_array($sched['facility']['building'], $ignoreKeys))
                         {
                             $building = $this->parseBuilding($sched['facility']);
                             $cond = $roomSchema->allTrue(

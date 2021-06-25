@@ -140,49 +140,49 @@
 	<br><br>
 	{/if}
 	{foreach $room->configurations as $config}
-		{if $config->softwareLicenses->count() > 0}
-			{if !$config->isBundle}
-			<div class="col-sm-12">
-				<div class="panel panel-default">
-					<div class="panel-heading"><strong>Configuration: {$config->model}</strong></div>
-					<div class="panel-body">
-						<p><strong>Hardware:</strong> {$config->deviceQuantity} {$config->deviceType}</p>
-					{if $pEdit}
-						<dl class="dl-horizontal">
-							{if $config->location}<dt>Location</dt><dd>{$config->location}</dd>{/if}
-							{if $config->managementType}<dt>Management Type</dt><dd>{$config->managementType}</dd>{/if}
-							{if $config->imageStatus}<dt>Image Status</dt><dd>{$config->imageStatus}</dd>{/if}
-							{if $config->vintages}<dt>Vintages</dt><dd>{$config->vintages}</dd>{/if}
-							{if $config->uniprint}<dt>Uniprint</dt><dd>{$config->uniprint}</dd>{/if}
-							{if $config->uniprintQueue}<dt>Uniprint Queue</dt><dd>{$config->uniprintQueue}</dd>{/if}
-							{if $config->releaseStationIp}<dt>Release Station IP</dt><dd>{$config->releaseStationIp}</dd>{/if}
-							{if $config->adBound}<dt>AD Bound</dt><dd>{$config->adBound}</dd>{/if}
-							{if $config->modifiedDate}<dt>Last Modified</dt><dd>{$config->modifiedDate->format('m/d/Y')}</dd>{/if}
-						</dl>
-					{/if}
-						<p><strong>Software:</strong></p>
-						<table class="table table-condensed table-bordered">
-							<thead>
-								<tr>
-									<th>Developer</th>
-									<th>Title</th>
-									<th>Version</th>
-								</tr>
-							</thead>
-						<tbody>
-						{foreach $config->softwareLicenses as $license}
+		{if !$config->isBundle}
+		<div class="col-sm-12">
+			<div class="panel panel-default">
+				<div class="panel-heading"><strong>Configuration: {$config->model}</strong></div>
+				<div class="panel-body">
+					<p><strong>Hardware:</strong> {$config->deviceQuantity} {$config->deviceType}</p>
+				{if $pEdit}
+					<dl class="dl-horizontal">
+						{if $config->location}<dt>Location</dt><dd>{$config->location}</dd>{/if}
+						{if $config->managementType}<dt>Management Type</dt><dd>{$config->managementType}</dd>{/if}
+						{if $config->imageStatus}<dt>Image Status</dt><dd>{$config->imageStatus}</dd>{/if}
+						{if $config->vintages}<dt>Vintages</dt><dd>{$config->vintages}</dd>{/if}
+						{if $config->uniprint}<dt>Uniprint</dt><dd>{$config->uniprint}</dd>{/if}
+						{if $config->uniprintQueue}<dt>Uniprint Queue</dt><dd>{$config->uniprintQueue}</dd>{/if}
+						{if $config->releaseStationIp}<dt>Release Station IP</dt><dd>{$config->releaseStationIp}</dd>{/if}
+						{if $config->adBound}<dt>AD Bound</dt><dd>{$config->adBound}</dd>{/if}
+						{if $config->modifiedDate}<dt>Last Modified</dt><dd>{$config->modifiedDate->format('m/d/Y')}</dd>{/if}
+					</dl>
+				{/if}
+				{if $config->softwareLicenses->count() > 0}
+					<p><strong>Software:</strong></p>
+					<table class="table table-condensed table-bordered">
+						<thead>
 							<tr>
-								<td>{$license->version->title->developer->name}</td>
-								<td><a href="software/{$license->version->title->id}">{$license->version->title->name}</a></td>
-								<td>{$license->version->number}</td>
+								<th>Developer</th>
+								<th>Title</th>
+								<th>Version</th>
 							</tr>
-						{/foreach}
-						</tbody>
-						</table>
-					</div>
+						</thead>
+					<tbody>
+					{foreach $config->softwareLicenses as $license}
+						<tr>
+							<td>{$license->version->title->developer->name}</td>
+							<td><a href="software/{$license->version->title->id}">{$license->version->title->name}</a></td>
+							<td>{$license->version->number}</td>
+						</tr>
+					{/foreach}
+					</tbody>
+					</table>
 				</div>
+				{/if}
 			</div>
-			{/if}
+		</div>
 		{/if}
 	{/foreach}
 		</div>
