@@ -523,13 +523,13 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             
             if ($data['scheduledBy']['new'] !== '')
             {
-                $data['scheduledBy'][$data['scheduledBy']['new']] = $data['scheduledBy']['new'];
+                $data['scheduledBy'][trim($data['scheduledBy']['new'])] = trim($data['scheduledBy']['new']);
             }
             unset($data['scheduledBy']['new']);
 
             if ($data['supportedBy']['new'] !== '')
             {
-                $data['supportedBy'][$data['supportedBy']['new']] = $data['supportedBy']['new'];
+                $data['supportedBy'][trim($data['supportedBy']['new'])] = trim($data['supportedBy']['new']);
             }
             unset($data['supportedBy']['new']);
 
