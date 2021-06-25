@@ -35,9 +35,9 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         $this->addBreadcrumb('software', 'List Software Titles');
         $this->addBreadcrumb('software/' . $title->id, 'View');
 
-        $selectedVersion = $title->id ? 
+        $selectedVersion = $title->inDatasource ? 
             $title->versions->index($title->versions->count() - 1) : $versions->createInstance();        
-        $selectedLicense = $selectedVersion->id ? 
+        $selectedLicense = $selectedVersion->inDatasource ? 
             $selectedVersion->licenses->index($selectedVersion->licenses->count() - 1) : $versions->createInstance();
         
         if ($this->request->wasPostedByUser())
@@ -90,7 +90,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                     {
                         $title->addNote('Software title created', $viewer);
                     }
-
+                    
                     $new = false;
                     if (isset($data['version']['new']) && $data['version']['new'] !== '')
                     {
@@ -98,9 +98,14 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                         $version->number = $data['version']['new'];
                         $version->addNote('Version created for ' . $version->title->name, $viewer);
                     }
-                    else
+                    elseif (isset($data['version']['existing']) && $data['version']['existing'])
                     {
                         $version = $versions->get($data['version']['existing']);
+                    }
+                    else
+                    {
+                        $this->flash('Software title saved without version or license info.');
+                        $this->response->redirect('software/' . $title->id);
                     }
                     $version->title_id = $title->id;
                     $version->save();
