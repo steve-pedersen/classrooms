@@ -61,7 +61,7 @@
 					<div class="form-group">
 						<label for="building" class="col-sm-2 control-label">Building</label>
 						<div class="col-sm-10">
-							<select name="room[building]" id="building" class="form-control" required {if $location->building_id}disabled{/if}>
+							<select name="room[building]" id="building" class="form-control" required {if $location->building_id}readonly{/if}>
 								<option value="">Choose Building</option>
 							{foreach $buildings as $building}
 								<option value="{$building->id}"{if $location->building_id == $building->id} selected{/if}>{$building->code} - {$building->name}</option>
@@ -85,7 +85,7 @@
 					<div class="form-group">
 						<label for="number" class="col-sm-2 control-label">Room #</label>
 						<div class="col-sm-2">
-							<input type="text" class="form-control" name="room[number]" value="{$location->number}" placeholder="#" {if $location->number}disabled{/if}>
+							<input type="text" class="form-control" name="room[number]" value="{$location->number}" placeholder="#" {if $location->number}readonly{/if}>
 						</div>
 					</div>
 

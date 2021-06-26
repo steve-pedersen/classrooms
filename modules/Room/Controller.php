@@ -71,9 +71,16 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     	$this->addBreadcrumb('rooms', 'List Rooms');
         
         $notes = $this->schema('Classrooms_Notes_Entry');
+        $siteSettings = $this->getApplication()->siteSettings;
         
         $facilityId = $location->building->code . '^' . $location->number;
         $trackRoomUrlApi = 'https://track.sfsu.edu/property/rooms?facility=' .$facilityId. '&fields=' . implode(',', self::$Fields);
+
+        $supportText = unserialize($siteSettings->getProperty('supported-by-text'));
+        if (isset($supportText[$location->supportedBy]) && trim($supportText[$location->supportedBy]) !== '')
+        {
+            $this->template->supportText = $supportText[$location->supportedBy];
+        }
         
         $this->template->trackUrl = $trackRoomUrlApi;
         $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
@@ -84,6 +91,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->notes = $location->id ? $notes->find(
             $notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']
         ) : [];
+
     }
 
     public function listRooms ()

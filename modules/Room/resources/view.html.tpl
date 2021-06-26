@@ -70,13 +70,19 @@
 			<dt>URL</dt>
 			<dd>{$room->url}</dd>
 			{/if}
+			{if $supportText}
+			<dt>Support Information</dt>
+			<dd>{$supportText}</dd>
+			{/if}
 		</dl>
 	</div>
 	{if $trackUrl}
+	<div class="row">
 	<div class="col-sm-12">
 		<a href="{$trackUrl}" target="_blank" class="">View all computers and hardware in this room
 			<i class="glyphicon glyphicon-new-window"></i>
 		</a>
+	</div>
 	</div>
 	<br><br>
 	{/if}
