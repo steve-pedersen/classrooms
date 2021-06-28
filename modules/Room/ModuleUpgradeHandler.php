@@ -165,6 +165,18 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
             	$siteSettings->defineProperty('supported-by', 'List of departments to be shown in Supported By field of room edit page.', 'text');
             	$siteSettings->defineProperty('supported-by-text', 'Default text to be displayed in room and/or emails for the selected department. Requires key from supported-by field.', 'text');
             	break;
+
+            case 2:
+                $def = $this->alterEntityType('classroom_room_locations', $this->getDataSource('Classrooms_Room_Location'));
+                $def->addProperty('tutorial_id', 'int');
+                $def->addProperty('uniprint', 'string');
+                $def->addProperty('uniprint_queue', 'string');
+                $def->addProperty('release_station_ip', 'string');
+                $def->addProperty('printer_model', 'string');
+                $def->addProperty('printer_ip', 'string');
+                $def->addProperty('printer_server', 'string');
+                $def->save();
+                break;
         }
     }
 }

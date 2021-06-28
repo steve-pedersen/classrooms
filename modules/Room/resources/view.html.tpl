@@ -74,6 +74,15 @@
 			<dt>Support Information</dt>
 			<dd>{$supportText}</dd>
 			{/if}
+
+		{if $pEdit}
+			{if $room->uniprint}<dt>Uniprint</dt><dd>{$room->uniprint}</dd>{/if}
+			{if $room->uniprintQueue}<dt>Uniprint Queue</dt><dd>{$room->uniprintQueue}</dd>{/if}
+			{if $room->releaseStationIp}<dt>Release Station IP</dt><dd>{$room->releaseStationIp}</dd>{/if}
+			{if $room->printerModel}<dt>Printer Model</dt><dd>{$room->printerModel}</dd>{/if}
+			{if $room->printerIp}<dt>Printer IP</dt><dd>{$room->printerIp}</dd>{/if}
+			{if $room->printerServer}<dt>Printer Server</dt><dd>{$room->printerServer}</dd>{/if}
+		{/if}
 		</dl>
 	</div>
 	{if $trackUrl}
@@ -158,9 +167,6 @@
 						{if $config->managementType}<dt>Management Type</dt><dd>{$config->managementType}</dd>{/if}
 						{if $config->imageStatus}<dt>Image Status</dt><dd>{$config->imageStatus}</dd>{/if}
 						{if $config->vintages}<dt>Vintages</dt><dd>{$config->vintages}</dd>{/if}
-						{if $config->uniprint}<dt>Uniprint</dt><dd>{$config->uniprint}</dd>{/if}
-						{if $config->uniprintQueue}<dt>Uniprint Queue</dt><dd>{$config->uniprintQueue}</dd>{/if}
-						{if $config->releaseStationIp}<dt>Release Station IP</dt><dd>{$config->releaseStationIp}</dd>{/if}
 						{if $config->adBound}<dt>AD Bound</dt><dd>{$config->adBound}</dd>{/if}
 						{if $config->modifiedDate}<dt>Last Modified</dt><dd>{$config->modifiedDate->format('m/d/Y')}</dd>{/if}
 					</dl>

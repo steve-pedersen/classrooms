@@ -164,6 +164,50 @@
 						</div>
 					</div>
 
+<a class="btn btn-info collapse-button collapsed" data-toggle="collapse" data-parent="#accordion1" href="#advancedExisting" aria-expanded="true" aria-controls="advancedExisting" style="margin-bottom: 1em;">
+	Show/Hide Advanced Fields
+</a><br>
+<div id="accordion1">
+	<div class="panel-collapse collapse" role="tabpanel" id="advancedExisting">
+
+	<div class="form-group">
+		<label for="uniprintQueue" class="col-sm-2 control-label">Uniprint Queue</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" name="room[uniprintQueue]" value="{$room->uniprintQueue}" placeholder="">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="releaseStationIp" class="col-sm-2 control-label">Release Station IP</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" name="room[releaseStationIp]" value="{$room->releaseStationIp}" placeholder="">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="printerModel" class="col-sm-2 control-label">Printer Model</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" name="room[printerModel]" value="{$room->printerModel}" placeholder="">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="printerIp" class="col-sm-2 control-label">Printer IP</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" name="room[printerIp]" value="{$room->printerIp}" placeholder="">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="printerServer" class="col-sm-2 control-label">Printer Server</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" name="room[printerServer]" value="{$room->printerServer}" placeholder="">
+		</div>
+	</div>
+
+	</div>
+</div>
+
 				</div>
 				
 			</div>

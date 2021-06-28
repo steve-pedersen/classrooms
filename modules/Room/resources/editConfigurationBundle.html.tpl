@@ -38,20 +38,6 @@
 	</div>
 
 	<div class="form-group">
-		<label for="uniprintQueue" class="col-sm-2 control-label">Uniprint Queue</label>
-		<div class="col-sm-10">
-			<input type="text" class="form-control" name="uniprintQueue" value="{$config->uniprintQueue}" placeholder="">
-		</div>
-	</div>
-
-	<div class="form-group">
-		<label for="releaseStationIp" class="col-sm-2 control-label">Release Station IP</label>
-		<div class="col-sm-10">
-			<input type="text" class="form-control" name="releaseStationIp" value="{$config->releaseStationIp}" placeholder="">
-		</div>
-	</div>
-
-	<div class="form-group">
 		<label for="adBound" class="col-sm-2 control-label">AD Bound</label>
 		<div class="col-sm-2">
 			<input type="checkbox" class="checkbox" name="adBound" value="{$config->adBound}" {if $config->adBound}checked{/if}>
