@@ -11,7 +11,7 @@
  */
 class Classrooms_AuthN_NoAccountErrorHandler extends Classrooms_Master_ErrorHandler
 {
-    public static function getErrorClassList () { return [ 'Classrooms_AuthN_ExNoAccount' ]; }
+    public static function getErrorClassList () { return [ 'Classrooms_AuthN_ExNoFaculty' ]; }
     
     protected function getStatusCode () { return 403; }
     protected function getStatusMessage () { return 'Forbidden'; }
