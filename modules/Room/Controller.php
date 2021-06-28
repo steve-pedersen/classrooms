@@ -100,25 +100,25 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         
         $schedules = $this->schema('Classrooms_ClassData_CourseSchedule');
         $locations = $this->schema('Classrooms_Room_Location');
-        $buildings = $this->schema('Classrooms_Room_Building');
-        $buildings = $buildings->find(
-            $buildings->deleted->isNull()->orIf($buildings->deleted->isFalse()),
+        $buildingSchema = $this->schema('Classrooms_Room_Building');
+        $buildings = $buildingSchema->find(
+            $buildingSchema->deleted->isNull()->orIf($buildingSchema->deleted->isFalse()),
             ['orderBy' => 'name']
         );
-        $types = $this->schema('Classrooms_Room_Type');
-        $types = $types->find(
-            $types->deleted->isNull()->orIf($types->deleted->isFalse()),
+        $typeSchema = $this->schema('Classrooms_Room_Type');
+        $types = $typeSchema->find(
+            $typeSchema->deleted->isNull()->orIf($typeSchema->deleted->isFalse()),
             ['orderBy' => 'name']
         );
         $titles = $this->schema('Classrooms_Software_Title');
 
-        $selectedBuildings = $this->request->getQueryParameter('buildings');
-        $selectedTypes = $this->request->getQueryParameter('types');
+        $selectedBuildings = $this->request->getQueryParameter('buildings', []);
+        $selectedTypes = $this->request->getQueryParameter('types', []);
         $selectedTitles = $this->request->getQueryParameter('titles');
         $selectedEquipment = $this->request->getQueryParameter('equipment');
         $capacity = $this->request->getQueryParameter('cap');
         $s = $this->request->getQueryParameter('s');
-
+        
         $condition = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
         
         $userRooms = [];
@@ -129,6 +129,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             );
             $condition = $condition->andIf($locations->id->inList($userRooms));
         }
+
         if ($selectedBuildings)
         {
             $building = null;
@@ -176,6 +177,11 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
         $rooms = $locations->find($condition, ['orderBy' => ['building_id', '-number']]);
 
+        if ($s)
+        {
+            $rooms = $this->autoComplete(true);
+        }
+
         $sortedRooms = [];
         foreach ($rooms as $room)
         {
@@ -183,10 +189,15 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         }
         ksort($sortedRooms, SORT_NATURAL);
 
-        $this->template->selectedBuildings = $selectedBuildings;
-        $this->template->selectedTypes = $selectedTypes;
+        $this->template->selectedBuildings = $buildingSchema->findValues(['code' => 'id'], 
+            $buildingSchema->id->inList($selectedBuildings)
+        );
+        $this->template->selectedTypes = $typeSchema->findValues(['name' => 'id'], 
+            $typeSchema->id->inList($selectedTypes)
+        );
         $this->template->selectedTitles = $selectedTitles;
         $this->template->selectedEquipment = $selectedEquipment;
+        $this->template->searchQuery = $s;
         $this->template->capacity = $capacity;
         $this->template->buildings = $buildings;
         $this->template->types = $types;
@@ -964,7 +975,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         exit;
     }
 
-    public function autoComplete ()
+    public function autoComplete ($nonJsonResponse = false)
     {
         $locations = $this->schema('Classrooms_Room_Location');
         $buildings = $this->schema('Classrooms_Room_Building');
@@ -1040,6 +1051,11 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $nonDeleted = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
         $condition = $condition ? $condition->andIf($nonDeleted) : $nonDeleted;
         $rooms = $locations->find($condition, ['orderBy' => 'number']);
+
+        if ($nonJsonResponse)
+        {
+            return $rooms;
+        }
 
         if ($rooms)
         {

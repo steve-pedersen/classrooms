@@ -62,7 +62,35 @@
 		        </a> 
 		    </div>
 			</form>
-		</div>	
+			{if $searchQuery}
+				<p><em>Showing search results for "{$searchQuery}." <a href="rooms">Reset search query</a></em></p>
+			{elseif $selectedBuildings || $selectedTypes || $selectedEquipment || $capacity}
+				<p class="">Active filters - 
+				{if $selectedBuildings}
+					<strong>Buildings: </strong>
+					{foreach $selectedBuildings as $sb => $id}
+						<em>{$sb}{if !$id@last}, {else}&nbsp;&nbsp;{/if}</em>
+					{/foreach}
+				{/if}
+				{if $selectedTypes}
+					<strong>Types: </strong>
+					{foreach $selectedTypes as $st => $id}
+						<em>{$st}{if !$id@last}, {else}&nbsp;&nbsp;{/if}</em>
+					{/foreach}
+				{/if}
+				{if $selectedEquipment}
+					<strong>Equipment: </strong>
+					{foreach $selectedEquipment as $se}
+						<em>{$allAvEquipment[$se]}{if !$se@last}, {else}&nbsp;&nbsp;{/if}</em>
+					{/foreach}
+				{/if}
+				{if $capacity}
+					<strong>Capacity: </strong>
+					<em>{$capacity}</em>
+				{/if}
+				</p>
+			{/if}
+		</div>
 	</div>
 	<div class="col-sm-3">
 		<div class="well multiselect-filter" style="">
@@ -70,7 +98,7 @@
 			<!-- <p class=""><small>Search by building name <strong>or</strong> room number</small></p> -->
 		    <form class="form-inline" role="form" id="filterForm2">
 		    <div class="form-group">
-		    	<input id="searchBox" type="text" name="s" class="form-control autocomplete" placeholder="Building or room #">
+		    	<input id="searchBox" type="text" name="s" value="{$searchQuery}" class="form-control autocomplete" placeholder="Building or room #">
 		    </div>
 		    <div class="form-group">
 		    	<div class="loader"></div>

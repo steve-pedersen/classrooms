@@ -1,7 +1,7 @@
 
 <h1>Software Titles</h1>
 
-<div class="well multiselect-filter">
+<div class="well multiselect-filter filters">
 	<h2>Filter</h2>
 	<form class="form-inline" role="form" id="filterForm">
     <div class="form-group">
@@ -47,6 +47,28 @@
     </div>
 	{/if}
 	</form>
+
+	{if $selectedCategories || $selectedDevelopers || $expiration}
+		<p class="">Active filters - 
+		{if $selectedCategories}
+			<strong>Categories: </strong>
+			{foreach $selectedCategories as $sb => $id}
+				<em>{$sb}{if !$id@last}, {else}&nbsp;&nbsp;{/if}</em>
+			{/foreach}
+		{/if}
+		{if $selectedDevelopers}
+			<strong>Developers: </strong>
+			{foreach $selectedDevelopers as $st => $id}
+				<em>{$st}{if !$id@last}, {else}&nbsp;&nbsp;{/if}</em>
+			{/foreach}
+		{/if}
+		{if $expiration}
+			<strong>License expiration: </strong>
+			<em>{$expiration}</em>
+		{/if}
+		</p>
+	{/if}
+
 </div>
 
 <table class="table table-bordered table-striped table-condensed">

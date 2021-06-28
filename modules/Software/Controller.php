@@ -183,13 +183,13 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         $viewer = $this->requireLogin();
         $this->requirePermission('edit');
 
-        $categories = $this->schema('Classrooms_Software_Category');
-        $developers = $this->schema('Classrooms_Software_Developer');
+        $categorySchema = $this->schema('Classrooms_Software_Category');
+        $developerSchema = $this->schema('Classrooms_Software_Developer');
         $titles = $this->schema('Classrooms_Software_Title');
         $licenses = $this->schema('Classrooms_Software_License');
 
-        $selectedCategories = $this->request->getQueryParameter('categories');
-        $selectedDevelopers = $this->request->getQueryParameter('developers');
+        $selectedCategories = $this->request->getQueryParameter('categories', []);
+        $selectedDevelopers = $this->request->getQueryParameter('developers', []);
 
 		$condition = $titles->deleted->isFalse()->orIf($titles->deleted->isNull());
         if ($selectedCategories)
@@ -226,8 +226,6 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                 }
             }
             asort($sorted);
-            // $sorted = array_reverse($sorted);
-            // echo "<pre>"; var_dump($sorted); die;
             
             $sortedTitles = [];
             foreach ($sorted as $id => $expiry)
@@ -239,11 +237,15 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
             $condition = $condition ?? true;
         }
 
-        $developers = $developers->find($developers->deleted->isFalse()->orIf($developers->deleted->isNull()), ['orderBy' => 'name']);
-        $categories = $categories->find($categories->deleted->isFalse()->orIf($categories->deleted->isNull()), ['orderBy' => 'name']);
+        $developers = $developerSchema->find($developerSchema->deleted->isFalse()->orIf($developerSchema->deleted->isNull()), ['orderBy' => 'name']);
+        $categories = $categorySchema->find($categorySchema->deleted->isFalse()->orIf($categorySchema->deleted->isNull()), ['orderBy' => 'name']);
 
-        $this->template->selectedCategories = $selectedCategories;
-        $this->template->selectedDevelopers = $selectedDevelopers;
+        $this->template->selectedCategories = $categorySchema->findValues(['name' => 'id'], 
+            $categorySchema->id->inList($selectedCategories)
+        );
+        $this->template->selectedDevelopers = $developerSchema->findValues(['name' => 'id'], 
+            $developerSchema->id->inList($selectedDevelopers)
+        );
         $this->template->developers = $developers;
         $this->template->categories = $categories;
         $this->template->titles = $software;
