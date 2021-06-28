@@ -11,11 +11,11 @@
  */
 class Classrooms_AuthN_NoAccountErrorHandler extends Classrooms_Master_ErrorHandler
 {
-    public static function getErrorClassList () { return [ 'Classrooms_AuthN_ExNoFaculty' ]; }
+    public static function getErrorClassList () { return [ 'Bss_AuthN_ExNoAccount' ]; }
     
     protected function getStatusCode () { return 403; }
     protected function getStatusMessage () { return 'Forbidden'; }
-    protected function getTemplateFile () { return 'error-nofaculty.html.tpl'; }
+    protected function getTemplateFile () { return 'error-403-no-account.html.tpl'; }
     
     protected function handleError ($error)
     {
@@ -50,7 +50,7 @@ class Classrooms_AuthN_NoAccountErrorHandler extends Classrooms_Master_ErrorHand
             }
             else
             {
-                $this->forwardError('Classrooms_AuthN_ExNoFaculty', $error);
+                $this->forwardError('Classrooms_AuthN_NoFacultyErrorHandler', $error);
             }
         }
         
