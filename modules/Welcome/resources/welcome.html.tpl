@@ -71,31 +71,6 @@
 	</div>
 
 	<div class="row">
-		<div class="col-md-3 col-sm-6 col-xs-12">
-			<a href="{$app->baseUrl('/buildings')}" class="">
-			<div class="panel panel-default">
-				<div class="panel-heading text-center">
-					<h2 style="font-size:2rem">Buildings</h2>
-				</div>
-				<div class="panel-body">
-					<img style="max-width:100px;margin-left:auto;margin-right:auto;" src="assets/images/building.png" class="img-responsive">
-				</div>
-			</div>
-			</a>
-		</div>
-
-		<div class="col-md-3 col-sm-6 col-xs-12">
-			<a href="{$app->baseUrl('/types')}" class="">
-			<div class="panel panel-default">
-				<div class="panel-heading text-center">
-					<h2 style="font-size:2rem">Room Types</h2>
-				</div>
-				<div class="panel-body">
-					<img style="max-width:100px;margin-left:auto;margin-right:auto;" src="assets/images/laboratory.png" class="img-responsive">
-				</div>
-			</div>
-			</a>
-		</div>	
 
 		<div class="col-md-3 col-sm-6 col-xs-12">
 			<a href="{$app->baseUrl('/admin/communications')}" class="">
@@ -114,10 +89,23 @@
 			<a href="{$app->baseUrl('/rooms/metadata')}" class="">
 			<div class="panel panel-default">
 				<div class="panel-heading text-center">
-					<h2 style="font-size:2rem">Room Metadata</h2>
+					<h2 style="font-size:2rem">Room Settings</h2>
 				</div>
 				<div class="panel-body">
 					<img style="max-width:100px;margin-left:auto;margin-right:auto;" src="assets/images/metadata.png" class="img-responsive">
+				</div>
+			</div>
+			</a>
+		</div>	
+
+		<div class="col-md-3 col-sm-6 col-xs-12">
+			<a href="{$app->baseUrl('/software/settings')}" class="">
+			<div class="panel panel-default">
+				<div class="panel-heading text-center">
+					<h2 style="font-size:2rem">Software Settings</h2>
+				</div>
+				<div class="panel-body">
+					<img style="max-width:100px;margin-left:auto;margin-right:auto;" src="assets/images/settings.png" class="img-responsive">
 				</div>
 			</div>
 			</a>

@@ -1,5 +1,31 @@
 <h1>Edit Room Metadata</h1>
+<div class="row">
+		<div class="col-md-3 col-sm-6 col-xs-12">
+			<a href="{$app->baseUrl('/buildings')}" class="">
+			<div class="panel panel-default">
+				<div class="panel-heading text-center">
+					<h2 style="font-size:2rem">Buildings</h2>
+				</div>
+				<div class="panel-body">
+					<img style="max-width:100px;margin-left:auto;margin-right:auto;" src="assets/images/building.png" class="img-responsive">
+				</div>
+			</div>
+			</a>
+		</div>
 
+		<div class="col-md-3 col-sm-6 col-xs-12">
+			<a href="{$app->baseUrl('/types')}" class="">
+			<div class="panel panel-default">
+				<div class="panel-heading text-center">
+					<h2 style="font-size:2rem">Room Types</h2>
+				</div>
+				<div class="panel-body">
+					<img style="max-width:100px;margin-left:auto;margin-right:auto;" src="assets/images/laboratory.png" class="img-responsive">
+				</div>
+			</div>
+			</a>
+		</div>	
+</div>
 <form method="post">
 	<div class="">
 	{if !empty($scheduledBy)}

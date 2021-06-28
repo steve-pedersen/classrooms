@@ -628,6 +628,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function listBuildings ()
     {
         $this->requirePermission('edit');
+        $this->addBreadcrumb('rooms/metadata', 'Room Settings');
+        
         $schema = $this->schema('Classrooms_Room_Building');
         $this->template->buildings = $schema->find(
             $schema->deleted->isNull()->orIf($schema->deleted->isFalse())
@@ -637,6 +639,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function editBuilding () 
     {
         $this->requirePermission('edit');
+        $this->addBreadcrumb('rooms/metadata', 'Room Settings');
+        $this->addBreadcrumb('buildings', 'Buildings');
+
         $building = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Building', 'id', ['allowNew' => true]);
         $this->addBreadcrumb('buildings', 'List Buildings');
 
@@ -670,6 +675,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function listTypes ()
     {
         $this->requirePermission('edit');
+        $this->addBreadcrumb('rooms/metadata', 'Room Settings');
+
         $schema = $this->schema('Classrooms_Room_Type');
         $this->template->types = $schema->find(
             $schema->deleted->isNull()->orIf($schema->deleted->isFalse())
@@ -679,6 +686,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function editType () 
     {
         $this->requirePermission('edit');
+        $this->addBreadcrumb('rooms/metadata', 'Room Settings');
+        $this->addBreadcrumb('types', 'Types');
+
         $type = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Type', 'id', ['allowNew' => true]);
         $this->addBreadcrumb('types', 'List types');
 

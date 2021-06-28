@@ -12,10 +12,13 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
     {
         return [
             '/software' => ['callback' => 'listSoftware'],
+            '/software/settings' => ['callback' => 'softwareSettings'],
             '/software/:id' => ['callback' => 'view'],
             '/software/:id/edit' => ['callback' => 'editSoftware', ':id' => '[0-9]+|new'],
             '/software/:id/licenses/:lid/edit' => ['callback' => 'editLicense', ':id' => '[0-9]+'],
+            '/developers' => ['callback' => 'listDevelopers'],
             '/developers/:id/edit' => ['callback' => 'editDeveloper', ':id' => '[0-9]+|new'],
+            '/categories' => ['callback' => 'listCategories'],
             '/categories/:id/edit' => ['callback' => 'editCategory', ':id' => '[0-9]+|new'],
         ];
     }
@@ -47,7 +50,11 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                 case 'save':
                     $data = $this->request->getPostParameters();
                     
-                    if (isset($data['developer']['new']) && $data['developer']['new'] !== '')
+                    if (isset($data['developer']['new']) && $developers->findOne($developers->name->equals($data['developer']['new'])))
+                    {
+                        $developer = $developers->findOne($developers->name->equals($data['developer']['new']));
+                    }
+                    elseif (isset($data['developer']['new']) && $data['developer']['new'] !== '')
                     {
                         $developer = $developers->createInstance();
                         $developer->name = $data['developer']['new'];
@@ -60,7 +67,11 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                     $developer->modifiedDate = new DateTime;
                     $developer->save();
 
-                    if (isset($data['category']['new']) && $data['category']['new'] !== '')
+                    if (isset($data['category']['new']) && $categories->findOne($categories->name->equals($data['category']['new'])))
+                    {
+                        $category = $categories->findOne($categories->name->equals($data['category']['new']));
+                    }
+                    elseif (isset($data['category']['new']) && $data['category']['new'] !== '')
                     {
                         $category = $categories->createInstance();
                         $category->name = $data['category']['new'];
@@ -163,8 +174,101 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         ) : [];
     }
 
-    public function editDeveloper () {}
-    public function editCategory () {}
+    public function listDevelopers ()
+    {
+        $this->requirePermission('edit');
+        $this->addBreadcrumb('software/settings', 'Software Settings');
+        $schema = $this->schema('Classrooms_Software_Developer');
+        $this->template->developers = $schema->find(
+            $schema->deleted->isNull()->orIf($schema->deleted->isFalse())
+        );
+    }
+    public function editDeveloper () 
+    {
+        $this->requirePermission('edit');
+        $this->addBreadcrumb('software/settings', 'Software Settings');
+        $this->addBreadcrumb('developers', 'Developers');
+
+        $developer = $this->helper('activeRecord')->fromRoute('Classrooms_Software_Developer', 'id', ['allowNew' => true]);
+        $this->addBreadcrumb('developers', 'List developers');
+
+        if ($this->request->wasPostedByUser())
+        {
+            switch ($this->getPostCommand())
+            {
+                case 'save':
+                    if ($this->processSubmission($developer, ['name']))
+                    {
+                        $developer->save();
+                        $this->flash('Developer saved.');
+                    }
+                    break;
+
+                case 'delete':
+                    if ($developer->inDatasource)
+                    {
+                        $developer->deleted = true;
+                        $developer->save();
+                    }
+                    $this->flash('Developer deleted');
+                    break;
+            }
+            $this->response->redirect('developers');
+        }
+
+        $this->template->developer = $developer;
+    }
+
+    public function softwareSettings ()
+    {
+        $this->requirePermission('edit');
+    }
+
+    public function listCategories ()
+    {
+        $this->requirePermission('edit');
+        $this->addBreadcrumb('software/settings', 'Software Settings');
+
+        $schema = $this->schema('Classrooms_Software_Category');
+        $this->template->categories = $schema->find(
+            $schema->deleted->isNull()->orIf($schema->deleted->isFalse())
+        );
+    }
+    public function editCategory () 
+    {
+        $this->requirePermission('edit');
+        $this->addBreadcrumb('software/settings', 'Software Settings');
+        $this->addBreadcrumb('categories', 'Categories');
+
+        $category = $this->helper('activeRecord')->fromRoute('Classrooms_Software_Category', 'id', ['allowNew' => true]);
+        $this->addBreadcrumb('categories', 'List categories');
+
+        if ($this->request->wasPostedByUser())
+        {
+            switch ($this->getPostCommand())
+            {
+                case 'save':
+                    if ($this->processSubmission($category, ['name']))
+                    {
+                        $category->save();
+                        $this->flash('Category saved.');
+                    }
+                    break;
+
+                case 'delete':
+                    if ($category->inDatasource)
+                    {
+                        $category->deleted = true;
+                        $category->save();
+                    }
+                    $this->flash('Category deleted');
+                    break;
+            }
+            $this->response->redirect('categories');
+        }
+
+        $this->template->category = $category;
+    }
 
     public function view ()
     {
