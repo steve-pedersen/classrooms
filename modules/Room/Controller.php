@@ -427,6 +427,11 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $location->description = $locationData['description'];
                     $location->url = $locationData['url'];
                     $location->avEquipment = isset($locationData['avEquipment']) ? serialize($locationData['avEquipment']) : '';
+                    $location->uniprintQueue = $locationData['uniprintQueue'];
+                    $location->releaseStationIp = $locationData['releaseStationIp'];
+                    $location->printerModel = $locationData['printerModel'];
+                    $location->printerIp = $locationData['printerIp'];
+                    $location->printerServer = $locationData['printerServer'];
                     $location->createdDate = $location->createdDate ?? new DateTime;
                     $location->modifiedDate = new DateTime;
                     $location->configured = true;

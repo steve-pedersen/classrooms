@@ -65,35 +65,12 @@
 		</div>
 	</div>
 
-<a class="btn btn-info collapse-button collapsed" data-toggle="collapse" data-parent="#accordion1" href="#advancedExisting" aria-expanded="true" aria-controls="advancedExisting" style="margin-bottom: 1em;">
-	Show/Hide Advanced Fields
-</a><br>
-<div id="accordion1">
-	<div class="panel-collapse collapse" role="tabpanel" id="advancedExisting">
-
-	<div class="form-group">
-		<label for="uniprintQueue" class="col-sm-2 control-label">Uniprint Queue</label>
-		<div class="col-sm-10">
-			<input type="text" class="form-control" name="config[existing][uniprintQueue]" value="{$config->uniprintQueue}" placeholder="">
-		</div>
-	</div>
-
-	<div class="form-group">
-		<label for="releaseStationIp" class="col-sm-2 control-label">Release Station IP</label>
-		<div class="col-sm-10">
-			<input type="text" class="form-control" name="config[existing][releaseStationIp]" value="{$config->releaseStationIp}" placeholder="">
-		</div>
-	</div>
-
 	<div class="form-group">
 		<label for="adBound" class="col-sm-2 control-label">AD Bound</label>
 		<div class="col-sm-2">
 			<input type="checkbox" class="checkbox" name="config[existing][adBound]" value="{$config->adBound}" {if $config->adBound}checked{/if}>
 		</div>
 	</div>
-
-	</div>
-</div>
 
 	<br>
 	<h5>Software for this configuration {if $selectedConfiguration->id}- <span class="text-info">{$selectedConfiguration->model}</span>{/if}</h5>
@@ -206,26 +183,6 @@
 				</div>
 			</div>
 
-	<a class="btn btn-info collapse-button collapsed" data-toggle="collapse" data-parent="#accordion2" href="#advancedNew" aria-expanded="true" aria-controls="advancedNew" style="margin-bottom: 1em;">
-		Show/Hide Advanced Fields
-	</a><br>
-	<div id="accordion2">
-		<div class="panel-collapse collapse" role="tabpanel" id="advancedNew">
-
-			<div class="form-group">
-				<label for="uniprintQueue" class="col-sm-2 control-label">Uniprint Queue</label>
-				<div class="col-sm-10">
-					<input type="text" class="form-control" name="config[new][uniprintQueue]" value="" placeholder="">
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label for="releaseStationIp" class="col-sm-2 control-label">Release Station IP</label>
-				<div class="col-sm-10">
-					<input type="text" class="form-control" name="config[new][releaseStationIp]" value="" placeholder="">
-				</div>
-			</div>
-
 			<div class="form-group">
 				<label for="adBound" class="col-sm-2 control-label">AD Bound</label>
 				<div class="col-sm-2">
@@ -233,8 +190,6 @@
 				</div>
 			</div>
 
-		</div>
-	</div>
 			<br>
 			<h5>Software for this configuration (new)</h5>
 			<div class="form-group">
