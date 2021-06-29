@@ -13,4 +13,9 @@ class Classrooms_AuthN_NoFacultyErrorHandler extends Classrooms_Master_ErrorHand
     protected function getStatusCode () { return 404; }
     protected function getStatusMessage () { return 'No Faculty'; }
     protected function getTemplateFile () { return 'error-nofaculty.html.tpl'; }
+
+    protected function handleError ($error)
+    {
+        parent::handleError($error);
+    }
 }
