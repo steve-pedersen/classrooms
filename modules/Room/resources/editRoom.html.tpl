@@ -214,6 +214,26 @@
 		</div>
 
 		<div class="panel panel-default bundles">
+			<div class="panel-heading"><h2>Tutorial</h2></div>
+			<div class="panel-body">
+				
+				<div class="form-horizontal">
+					<div class="form-group">
+						<label for="room[tutorial]" class="col-sm-2 control-label">Attach a tutorial to this room</label>
+						<div class="col-sm-10">
+						<select name="room[tutorial]" class="form-control">
+							<option value="">Choose tutorial...</option>
+						{foreach $tutorials as $tutorial}
+							<option value="{$tutorial->id}" {if $location->tutorial_id == $tutorial->id}selected{/if}>{$tutorial->name}</option>
+						{/foreach}
+						</select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="panel panel-default bundles">
 			<div class="panel-heading"><h2>Configuration Bundles</h2></div>
 			<div class="panel-body">
 				

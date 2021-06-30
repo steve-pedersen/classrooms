@@ -2,12 +2,11 @@
 	<div class="row">
 		<div class="col-xs-12">
 			<h1>
-			{if $tutorial->id}
+			{if $tutorial->inDatasource}
 				Edit Tutorial <small>{$tutorial->name}</small>
 			{else}
 				New Tutorial
 			{/if}
-				<small> for room {$room->codeNumber}</small>
 			</h1>
 		</div>
 	</div>
@@ -16,11 +15,10 @@
 <div class="well">
 	<form
 		id="fileupload"
-		action="rooms/{$room->id}/tutorials/upload"
+		action="tutorials/upload"
 		method="POST"
 		enctype="multipart/form-data"
 		>
-		<input type="hidden" name="roomId" value="{$room->id}">
 		<input type="hidden" name="imageCopy" id="imageCopy">
 	<!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
 	<div class="row fileupload-buttonbar">
@@ -47,12 +45,10 @@
 		<h4>Click image to copy it's URL <small id="copy-message" style="opacity:0;margin-left:3em" class="text-success">COPIED</small></h4>
 		<div class="row" >
 		{foreach $images as $image}
-			{if $image@total > 6 && $image@index != 0 && $image@index % 6 == 0}
-				</div><div class="row">
-			{/if}
+
 			<div class="col-xs-2">
-				<div data-src="{$image->getRoomImageSrc($room->id)}" class="copy-image-btn">
-					<img src="{$image->getRoomImageSrc($room->id)}" class="img-responsive">
+				<div data-src="{$image->getTutorialImageSrc($tutorial->id)}" class="copy-image-btn">
+					<img src="{$image->getTutorialImageSrc($tutorial->id)}" class="img-responsive">
 				</div>
 			</div>
 		{/foreach}		
@@ -62,7 +58,7 @@
 </div>
 
 
-<form action="" method="post">
+<form action="" method="post" id="tutorialForm">
 	<div class="container"> 
 		<div class="row">
 			<div class="col-xs-12 edit-details">

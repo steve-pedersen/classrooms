@@ -38,16 +38,12 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
 
             'type' => [ '1:1', 'to' => 'Classrooms_Room_Type', 'keyMap' => [ 'type_id' => 'id' ] ],
             'building' => [ '1:1', 'to' => 'Classrooms_Room_Building', 'keyMap' => [ 'building_id' => 'id' ] ],
+            'tutorial' => [ '1:1', 'to' => 'Classrooms_Tutorial_Page', 'keyMap' => [ 'tutorial_id' => 'id' ] ],
             'configurations' => ['N:M', 
                 'to' => 'Classrooms_Room_Configuration', 
                 'via' => 'classroom_room_configurations_map', 
                 'toPrefix' => 'configuration', 
                 'fromPrefix' => 'location',
-            ],
-            'images' => ['1:N', 
-                'to' => 'Classrooms_Files_File', 
-                'reverseOf' => 'room', 
-                'orderBy' => [ '+uploadedDate', 'remoteName' ]
             ],
             'internalNotes' => ['1:N', 
                 'to' => 'Classrooms_Room_InternalNote', 
@@ -70,11 +66,11 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
         return $this->building->code . ' ' . $this->number;
     }
 
-    public function getTutorial ()
-    {
-        $tuts = $this->getSchema('Classrooms_Room_Tutorial');
-        return $tuts->findOne($tuts->locationId->equals($this->id));
-    }
+    // public function getTutorial ()
+    // {
+    //     $tuts = $this->getSchema('Classrooms_Room_Tutorial');
+    //     return $tuts->findOne($tuts->locationId->equals($this->id));
+    // }
 
     public function getCustomConfigurations ()
     {

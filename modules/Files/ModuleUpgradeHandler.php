@@ -24,6 +24,14 @@ class Classrooms_Files_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
                 $def->save();
                 
                 break;
+
+            case 2:
+
+                $def = $this->alterEntityType('classroom_files', $this->getDataSource('Classrooms_Files_File'));
+                $def->addProperty('tutorial_id', 'int');
+                $def->save();
+
+                break;
         }
     }
 }

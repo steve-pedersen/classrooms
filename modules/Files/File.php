@@ -20,7 +20,7 @@ class Classrooms_Files_File extends Bss_ActiveRecord_Base
             
             'uploadedBy' => array('1:1', 'to' => 'Bss_AuthN_Account', 'keyMap' => array('uploaded_by_id' => 'id')),
             'uploadedDate' => array('datetime', 'nativeName' => 'uploaded_date'),
-            'room' => array('1:1', 'to' => 'Classrooms_Room_Location', 'keyMap' => array('location_id' => 'id')),
+            'tutorial' => array('1:1', 'to' => 'Classrooms_Tutorial_Page', 'keyMap' => array('tutorial_id' => 'id')),
         );
     }
 
@@ -253,6 +253,12 @@ class Classrooms_Files_File extends Bss_ActiveRecord_Base
     {
         return $this->application->baseUrl('rooms/' . $roomId . '/files/' . $this->id . '/download');
     }
+
+    public function getTutorialImageSrc ($tutorialId)
+    {
+        return $this->application->baseUrl('tutorials/' . $tutorialId . '/files/' . $this->id . '/download');
+    }
+
 
     public function beforeDelete ()
     {

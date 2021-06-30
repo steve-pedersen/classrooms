@@ -47,12 +47,16 @@
             .appendTo($('#image-gallery .row:last-child'));
           data.submit();
         },
+        fail: function(e, data) {
+          console.log('failed', data);
+        },
         progress: function(e, data) {
           var progress = parseInt((data.loaded / data.total) * 100, 10);
           data.context.css("background-position-x", 100 - progress + "%");
         },
         done: function(e, data) {
           $('#image-gallery').show();
+          // console.log("file done with info: ", data._response.result.file);
           data.context
             .addClass("done")
             .find(".copy-image-btn")
@@ -69,8 +73,10 @@
             })
             .find('img')
             .attr('src', data._response.result.file.url);
+          $('#tutorialForm').append(`<input name="newfiles[]" value="${data._response.result.file.id}" type="hidden">`);
         }
       });
+      
       if ($('.copy-image-btn').length) {
         $('#image-gallery').show();
         $('.copy-image-btn').each(function (index, em) {

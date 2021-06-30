@@ -51,6 +51,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/rooms/:id/edit' => ['callback' => 'editRoom', ':id' => '[0-9]+|new'],
             '/rooms/:roomid/tutorials/:id/edit' => ['callback' => 'editTutorial', ':id' => '[0-9]+|new'],
             '/rooms/:id/configurations/:cid/edit' => ['callback' => 'editConfiguration'],
+            '/tutorials' => ['callback' => 'listTutorials'],
             '/buildings' => ['callback' => 'listBuildings'],
             '/buildings/:id/edit' => ['callback' => 'editBuilding', ':id' => '[0-9]+|new'],
             '/types' => ['callback' => 'listTypes'],
@@ -419,6 +420,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     }
                     $location->building_id = $locationData['building'] ? $locationData['building'] : null;
                     $location->type_id = $locationData['type'] ? $locationData['type'] : null;
+                    $location->tutorial_id = $locationData['tutorial'] ? $locationData['tutorial'] : null;
                     $location->number = $locationData['number'];
                     $location->description = $locationData['description'];
                     $location->capacity = $locationData['capacity'];
@@ -516,6 +518,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             }
             $softwareLicenses[$license->version->title->id][] = $license;
         }
+ 
+        $tuts = $this->schema('Classrooms_Tutorial_Page');
+        $tutorials = $tuts->find($tuts->deleted->isFalse()->orIf($tuts->deleted->isNull()),['orderBy', 'name']);
         
         $this->template->location = $location;
         $this->template->selectedConfiguration = $selectedConfiguration;
@@ -532,6 +537,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->scheduledBy = unserialize($siteSettings->getProperty('scheduled-by'));
         $this->template->supportedBy = unserialize($siteSettings->getProperty('supported-by'));
         $this->template->supportedByText = unserialize($siteSettings->getProperty('supported-by-text'));
+        $this->template->tutorials = $tutorials;
     }
 
     public function roomMetadata ()
@@ -588,7 +594,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     {
                         $tutorial->addNote('Tutorial updated', $viewer, $tutorial->getDiff($this->request->getPostParameters()));
                     }
-    				$tutorial->location_id = $location->id;
+    				// $tutorial->location_id = $location->id;
     				$tutorial->name = $this->request->getPostParameter('name');
                     $tutorial->headerImageUrl = $this->request->getPostParameter('headerImageUrl');
                     $tutorial->youtubeEmbedCode = $this->request->getPostParameter('youtubeEmbedCode');
@@ -625,6 +631,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->images = $location->images;
     	$this->template->room = $location;
     	$this->template->tutorial = $tutorial;
+        $this->template->tutorials = $this->schema('Classrooms_Room_Tutorial')->getAll(['orderBy' => 'name']);
     	$this->template->notes = $tutorial->id ? $notes->find(
             $notes->path->like($tutorial->getNotePath().'%'), ['orderBy' => '-createdDate']
         ) : [];
