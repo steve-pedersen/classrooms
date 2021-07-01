@@ -141,7 +141,7 @@
 	<div class="">
 
 		<div class="row">
-	{if $trackUrl}
+	{if $trackUrl && $pEdit}
 	<div class="col-sm-12">
 		<a href="{$trackUrl}" target="_blank" class="">View all computers and hardware in this room
 			<i class="glyphicon glyphicon-new-window"></i>
