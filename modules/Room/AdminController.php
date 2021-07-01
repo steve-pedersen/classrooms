@@ -14,6 +14,7 @@ class Classrooms_Room_AdminController extends At_Admin_Controller
         return [
             '/admin/rooms/defaults' => ['callback' => 'setDefaults'],
             '/admin/rooms/import' => ['callback' => 'importRoomData'],
+            '/admin/rooms/unconfigured' => ['callback' => 'unconfiguredReport'],
         ];
     }
 
@@ -37,6 +38,43 @@ class Classrooms_Room_AdminController extends At_Admin_Controller
         }
     }
 
+    public function unconfiguredReport ()
+    {
+        if ($this->request->wasPostedByUser())
+        {
+            $roomSchema = $this->schema('Classrooms_Room_Location');
+            $buildingSchema = $this->schema('Classrooms_Room_Building');
+
+            header("Content-Type: application/download\n");
+            header('Content-Disposition: attachment; filename="'.(new DateTime)->format('Y-m-d').'-results.csv"' . "\n");
+            $handle = fopen('php://output', 'w+');
+
+            $results = $roomSchema->find(
+                $roomSchema->configured->isFalse()->orIf($roomSchema->configured->isNull()),
+                ['orderBy' => ['building_id', 'number']]
+            );
+
+            if ($handle)
+            {
+                $headers = array(
+                    'Building',
+                    'Room#', 
+                );
+                fputcsv($handle, $headers);
+
+                foreach ($results as $result)
+                {
+                    $row = array(
+                        $result->building->name,
+                        $result->number,
+                    );
+                    fputcsv($handle, $row);
+                }
+            }
+            
+            exit;
+        }
+    }
 
     public function importRoomData ()
     {
