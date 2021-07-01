@@ -194,6 +194,10 @@ class Classrooms_Room_AdminController extends At_Admin_Controller
                                                         }
                                                         
                                                         $room = $buildingRooms[$building->name]['rooms'][$room];
+                                                        if ($room->description === 'This room has not been configured.')
+                                                        {
+                                                            $room->description = '';
+                                                        }
                                                         $room->building = $building;
                                                         $room->type_id = $allRoomTypes[$roomType];
                                                         $room->supportedBy = $supportedBy;
