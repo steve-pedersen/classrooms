@@ -4,6 +4,11 @@
  */
 class Classrooms_Room_AdminController extends At_Admin_Controller
 {
+    public static $AllRoomAvEquipment = [
+        'lcd_proj'=>'LCD Projector', 'lcd_tv'=>'LCD TV', 'vcr_dvd'=>'VCR/DVD', 'hdmi'=>'HDMI', 'vga'=>'VGA',
+        'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam', 'zoom'=>'Zoom Enabled'
+    ];
+
     public static function getRouteMap ()
     {
         return [
@@ -55,6 +60,7 @@ class Classrooms_Room_AdminController extends At_Admin_Controller
 
                                         $viewer = $this->getAccount();
 
+                                        $siteSettings = $this->getApplication()->siteSettings;
                                         $locationSchema = $this->schema('Classrooms_Room_Location');
                                         $buildingSchema = $this->schema('Classrooms_Room_Building');
                                         $roomTypeSchema = $this->schema('Classrooms_Room_Type');
@@ -77,6 +83,9 @@ class Classrooms_Room_AdminController extends At_Admin_Controller
                                             }
                                         }
 
+                                        $allScheduledBy = unserialize($siteSettings->getProperty('scheduled-by'));
+                                        $allSupportedBy = unserialize($siteSettings->getProperty('supported-by'));
+
                                         $tx = $this->getDataSource()->createTransaction();
 
                                         try
@@ -94,24 +103,31 @@ class Classrooms_Room_AdminController extends At_Admin_Controller
                                                 $newLocation = false;
 
                                                 $building = trim($data['Building']);
-                                                $room = trim($data['Room']);
+                                                $room = trim($data['Room#']);
                                                 $roomType = trim($data['Room Type']);
                                                 $scheduledBy = trim($data['Scheduled By']);
                                                 $supportedBy = trim($data['Supported By']);
                                                 $capacity = trim($data['Capacity']);
 
                                                 $avEquipment = [
-                                                    'LCD Projector' => trim($data['LCD Projector']),
-                                                    'LCD TV' => trim($data['LCD TV']),
-                                                    'VCR/DVD' => trim($data['VCR/DVD']),
-                                                    'Blu-ray' => trim($data['Blu-ray']),
-                                                    'HDMI' => trim($data['HDMI']),
-                                                    'VGA' => trim($data['VGA']),
-                                                    'Mic' => trim($data['Mic']),
-                                                    'CourseStream' => trim($data['CourseStream']),
-                                                    'Doc Cam' => trim($data['Doc Cam']),
-                                                    'Zoom Enabled' => trim($data['Zoom Enabled']),
+                                                    'lcd_proj' => trim($data['LCD Projector']),
+                                                    'lcd_tv' => trim($data['LCD TV']),
+                                                    'vcr_dvd' => trim($data['VCR/DVD']),
+                                                    'blu_ray' => trim($data['Blu-ray']),
+                                                    'hdmi' => trim($data['HDMI']),
+                                                    'vga' => trim($data['VGA']),
+                                                    'mic' => trim($data['Mic']),
+                                                    'coursestream' => trim($data['CourseStream']),
+                                                    'doc_cam' => trim($data['Doc Cam']),
+                                                    'zoom' => trim($data['Zoom Enabled']),
                                                 ];
+                                                foreach ($avEquipment as $key => $equip)
+                                                {
+                                                    if ($equip != '1')
+                                                    {
+                                                        unset($avEquipment[$key]);
+                                                    }
+                                                }
 
                                                 //$avEquipment = array_filter($avEquipment);
 
@@ -120,7 +136,7 @@ class Classrooms_Room_AdminController extends At_Admin_Controller
                                                     if (!isset($allRoomTypes[$roomType]))
                                                     {
                                                         $newType = $roomTypeSchema->createInstance();
-                                                        $newType->name = $type;
+                                                        $newType->name = $roomType;
                                                         $newType->deleted = false;
                                                         $newType->save($tx);
                                                         $allRoomTypes[$roomType] = $newType->id;
@@ -129,6 +145,15 @@ class Classrooms_Room_AdminController extends At_Admin_Controller
 
                                                 if ($building)
                                                 {
+                                                    if ($building === 'HSS Building')
+                                                    {
+                                                        $building = 'Health & Social Services';
+                                                    }
+                                                    if ($building === 'Gym')
+                                                    {
+                                                        $building = 'Gymnasium';
+                                                    }
+
                                                     if (!isset($buildingRooms[$building]))
                                                     {
                                                         $newBuilding = $buildingSchema->createInstance();
@@ -142,7 +167,7 @@ class Classrooms_Room_AdminController extends At_Admin_Controller
                                                     }
 
                                                     $building = $buildingRooms[$building]['building'];
-
+                                                    
                                                     if ($room)
                                                     {
                                                         if (!isset($buildingRooms[$building->name]['rooms'][$room]))
@@ -152,15 +177,30 @@ class Classrooms_Room_AdminController extends At_Admin_Controller
                                                             $newRoom->applyDefaults($room, $building);
                                                             $newRoom->save($tx);
                                                             $newRoom->addNote('New room created', $viewer);
-                                                            $buildingRooms[$building]['rooms'][$room] = $newRoom;
+                                                            $buildingRooms[$building->name]['rooms'][$room] = $newRoom;
                                                         }
 
-                                                        $room = $buildingRooms[$building]['rooms'][$room];
-                                                        $room->roomType = $allRoomTypes[$roomType];
+                                                        if ($scheduledBy !== '' && !isset($allScheduledBy[$scheduledBy]))
+                                                        {
+                                                            $allScheduledBy[$scheduledBy] = $scheduledBy;
+                                                        }
+                                                        if ($supportedBy !== '' && !isset($allSupportedBy[$supportedBy]))
+                                                        {
+                                                            $allSupportedBy[$supportedBy] = $supportedBy;
+                                                        } 
+                                                        elseif ($supportedBy === '')
+                                                        {
+                                                            $supportedBy = 'Academic Technology';
+                                                        }
+                                                        
+                                                        $room = $buildingRooms[$building->name]['rooms'][$room];
+                                                        $room->building = $building;
+                                                        $room->type_id = $allRoomTypes[$roomType];
                                                         $room->supportedBy = $supportedBy;
                                                         $room->scheduledBy = $scheduledBy;
                                                         $room->capacity = $capacity;
                                                         $room->avEquipment = serialize($avEquipment);
+                                                        $room->configured = true;
                                                         $room->save();
 
                                                         $internal = $this->schema('Classrooms_Room_InternalNote')->createInstance();
@@ -175,6 +215,9 @@ class Classrooms_Room_AdminController extends At_Admin_Controller
                                                     }
                                                 }
                                             }
+
+                                            $siteSettings->setProperty('scheduled-by', serialize($allScheduledBy));
+                                            $siteSettings->setProperty('supported-by', serialize($allSupportedBy));
 
                                             $tx->commit();
                                         }

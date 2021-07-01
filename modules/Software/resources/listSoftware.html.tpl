@@ -98,7 +98,11 @@
 						{assign var=licenseCount value=($licenseCount + 1)}
 						<li>
 							<a href="software/{$title->id}/licenses/{$license->id}/edit">
-								{$license->expirationDate->format('Y-m-d h:ia')}
+								{if $license->expirationDate}
+									{$license->expirationDate->format('Y-m-d h:ia')}
+								{else}
+									N/A
+								{/if}
 							</a>
 						</li>
 					{/foreach}

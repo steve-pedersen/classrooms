@@ -30,6 +30,11 @@ class Classrooms_Room_Type extends Bss_ActiveRecord_Base
         ];
     }
 
+    public static function GetAllLabTypes ()
+    {
+        return ['Teaching Lab', 'Self Inst Comp Lab'];
+    }
+
     public function getLocations ($includeDeleted = false)
     {
         if (!$includeDeleted)

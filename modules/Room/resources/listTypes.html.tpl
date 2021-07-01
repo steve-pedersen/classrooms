@@ -6,9 +6,9 @@
 <ul>
 {foreach $types as $type}
 	{if $type->name == 'Lab'}
-		<li>{$type->name} <span class="text-muted">(can't edit name of lab)</span></li>
+		<li>{$type->name} <span class="text-muted">(can't edit name of lab)</span> {if $type->locations}({count($type->locations)}){/if}</li>
 	{else}
-		<li><a href="types/{$type->id}/edit">{$type->name}</a></li>
+		<li><a href="types/{$type->id}/edit">{$type->name}</a> {if $type->locations}({count($type->locations)}){/if}</li>
 	{/if}
 {/foreach}
 </ul>

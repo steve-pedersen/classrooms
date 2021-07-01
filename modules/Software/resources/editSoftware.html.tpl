@@ -70,7 +70,7 @@
 				<div class="form-horizontal">
 					<h3>Version</h3>
 					<div class="form-group">
-					{if $title->versions->count() > 0}
+					{if $title->versions && $title->versions->count() > 0}
 						<label for="version[existing]" class="col-sm-2 control-label">Version Number</label>
 						<div class="col-sm-4">
 							<select name="version[existing]" id="version" class="form-control">
@@ -102,7 +102,7 @@
 					<h3>License</h3>
 					<p>Note, licenses are associated with version numbers.</p>
 
-					{if $selectedVersion->licenses->count() > 0}
+					{if $selectedVersion->licenses && $selectedVersion->licenses->count() > 0}
 					<div class="form-group existing-items">
 						<label for="license[existing]" class="col-sm-2 control-label">License</label>
 						<div class="col-sm-9">

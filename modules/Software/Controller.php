@@ -115,8 +115,8 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                     }
                     else
                     {
-                        $this->flash('Software title saved without version or license info.');
-                        $this->response->redirect('software/' . $title->id);
+                        $version = $versions->createInstance();
+                        $version->number = 'N/A';
                     }
                     $version->title_id = $title->id;
                     $version->save();
@@ -127,12 +127,19 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                         $license->number = $data['license']['new']['number'];
                         $license->description = $data['license']['new']['description'];
                         $license->seats = $data['license']['new']['seats'];
-                        $license->expirationDate = new DateTime($data['license']['new']['expirationDate']);
+                        $license->expirationDate = isset($data['license']['new']['expirationDate']) ? 
+                            new DateTime($data['license']['new']['expirationDate']) : '';
                         $version->addNote('License #'. $license->number .' added to version ' . $version->number, $viewer);
+                    }
+                    elseif (isset($data['license']['existing']) && $data['license']['existing'])
+                    {
+                        $license = $licenses->get($data['license']['existing']);
                     }
                     else
                     {
-                        $license = $licenses->get($data['license']['existing']);
+                        $license = $licenses->createInstance();
+                        $license->number = 'N/A';
+                        $license->expirationDate = null;
                     }
                     $license->version_id = $version->id;
                     $license->createdDate = $license->createdDate ?? new DateTime;

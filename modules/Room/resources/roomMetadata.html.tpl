@@ -70,8 +70,8 @@
 		<div class="form-group">
 			<h2>Current "Supported By" Department's default room/email text</h2>
 		{foreach $supportedBy as $key => $sb}
-			<label for="text{$key}">Default text for {$key}</label>
-			<textarea name="supportedByText[{$key}]" class="wysiwyg form-control" rows="4" id="text{$key}">{$supportedByText[$key]}</textarea>
+			<label for="text{$sb}">Default text for {$sb}</label>
+			<textarea name="supportedByText[{$sb}]" class="wysiwyg form-control" rows="4" id="text{$sb}">{$supportedByText[$sb]}</textarea>
 		{/foreach}
 		</div>
 	{/if}

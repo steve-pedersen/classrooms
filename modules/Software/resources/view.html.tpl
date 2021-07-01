@@ -44,7 +44,13 @@
 				<tr>
 					<th>{$license->version->number}</th>
 					<td>{$license->number}</td>
-					<td>{$license->expirationDate->format('m/d/Y')}</td>
+					<td>
+						{if $license->expirationDate}
+							{$license->expirationDate->format('m/d/Y')}
+						{else}
+							N/A
+						{/if}
+					</td>
 					<td>{$license->seats}</td>
 					<td>{$license->description|truncate:100}</td>
 				</tr>

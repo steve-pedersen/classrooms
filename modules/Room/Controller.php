@@ -38,7 +38,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
     public static $AllRoomAvEquipment = [
         'lcd_proj'=>'LCD Projector', 'lcd_tv'=>'LCD TV', 'vcr_dvd'=>'VCR/DVD', 'hdmi'=>'HDMI', 'vga'=>'VGA',
-        'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam', 'zoom'=>'Zoom Enabled'
+        'mic'=>'Mic', 'coursestream'=>'CourseStream', 'doc_cam'=>'Doc Cam', 'zoom'=>'Zoom Enabled', 'blu_ray' => 'Blu-ray'
     ];
 
     public static function getRouteMap ()
@@ -570,9 +570,16 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $this->response->redirect('rooms/metadata');
         }
 
-        $this->template->scheduledBy = unserialize($siteSettings->getProperty('scheduled-by'));
-        $this->template->supportedBy = unserialize($siteSettings->getProperty('supported-by'));
-        $this->template->supportedByText = unserialize($siteSettings->getProperty('supported-by-text'));
+        $scheduledBy = unserialize($siteSettings->getProperty('scheduled-by'));
+        $supportedBy = unserialize($siteSettings->getProperty('supported-by'));
+        $supportedByText = unserialize($siteSettings->getProperty('supported-by-text'));
+        sort($scheduledBy);
+        sort($supportedBy);
+        ksort($supportedByText);
+
+        $this->template->scheduledBy = $scheduledBy;
+        $this->template->supportedBy = $supportedBy;
+        $this->template->supportedByText = $supportedByText;
     }
 
     public function editTutorial () 
@@ -644,7 +651,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         
         $schema = $this->schema('Classrooms_Room_Building');
         $this->template->buildings = $schema->find(
-            $schema->deleted->isNull()->orIf($schema->deleted->isFalse())
+            $schema->deleted->isNull()->orIf($schema->deleted->isFalse()),
+            ['orderBy' => 'name']
         );
     }
 
@@ -691,7 +699,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
         $schema = $this->schema('Classrooms_Room_Type');
         $this->template->types = $schema->find(
-            $schema->deleted->isNull()->orIf($schema->deleted->isFalse())
+            $schema->deleted->isNull()->orIf($schema->deleted->isFalse()),
+            ['orderBy' => 'name']
         );
     }
 
