@@ -362,12 +362,13 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $softwareLicenses = [];
         foreach ($licenses->getAll() as $license)
         {
-            if (!isset($softwareLicenses[$license->version->title->id]))
+            if (!isset($softwareLicenses[$license->version->title->name.$license->version->title->id]))
             {
-                $softwareLicenses[$license->version->title->id] = [];
+                $softwareLicenses[$license->version->title->name.$license->version->title->id] = [];
             }
-            $softwareLicenses[$license->version->title->id][] = $license;
+            $softwareLicenses[$license->version->title->name.$license->version->title->id][] = $license;
         }
+        ksort($softwareLicenses, SORT_NATURAL);
 
         $this->template->config = $config;
         $this->template->softwareLicenses = $softwareLicenses;

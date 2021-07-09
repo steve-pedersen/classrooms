@@ -57,15 +57,20 @@
 						<th>License #</th>
 						<th>Expires</th>
 						<th>Description</th>
+						<th></th>
 					</tr>
 				</thead>
 				<tbody>
-		{foreach $softwareLicenses as $licenses}
+		{foreach $softwareLicenses as $titleKey => $licenses}
+			{assign var="needsExpand" value=false}
+			<div class="table-accordion" id="accordion{$titleKey}">
 			{foreach $licenses as $license}
 				{assign var=checked value=false}
 				{foreach $config->softwareLicenses as $l}
 					{if $l->id == $license->id}{assign var=checked value=true}{/if}
 				{/foreach}
+
+				{if !$needsExpand}
 				<tr>
 					<th class="text-center">
 						<input type="checkbox" name="licenses[{$license->id}]" id="licenses[{$license->id}]" {if $checked}checked{/if}>
@@ -75,10 +80,36 @@
 					</td>
 					<td>{$license->version->number}</td>
 					<td>{$license->number}</td>
-					<td>{$license->expirationDate->format('m/d/Y')}</td>
+					<td>{if $license->expirationDate}{$license->expirationDate->format('m/d/Y')}{else}N/A{/if}</td>
 					<td>{$license->description|truncate:100}</td>
+					<td>
+						{if count($licenses) > 1}
+							<a role="button" class="row-expand-btn btn btn-success btn-xs pull-right" data-toggle="collapse" data-parent="#accordion{$titleKey}" href="#licenses{$titleKey}" aria-expanded="true" aria-controls="licenses{$titleKey}">
+								+ Show all versions
+							</a>
+							{assign var="needsExpand" value=true}
+						{/if}			
+					</td>
 				</tr>
+				{else}
+				<tr class="collapse out" role="tabpanel" id="licenses{$titleKey}">
+					<th class="text-center">
+						<input type="checkbox" name="licenses[{$license->id}]" id="licenses[{$license->id}]" {if $checked}checked{/if}>
+					</th>
+					<td>
+						<label for="licenses[{$license->id}]">{$license->version->title->name}</label>
+					</td>
+					<td>{$license->version->number}</td>
+					<td>{$license->number}</td>
+					<td>{if $license->expirationDate}{$license->expirationDate->format('m/d/Y')}{else}N/A{/if}</td>
+					<td>{$license->description|truncate:100}</td>
+					<td></td>
+				</tr>
+				{/if}
+
+
 			{/foreach}
+			</div>
 		{/foreach}
 
 				</tbody>
