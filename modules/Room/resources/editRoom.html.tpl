@@ -233,6 +233,7 @@
 			</div>
 		</div>
 
+	{if $bundles}
 		<div class="panel panel-default bundles">
 			<div class="panel-heading"><h2>Configuration Bundles</h2></div>
 			<div class="panel-body">
@@ -268,6 +269,7 @@
 				</div>
 			</div>
 		</div>
+	{/if}
 
 		{include file="partial:_configurations.html.tpl"}
 
