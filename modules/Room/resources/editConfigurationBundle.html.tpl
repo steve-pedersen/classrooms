@@ -70,8 +70,11 @@
 					{if $l->id == $license->id}{assign var=checked value=true}{/if}
 				{/foreach}
 
-				{if !$needsExpand}
-				<tr>
+				<tr
+					{if $needsExpand}
+						class="collapse out" role="tabpanel" id="licenses{$titleKey}"
+					{/if}
+					>
 					<th class="text-center">
 						<input type="checkbox" name="licenses[{$license->id}]" id="licenses[{$license->id}]" {if $checked}checked{/if}>
 					</th>
@@ -83,7 +86,7 @@
 					<td>{if $license->expirationDate}{$license->expirationDate->format('m/d/Y')}{else}N/A{/if}</td>
 					<td>{$license->description|truncate:100}</td>
 					<td>
-						{if count($licenses) > 1}
+						{if !$needsExpand && count($licenses) > 1}
 							<a role="button" class="row-expand-btn btn btn-success btn-xs pull-right" data-toggle="collapse" data-parent="#accordion{$titleKey}" href="#licenses{$titleKey}" aria-expanded="true" aria-controls="licenses{$titleKey}">
 								+ Show all versions
 							</a>
@@ -91,22 +94,6 @@
 						{/if}			
 					</td>
 				</tr>
-				{else}
-				<tr class="collapse out" role="tabpanel" id="licenses{$titleKey}">
-					<th class="text-center">
-						<input type="checkbox" name="licenses[{$license->id}]" id="licenses[{$license->id}]" {if $checked}checked{/if}>
-					</th>
-					<td>
-						<label for="licenses[{$license->id}]">{$license->version->title->name}</label>
-					</td>
-					<td>{$license->version->number}</td>
-					<td>{$license->number}</td>
-					<td>{if $license->expirationDate}{$license->expirationDate->format('m/d/Y')}{else}N/A{/if}</td>
-					<td>{$license->description|truncate:100}</td>
-					<td></td>
-				</tr>
-				{/if}
-
 
 			{/foreach}
 			</div>

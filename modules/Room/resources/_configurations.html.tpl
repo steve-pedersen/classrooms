@@ -103,8 +103,11 @@
 					{if $l->id == $license->id}{assign var=checked value=true}{/if}
 				{/foreach}
 
-				{if !$needsExpand}
-				<tr>
+				<tr
+					{if $needsExpand}
+						class="collapse out" role="tabpanel" id="licenses{$titleKey}"
+					{/if}
+					>
 					<td>
 						<input type="checkbox" name="config[existing][licenses][{$license->id}]" {if $checked}checked{/if} id="config[existing][licenses][{$license->id}]">
 					</td>
@@ -118,7 +121,7 @@
 					<td>{$license->number}</td>
 					<td>{if $license->expirationDate}{$license->expirationDate->format('m/d/Y')}{else}N/A{/if}</td>
 					<td>
-						{if count($licenses) > 1}
+						{if !$needsExpand && count($licenses) > 1}
 							<a role="button" class="row-expand-btn btn btn-success btn-xs pull-right" data-toggle="collapse" data-parent="#accordion{$titleKey}" href="#licenses{$titleKey}" aria-expanded="true" aria-controls="licenses{$titleKey}">
 								+ Show all versions
 							</a>
@@ -126,24 +129,7 @@
 						{/if}
 					</td>
 				</tr>
-				{else}
-				<tr class="collapse out" role="tabpanel" id="licenses{$titleKey}">
-					
-					<td>
-						<input type="checkbox" name="config[existing][licenses][{$license->id}]" {if $checked}checked{/if} id="config[existing][licenses][{$license->id}]">
-					</td>
-					<td>
-						<label for="config[existing][licenses][{$license->id}]">
-							{$license->version->title->name}
-						</label>
-					</td>
-					<td>{$license->version->number}</td>
-					<td>{$license->number}</td>
-					<td>{if $license->expirationDate}{$license->expirationDate->format('m/d/Y')}{else}N/A{/if}</td>
-					<td></td>
-				</tr>
 
-				{/if}
 			{/foreach}
 			</div>
 		{/foreach}
@@ -241,12 +227,19 @@
 								<th>Version</th>
 								<th>License</th>
 								<th>Expires</th>
+								<th></th>
 							</tr>
 						</thead>
 						<tbody>
-				{foreach $softwareLicenses as $licenses}
+				{foreach $softwareLicenses as $titleKey => $licenses}
+					{assign var="needsExpand" value=false}
+					<div class="table-accordion" id="accordionNew{$titleKey}">
 					{foreach $licenses as $license}
-						<tr>
+						<tr 
+							{if $needsExpand}
+								class="collapse out" role="tabpanel" id="licensesNew{$titleKey}"
+							{/if}
+							>
 							<td class="text-center">
 								<input type="checkbox" name="config[new][licenses][{$license->id}]" id="config[new][licenses][{$license->id}]">
 							</td>
@@ -258,8 +251,17 @@
 							<td>{$license->version->number}</td>
 							<td>{$license->number}</td>
 							<td>{if $license->expirationDate}{$license->expirationDate->format('m/d/Y')}{else}N/A{/if}</td>
+							<td>
+								{if !$needsExpand && count($licenses) > 1}
+									<a role="button" class="row-expand-btn btn btn-success btn-xs pull-right" data-toggle="collapse" data-parent="#accordionNew{$titleKey}" href="#licensesNew{$titleKey}" aria-expanded="true" aria-controls="licensesNew{$titleKey}">
+										+ Show all versions
+									</a>
+									{assign var="needsExpand" value=true}
+								{/if}			
+							</td>
 						</tr>
 					{/foreach}
+					</div>
 				{/foreach}
 						</tbody>
 					</table>
