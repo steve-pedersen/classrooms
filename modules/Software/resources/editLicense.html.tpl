@@ -17,7 +17,7 @@
 					<div class="form-group">
 						<label for="expirationDate" class="col-sm-2 control-label">Expiration Date</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control datepicker" name="expirationDate" value="{$license->expirationDate->format('m/d/Y')}">
+							<input type="text" class="form-control datepicker" name="expirationDate" value="{if $license->expirationDate}{$license->expirationDate->format('m/d/Y')}{/if}">
 						</div>
 					</div>	
 					<div class="form-group">
