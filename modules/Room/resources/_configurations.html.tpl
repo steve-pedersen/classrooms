@@ -1,5 +1,7 @@
 {assign var="config" value=$selectedConfiguration}
 
+
+
 <div class="panel panel-default">
 <div class="panel-heading">
 <h2>Custom Configurations 
@@ -14,7 +16,7 @@
 </div>
 
 <div class="panel-body">
-{if $config->id}
+{if $config->inDatasource}
 <div class="form-horizontal">
 	<div class="form-group">
 		<label for="model" class="col-sm-2 control-label">Model</label>
@@ -80,21 +82,53 @@
 			<table class="table table-condensed">
 				<thead>
 					<tr>
+						
 						<th></th>
 						<th>Title</th>
 						<th>Version</th>
 						<th>License</th>
 						<th>Expires</th>
+						<th></th>
 					</tr>
 				</thead>
 				<tbody>
-		{foreach $softwareLicenses as $licenses}
+
+		{foreach $softwareLicenses as $titleKey => $licenses}
+			{assign var="needsExpand" value=false}
+			<div class="table-accordion" id="accordion{$titleKey}">
 			{foreach $licenses as $license}
-				<tr>
+				
 				{assign var=checked value=false}
 				{foreach $selectedConfiguration->softwareLicenses as $l}
 					{if $l->id == $license->id}{assign var=checked value=true}{/if}
 				{/foreach}
+
+				{if !$needsExpand}
+				<tr>
+					<td>
+						<input type="checkbox" name="config[existing][licenses][{$license->id}]" {if $checked}checked{/if} id="config[existing][licenses][{$license->id}]">
+					</td>
+					<td>
+						<label for="config[existing][licenses][{$license->id}]">
+							{$license->version->title->name}
+						</label>
+
+					</td>
+					<td>{$license->version->number}</td>
+					<td>{$license->number}</td>
+					<td>{if $license->expirationDate}{$license->expirationDate->format('m/d/Y')}{else}N/A{/if}</td>
+					<td>
+						{if count($licenses) > 1}
+							<a role="button" class="row-expand-btn btn btn-success btn-xs pull-right" data-toggle="collapse" data-parent="#accordion{$titleKey}" href="#licenses{$titleKey}" aria-expanded="true" aria-controls="licenses{$titleKey}">
+								+ Show all versions
+							</a>
+							{assign var="needsExpand" value=true}
+						{/if}
+					</td>
+				</tr>
+				{else}
+				<tr class="collapse out" role="tabpanel" id="licenses{$titleKey}">
+					
 					<td>
 						<input type="checkbox" name="config[existing][licenses][{$license->id}]" {if $checked}checked{/if} id="config[existing][licenses][{$license->id}]">
 					</td>
@@ -105,9 +139,13 @@
 					</td>
 					<td>{$license->version->number}</td>
 					<td>{$license->number}</td>
-					<td>{$license->expirationDate->format('m/d/Y')}</td>
+					<td>{if $license->expirationDate}{$license->expirationDate->format('m/d/Y')}{else}N/A{/if}</td>
+					<td></td>
 				</tr>
+
+				{/if}
 			{/foreach}
+			</div>
 		{/foreach}
 				</tbody>
 			</table>
@@ -219,7 +257,7 @@
 							</td>
 							<td>{$license->version->number}</td>
 							<td>{$license->number}</td>
-							<td>{$license->expirationDate->format('m/d/Y')}</td>
+							<td>{if $license->expirationDate}{$license->expirationDate->format('m/d/Y')}{else}N/A{/if}</td>
 						</tr>
 					{/foreach}
 				{/foreach}

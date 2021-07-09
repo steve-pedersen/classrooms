@@ -510,14 +510,15 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         }
 
         $softwareLicenses = [];
-        foreach ($licenses->getAll() as $license)
+        foreach ($licenses->getAll(['orderBy' => ['-modifiedDate', '-createdDate']]) as $license)
         {
-            if (!isset($softwareLicenses[$license->version->title->id]))
+            if (!isset($softwareLicenses[$license->version->title->name.$license->version->title->id]))
             {
-                $softwareLicenses[$license->version->title->id] = [];
+                $softwareLicenses[$license->version->title->name.$license->version->title->id] = [];
             }
-            $softwareLicenses[$license->version->title->id][] = $license;
+            $softwareLicenses[$license->version->title->name.$license->version->title->id][] = $license;
         }
+        ksort($softwareLicenses, SORT_NATURAL);
  
         $tuts = $this->schema('Classrooms_Tutorial_Page');
         $tutorials = $tuts->find($tuts->deleted->isFalse()->orIf($tuts->deleted->isNull()),['orderBy', 'name']);

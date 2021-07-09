@@ -4,6 +4,15 @@
       window.history.replaceState({}, null, ($(e.target).attr('href')));
     });
 
+  $('.row-expand-btn').on('click', function(e) {
+  	var target = $($(this).attr('href'));
+  	if (!target.hasClass('in')) {
+  		$(this).text('- Hide all versions');
+  	} else {
+  		$(this).text('+ Show all versions');
+  	}
+  });
+
     // AUTO-COMPLETE
 	var autoCompleteUrl = document.baseURI + 'rooms/autocomplete';
 
