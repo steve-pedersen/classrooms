@@ -63,7 +63,7 @@
 		    </div>
 			</form>
 			{if $searchQuery}
-				<p id="regular-results"><em>{if $rooms}Showing{else}No{/if} search results for "{$searchQuery}". <a href="rooms">Reset search query</a></em></p>
+				<p id="regular-results">{if $rooms}Showing{else}No{/if} search results for "{$searchQuery}"</p>
 			{elseif $selectedBuildings || $selectedTypes || $selectedEquipment || $capacity}
 				<p class="">Active filters - 
 				{if $selectedBuildings}
