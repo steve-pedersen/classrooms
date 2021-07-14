@@ -16,7 +16,7 @@
     // AUTO-COMPLETE
 	var autoCompleteUrl = document.baseURI + 'rooms/autocomplete';
 
-	var filterRooms = function (data) {
+	var filterRooms = function (data, term, error = false) {
 		$('.loader').hide();
 		var ids = new Array;
 		for (const id in data) {
@@ -30,6 +30,14 @@
 				$(this).hide(500);
 			}
 		});
+
+		$('#regular-results').hide();
+		if (error) {
+			$('#js-results').show().text(`No results for "${term}"`);
+		} else {
+
+			$('#js-results').show().text(`Showing results for "${term}"`);
+		}
 	}
 
 	$('.autocomplete').autocomplete({
@@ -47,10 +55,10 @@
 					success: function (o) {
 						switch (o.status) {
 							case 'success':
-								response(filterRooms(o.data));
+								response(filterRooms(o.data, term));
 								break;
 							case 'error':
-								response(filterRooms(o.data));
+								response(filterRooms(o.data, term, true));
 								break;
 							default:
 								console.log('unknown error');
@@ -70,6 +78,8 @@
 	$('.autocomplete').keyup(function(e){
 	    if (e.keyCode == 8) {
 	        if ($(this).val() === "") {
+	        	$('#regular-results').hide();
+	        	$('#js-results').hide();
 	        	$('.room-card').show(500);
 	        	$('.loader').hide();
 	        } 
