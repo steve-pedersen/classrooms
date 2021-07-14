@@ -1032,6 +1032,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $locations->alternateName->lower()->like($patternParts[$i])
                 );
                 $condition = $condition ? $condition->orIf($attributes) : $attributes;
+                
             }
             else
             {
@@ -1056,7 +1057,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $buildings->code->lower()->like($patternParts[$i])
                 );
 
-                $bldgCond = $bldgCond ? $buildings->orIf($attributes) : $attributes;
+                $bldgCond = $bldgCond ? $bldgCond->orIf($attributes) : $attributes;
             }
             else
             {
@@ -1064,7 +1065,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $buildings->code->lower()->like($pattern)
                 );
 
-                $bldgCond = $bldgCond ? $buildings->orIf($attributes) : $attributes;
+                $bldgCond = $bldgCond ? $bldgCond->orIf($attributes) : $attributes;
             }
         }
 
@@ -1074,9 +1075,15 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $buildingIds = $buildings->findValues(['id' => 'id'], $bldgCond);
         }
 
-        if (!empty($buildingIds))
+        if (!empty($buildingIds) && !$condition)
         {
             $condition = $condition->orIf(
+                $locations->buildingId->inList($buildingIds)
+            );
+        }
+        else if (!empty($buildingIds) && $condition)
+        {
+            $condition = $condition->andIf(
                 $locations->buildingId->inList($buildingIds)
             );
         }
