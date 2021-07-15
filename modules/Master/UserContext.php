@@ -15,7 +15,8 @@ class Classrooms_Master_UserContext extends Bss_Master_UserContext
         
         if ($account)
         {
-            if ($this->getAuthorizationManager()->hasPermission($account, 'edit'))
+            $authZ = $this->getAuthorizationManager();
+            if ($authZ->hasPermission($account, 'edit') || $authZ->hasPermission($account, 'view schedules'))
             {
                 $this->response->redirect('/');
             }

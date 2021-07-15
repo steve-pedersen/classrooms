@@ -80,7 +80,7 @@
 		{/if}
 		</dl>
 	</div>
-	{if $trackUrl && $pEdit}
+	{if $trackUrl && ($pEdit || $pSupport)}
 	<div class="row">
 	<div class="col-sm-12">
 		<a href="{$trackUrl}" target="_blank" class="">View all computers and hardware in this room
@@ -141,7 +141,7 @@
 	<div class="">
 
 		<div class="row">
-	{if $trackUrl && $pEdit}
+	{if $trackUrl && ($pEdit || $pSupport)}
 	<div class="col-sm-12">
 		<a href="{$trackUrl}" target="_blank" class="">View all computers and hardware in this room
 			<i class="glyphicon glyphicon-new-window"></i>

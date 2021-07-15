@@ -43,7 +43,7 @@
 					{if $viewer}
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle navbar-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-							{if !$pEdit}
+							{if !$pEdit && !$pSupport}
 								Hello, Professor {$viewer->faculty->lastName}
 							{else}
 								Hello, {$viewer->firstName}

@@ -85,11 +85,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         
         $this->template->trackUrl = $trackRoomUrlApi;
         $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
-        // $this->template->pEdit = true ?? $this->hasPermission('edit room');
-        $this->template->pViewDetails = $this->hasPermission('view schedules');
     	$this->template->room = $location;
     	$this->template->allAvEquipment = self::$AllRoomAvEquipment;
-        $this->template->notes = $location->id ? $notes->find(
+        $this->template->notes = $location->inDatasource ? $notes->find(
             $notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']
         ) : [];
 
@@ -211,8 +209,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function schedules ()
     {
         $viewer = $this->requireLogin();
-        $restrictResults = $viewer && !$this->hasPermission('edit');
-        // $this->requirePermission('edit');
+        $restrictResults = $viewer && !$this->hasPermission('edit') && !$this->hasPermission('view schedules');
         $scheduleSchema = $this->schema('Classrooms_ClassData_CourseSchedule');
 
         $semesters = $this->guessRelevantSemesters();
@@ -1075,17 +1072,13 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $buildingIds = $buildings->findValues(['id' => 'id'], $bldgCond);
         }
 
-        $nonDeleted = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
-        $temp = $condition ? $condition->andIf($nonDeleted) : $nonDeleted;
-        $temp = $locations->find($temp, ['orderBy' => 'number']);
-
-        if (!empty($buildingIds) && !$temp)
+        if (!empty($buildingIds) && !$condition)
         {
             $condition = $condition->orIf(
                 $locations->buildingId->inList($buildingIds)
             );
         }
-        else if (!empty($buildingIds) && !$temp)
+        else if (!empty($buildingIds) && $condition)
         {
             $condition = $condition->andIf(
                 $locations->buildingId->inList($buildingIds)
