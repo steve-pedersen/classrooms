@@ -26,7 +26,7 @@
 		    {/if}
 		    
 		    <div class="form-group">
-				<select class="form-control" name="t">
+				<select class="form-control" name="t" id="selectedTerm">
 				{foreach $semesters as $semester}
 					<option value="{$semester.code}" {if $selectedTerm == $semester.code}selected{/if}>
 						{$semester.disp}
