@@ -7,6 +7,7 @@
 	<div class="col-sm-12">
 		<div class="well multiselect-filter">
 			<h2>Filter</h2>
+			<!-- <form action="rooms" id="roomsAutocomplete"></form> -->
 			<form class="form-inline" role="form" id="filterForm">
 		    {if !$pFaculty}
 		    <div class="form-group" id="autcompleteContainer">
@@ -14,6 +15,10 @@
 				<input type="text" id="auto" name="auto" value="{$selectedUser}" class="form-control account-autocomplete" placeholder="Search user..."> 
 				<!-- <input type="hidden" name="record" value="0"> -->
 		    	<div class="search-container"></div>
+		    </div>
+
+		    <div class="form-group">
+		    	<input id="searchBox" type="text" name="s" value="{$roomQuery}" class="form-control autocomplete" placeholder="Building or room #">
 		    </div>
 		    <div class="form-group">
 		    	<div class="loader"></div>
@@ -116,7 +121,8 @@
     </div>
   </div>
 </div>
-
+{foreachelse}
+<p>No room or schedule info found.</p>
 {/foreach}
 
 {if $onlineCourses}

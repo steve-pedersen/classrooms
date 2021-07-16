@@ -213,7 +213,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $scheduleSchema = $this->schema('Classrooms_ClassData_CourseSchedule');
 
         $semesters = $this->guessRelevantSemesters();
-        $userId = $this->request->getQueryParameter('u');
+        $userId = $this->request->getQueryParameter('u', $this->request->getQueryParameter('auto'));
+        $roomQuery = $this->request->getQueryParameter('s');
         $termYear = $this->request->getQueryParameter('t', $semesters['curr']['code']);
 
         $condition = $scheduleSchema->allTrue(
@@ -223,6 +224,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             ),
             $scheduleSchema->room_id->isNotNull()
         );
+        
         $onlineCourses = null;
         if ($restrictResults)
         {
@@ -243,6 +245,17 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         {   
             $user = $this->schema('Classrooms_ClassData_User')->get($userId);
             $condition = $condition->andIf($scheduleSchema->faculty_id->equals($userId));
+        }
+
+        if ($roomQuery)
+        {
+            $rooms = $this->autoComplete($roomQuery);
+            $roomIds = [];
+            foreach ($rooms as $room)
+            {
+                $roomIds[$room->id] = $room->id;
+            }
+            $condition = $condition->andIf($scheduleSchema->room_id->inList($roomIds));
         }
 
         $scheduledRooms = [];
@@ -280,6 +293,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->semesters = $semesters;
         $this->template->selectedTerm = $termYear;
         $this->template->selectedUser = $userId;
+        $this->template->roomQuery = $roomQuery;
         $this->template->pFaculty = $restrictResults;
         $this->template->onlineCourses = $onlineCourses;
     }
@@ -1078,13 +1092,19 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 $locations->buildingId->inList($buildingIds)
             );
         }
-        else if (!empty($buildingIds) && $condition)
+        else if (!empty($buildingIds) && $condition && count($queryParts) > 1)
         {
             $condition = $condition->andIf(
                 $locations->buildingId->inList($buildingIds)
             );
         }
-
+        else if (!empty($buildingIds) && $condition && count($queryParts) === 1)
+        {
+            $condition = $condition->orIf(
+                $locations->buildingId->inList($buildingIds)
+            );
+        }
+        
         $nonDeleted = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
         $condition = $condition ? $condition->andIf($nonDeleted) : $nonDeleted;
         $rooms = $locations->find($condition, ['orderBy' => 'number']);
