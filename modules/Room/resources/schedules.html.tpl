@@ -67,7 +67,7 @@
 	    		<ul class="list-unstyled">
 		    		<li>
 		    			<h3>
-		    				<a href="rooms/{$room->id}?mode=basic" class="room-link">{if $room->building->code}{$room->building->code} {/if}{$room->number}</a>
+		    				<a href="{$room->roomUrl}?mode=basic" class="room-link">{if $room->building->code}{$room->building->code} {/if}{$room->number}</a>
 		    			</h3>
 		    		</li>
 		    		<li>{$room->building->name}</li>
@@ -75,7 +75,7 @@
 	    		</ul>    				
 			</div>
 			<div class="col-sm-6 building-image text-center">
-				<a href="rooms/{$room->id}" class="room-link">
+				<a href="{$room->roomUrl}" class="room-link">
 				<img src="{$room->building->getImage()}" class="img-responsive" style="max-width:100px;" alt="{$room->building->code} building">
 				</a>
 			</div>
