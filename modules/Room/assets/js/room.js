@@ -111,9 +111,9 @@
       appendTo: ".search-container",
       source: function (request, response) {
         var term = request.term;
-
+        var semester = $('#selectedTerm').val();
         if (term.length > 2) {
-          $.ajax(`${autoCompleteAccountsUrl}?s=${term}`, {
+          $.ajax(`${autoCompleteAccountsUrl}?s=${term}&sem=${semester}`, {
             type: 'get',
             dataType: 'json',
             success: function (o) {

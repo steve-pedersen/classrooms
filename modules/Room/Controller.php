@@ -224,7 +224,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             ),
             $scheduleSchema->room_id->isNotNull()
         );
-        
+
         $onlineCourses = null;
         if ($restrictResults)
         {
@@ -945,6 +945,20 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $roles = $this->schema('Classrooms_AuthN_Role');
         $adminRole = $roles->findOne($roles->name->equals('Administrator'));
 
+        $instructors = [];
+        // if ($semester = $this->request->getQueryParameter('sem'))
+        // {
+        //     $rs = pg_query("
+        //         SELECT DISTINCT(faculty_id) FROM classroom_classdata_course_schedules 
+        //         WHERE term_year = '{$semester}' AND room_id IS NOT NULL
+        //     ");                
+
+        //     while (($row = pg_fetch_row($rs)))
+        //     {
+        //         $instructors[$row[0]] = $row[0];
+        //     }
+        // }
+
         $query = $this->request->getQueryParameter('s');
         $queryParts = explode(' ', $query);
 
@@ -974,7 +988,12 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 $cond = $cond->orIf($c);
             }
 
-            $candidates = $accounts->find($cond, array('orderBy' => array('+lastName', '+firstName'), 'arrayKey' => 'username'));
+            // if (!empty($instructors))
+            // {
+            //     $cond = $cond->andIf($accounts->username->inList($instructors));
+            // }
+
+            $candidates = $accounts->find($cond, ['orderBy' => ['+lastName', '+firstName'], 'arrayKey' => 'username']);
 
             $authZ = $this->getAuthorizationManager();
             foreach ($candidates as $i => $candidate)
@@ -992,13 +1011,14 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $options = array();
             foreach ($candidates as $candidate)
             {
-                $options[$candidate->id] = array(
+                $options[$candidate->lastName.$candidate->id] = array(
                     'id' => $candidate->id,
                     'firstName' => $candidate->firstName,
                     'lastName' => $candidate->lastName,
                     'username' => $candidate->username,
                 );
             }
+            ksort($options, SORT_NATURAL);
 
             $results = array(
                 'message' => 'Candidates found.',
