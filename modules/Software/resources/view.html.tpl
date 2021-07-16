@@ -67,7 +67,7 @@
 <h2>Rooms used in</h2>
 <ul>
 {foreach $title->roomsUsedIn as $room}
-	<li><a href="rooms/{$room->id}">{$room->codeNumber}</a></li>
+	<li><a href="{$room->roomUrl}">{$room->codeNumber}</a></li>
 {/foreach}
 </ul>
 {/if}

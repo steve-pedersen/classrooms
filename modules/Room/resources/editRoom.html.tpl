@@ -1,5 +1,5 @@
 {if $location->id}
-	<h1>Edit Room <small><a href="rooms/{$location->id}">{$location->building->name} {$location->number}</a></small></h1>
+	<h1>Edit Room <small><a href="{$location->roomUrl}">{$location->building->name} {$location->number}</a></small></h1>
 {else}
 	<h1>New Room</h1>
 {/if}
@@ -314,7 +314,7 @@
 			{generate_form_post_key}
 			<input type="hidden" name="locationId" value="{$location->id}">
 			<button type="submit" name="command[save]" class="btn btn-primary">Save Room</button>
-			<a href="rooms/{$location->id}" class="btn btn-default">Cancel</a>
+			<a href="{$location->roomUrl}" class="btn btn-default">Cancel</a>
 			<button type="submit" name="command[delete]" class="btn btn-danger pull-right">Delete</button>
 		</div>
 

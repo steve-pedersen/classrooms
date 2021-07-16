@@ -16,19 +16,19 @@
 <div class="col-xs-12">
 <ul class="nav nav-pills nav-justified room-pills" style="margin-top:2em;">
 	<li {if $mode == 'basic'}class="active"{/if}>
-		<a data-toggle="pill" href="rooms/{$room->id}?mode=basic#basicInfo">Basic Info</a>
+		<a data-toggle="pill" href="{$room->roomUrl}?mode=basic#basicInfo">Basic Info</a>
 	</li>
 	{if $room->tutorial}
 	<li {if $mode == 'tutorial'}class="active"{/if}>
-		<a data-toggle="pill" href="rooms/{$room->id}?mode=tutorial#tutorial">Room Tutorial</a>
+		<a data-toggle="pill" href="{$room->roomUrl}?mode=tutorial#tutorial">Room Tutorial</a>
 	</li>
 	{/if}
 	<li {if $mode == 'software'}class="active"{/if}>
-		<a data-toggle="pill" href="rooms/{$room->id}?mode=software#software">Software/Equipment</a>
+		<a data-toggle="pill" href="{$room->roomUrl}?mode=software#software">Software/Equipment</a>
 	</li>
 	{if $notes && $pEdit}
 		<li {if $mode == 'notes'}class="active"{/if}>
-			<a data-toggle="pill" href="rooms/{$room->id}?mode=notes#notes">Notes</a>
+			<a data-toggle="pill" href="{$room->roomUrl}?mode=notes#notes">Notes</a>
 		</li>
 	{/if}
 	{if $pFaculty}

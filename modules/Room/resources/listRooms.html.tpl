@@ -127,7 +127,7 @@
 	    		<ul class="list-unstyled">
 		    		<li>
 		    			<h3>
-		    				<a href="rooms/{$room->id}?mode=basic" class="room-link">{if $room->building->code}{$room->building->code} {/if}{$room->number}</a>
+		    				<a href="{$room->roomUrl}?mode=basic" class="room-link">{if $room->building->code}{$room->building->code} {/if}{$room->number}</a>
 		    			</h3>
 		    		</li>
 		    		<li>{$room->building->name}</li>
@@ -135,7 +135,7 @@
 	    		</ul>    				
 			</div>
 			<div class="col-sm-6 building-image text-center">
-				<a href="rooms/{$room->id}" class="room-link">
+				<a href="{$room->roomUrl}" class="room-link">
 				<img src="{$room->building->image}" class="img-responsive" style="max-width:100px;" alt="{$room->building->code} building">
 				</a>
 			</div>
@@ -145,7 +145,7 @@
     	<div class="col-sm-5 config-info" >
     		<h4>Equipment</h4>
     		<ul class="list-unstyled">
-    			<li><a href="rooms/{$room->id}?mode=software"></a></li>
+    			<li><a href="{$room->roomUrl}?mode=software"></a></li>
     		{foreach $room->configurations as $config}
     			{if !$config->isBundle}
     				<li>{$config->deviceQuantity} {$config->deviceType}</li>
@@ -170,7 +170,7 @@
     	<div class="col-sm-3 tutorial-info">
     		<h4>Tutorial</h4>
     		{if $room->tutorial->name}
-    			<a href="rooms/{$room->id}?mode=tutorial" style="font-weight:bold;">{$room->tutorial->name}</a>
+    			<a href="{$room->roomUrl}?mode=tutorial" style="font-weight:bold;">{$room->tutorial->name}</a>
     		{else}
     			<span class="text-muted">No tutorial set up for this room.</span>
     		{/if}

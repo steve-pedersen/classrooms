@@ -58,7 +58,10 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
 
     public function getRoomUrl ()
     {
-        return $this->getApplication()->baseUrl('rooms/' . $this->id);
+        // return $this->getApplication()->baseUrl('rooms/' . $this->id);
+        return $this->getApplication()->baseUrl(
+            'rooms/' . strtolower($this->building->code) . '/' . strtolower($this->number)
+        );
     }
 
     public function getCodeNumber ()

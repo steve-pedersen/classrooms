@@ -47,8 +47,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/rooms' => ['callback' => 'listRooms'],
             '/rooms/autocomplete' => ['callback' => 'autoComplete'],
             '/rooms/metadata' => ['callback' => 'roomMetadata'],
-            '/rooms/:id' => ['callback' => 'view'],
+            '/rooms/:id' => ['callback' => 'view', ':id' => '[0-9]+'],
             '/rooms/:id/edit' => ['callback' => 'editRoom', ':id' => '[0-9]+|new'],
+            '/rooms/:building/:number' => ['callback' => 'parseUrl'],
             '/rooms/:roomid/tutorials/:id/edit' => ['callback' => 'editTutorial', ':id' => '[0-9]+|new'],
             '/rooms/:id/configurations/:cid/edit' => ['callback' => 'editConfiguration'],
             '/tutorials' => ['callback' => 'listTutorials'],
@@ -91,6 +92,22 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']
         ) : [];
 
+    }
+
+    public function parseUrl ()
+    {
+        $code = strtolower($this->getRouteVariable('building', ''));
+        $number = strtolower($this->getRouteVariable('number', ''));
+
+        $buildings = $this->schema('Classrooms_Room_Building');
+        $rooms = $this->schema('Classrooms_Room_Location');
+
+        $building = $this->requireExists($buildings->findOne($buildings->code->lower()->equals($code)));
+        $room = $this->requireExists($rooms->findOne(
+            $rooms->number->lower()->equals($number)->andIf($rooms->buildingId->equals($building->id))
+        ));
+
+        $this->forward('rooms/' . $room->id);
     }
 
     public function listRooms ()
