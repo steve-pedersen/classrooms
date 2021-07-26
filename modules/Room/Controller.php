@@ -551,6 +551,13 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
  
         $tuts = $this->schema('Classrooms_Tutorial_Page');
         $tutorials = $tuts->find($tuts->deleted->isFalse()->orIf($tuts->deleted->isNull()),['orderBy', 'name']);
+
+        $scheduledBy = unserialize($siteSettings->getProperty('scheduled-by'));
+        $supportedBy = unserialize($siteSettings->getProperty('supported-by'));
+        $supportedByText = unserialize($siteSettings->getProperty('supported-by-text'));
+        sort($scheduledBy);
+        sort($supportedBy);
+        ksort($supportedByText);
         
         $this->template->location = $location;
         $this->template->selectedConfiguration = $selectedConfiguration;
@@ -564,9 +571,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->notes = $location->inDatasource ? $notes->find(
             $notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']
         ) : [];
-        $this->template->scheduledBy = unserialize($siteSettings->getProperty('scheduled-by'));
-        $this->template->supportedBy = unserialize($siteSettings->getProperty('supported-by'));
-        $this->template->supportedByText = unserialize($siteSettings->getProperty('supported-by-text'));
+        $this->template->scheduledBy = $scheduledBy;
+        $this->template->supportedBy = $supportedBy;
+        $this->template->supportedByText = $supportedByText;
         $this->template->tutorials = $tutorials;
     }
 
