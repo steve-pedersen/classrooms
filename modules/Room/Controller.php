@@ -226,7 +226,6 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function schedules ()
     {
         $viewer = $this->requireLogin();
-        $restrictResults = $viewer && !$this->hasPermission('edit') && !$this->hasPermission('view schedules');
         $scheduleSchema = $this->schema('Classrooms_ClassData_CourseSchedule');
 
         $semesters = $this->guessRelevantSemesters();
@@ -234,13 +233,21 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $roomQuery = $this->request->getQueryParameter('s');
         $termYear = $this->request->getQueryParameter('t', $semesters['curr']['code']);
 
-        $condition = $scheduleSchema->allTrue(
-            $scheduleSchema->termYear->equals($termYear),
-            $scheduleSchema->userDeleted->isNull()->orIf(
-                $scheduleSchema->userDeleted->isFalse()
-            ),
-            $scheduleSchema->room_id->isNotNull()
-        );
+        $restrictResults = $viewer && !$this->hasPermission('edit') && !$this->hasPermission('view schedules');
+        $queriedResults = $viewer && ($this->hasPermission('edit') || $this->hasPermission('view schedules')) && 
+            ($userId || $roomQuery);
+
+        $condition = null;
+        if ($restrictResults || $queriedResults)
+        {
+            $condition = $scheduleSchema->allTrue(
+                $scheduleSchema->termYear->equals($termYear),
+                $scheduleSchema->userDeleted->isNull()->orIf(
+                    $scheduleSchema->userDeleted->isFalse()
+                ),
+                $scheduleSchema->room_id->isNotNull()
+            );
+        }
 
         $onlineCourses = null;
         if ($restrictResults)
@@ -256,15 +263,15 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             );
             $onlineCourses = $scheduleSchema->find($condition2);
         }
-
+        
         $user = null;
-        if ($userId)
+        if ($queriedResults && $userId)
         {   
             $user = $this->schema('Classrooms_ClassData_User')->get($userId);
             $condition = $condition->andIf($scheduleSchema->faculty_id->equals($userId));
         }
 
-        if ($roomQuery)
+        if ($queriedResults && $roomQuery)
         {
             $rooms = $this->autoComplete($roomQuery);
             $roomIds = [];
@@ -275,8 +282,11 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $condition = $condition->andIf($scheduleSchema->room_id->inList($roomIds));
         }
 
-        $scheduledRooms = [];
-        $result = $scheduleSchema->find($condition, ['orderBy' => 'room_id']);
+        $result = $scheduledRooms = [];
+        if ($condition)
+        {
+            $result = $scheduleSchema->find($condition, ['orderBy' => 'room_id']);
+        }
         
         foreach ($result as $schedule)
         {

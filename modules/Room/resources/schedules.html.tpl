@@ -122,7 +122,15 @@
   </div>
 </div>
 {foreachelse}
-<p>No room or schedule info found.</p>
+	{if $pSupport || $pEdit || $pAdmin}
+		{if $selectedUser || $roomQuery}
+			<p>No room or schedule info found with your search parameters.</p>
+		{else}
+			<p>Search by instructor or room.</p>
+		{/if}
+	{else}
+		<p>No room or schedule info found for you.</p>
+	{/if}
 {/foreach}
 
 {if $onlineCourses}

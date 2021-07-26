@@ -223,48 +223,98 @@ class Classrooms_ClassData_Importer
 
         foreach ($facultyList as $facultyId)
         {
+            $matchingSchedules = $scheduleSchema->find(
+                $scheduleSchema->allTrue(
+                    $scheduleSchema->faculty_id->equals($facultyId),
+                    $scheduleSchema->termYear->equals($semester),
+                    $scheduleSchema->userDeleted->isFalse()->orIf(
+                        $scheduleSchema->userDeleted->isNull()
+                    )
+                )
+            );
+
+            $existingSchedules[$facultyId] = [];
+            $fetchedSchedules[$facultyId] = [];
+
+            foreach ($matchingSchedules as $match)
+            {
+                $existingSchedules[$facultyId][$match->course_section_id] = $match;
+            }
+
             $service = new Classrooms_ClassData_Service($this->getApplication());
             $result = $service->getUserSchedules($semester, $facultyId);
+
             foreach ($result['courses'] as $cid => $data)
             {
-                if (!empty($data['schedule']))
+                foreach ($data['schedule'] as $sched)
                 {
-                    foreach ($data['schedule'] as $sched)
+                    $room = null;
+                    if (!in_array($sched['facility']['building'], $ignoreKeys))
                     {
-                        $room = null;
-                        if (!in_array($sched['facility']['building'], $ignoreKeys))
+                        $building = $this->parseBuilding($sched['facility']);
+                        $cond = $roomSchema->allTrue(
+                            $roomSchema->number->equals($sched['facility']['room']),
+                            $roomSchema->building_id->equals($building->id)
+                        );
+                        if (!($room = $roomSchema->findOne($cond)))
                         {
-                            $building = $this->parseBuilding($sched['facility']);
-                            $cond = $roomSchema->allTrue(
-                                $roomSchema->number->equals($sched['facility']['room']),
-                                $roomSchema->building_id->equals($building->id)
-                            );
-                            if (!($room = $roomSchema->findOne($cond)))
-                            {
-                                $room = $roomSchema->createInstance()->applyDefaults($sched['facility']['room'], $building);
-                                $room->addNote('New room created automatically with default settings.', $accounts->get(1));
-                            }
+                            $room = $roomSchema->createInstance()->applyDefaults($sched['facility']['room'], $building);
+                            $room->addNote('New room created automatically with default settings.', $accounts->get(1));
                         }
                     }
+                }
 
-                    $course = $courseSchema->get($data['id']);
-                    $cond = $scheduleSchema->allTrue(
-                        $scheduleSchema->course_section_id->equals($course->id),
-                        $scheduleSchema->faculty_id->equals($facultyId)
-                    );
-                    if (!($schedule = $scheduleSchema->findOne($cond)))
-                    {
-                        $schedule = $scheduleSchema->createInstance();
-                        $schedule->createdDate = new DateTime;
-                    }
-                    $schedule->course_section_id = $course->id;
-                    $schedule->faculty_id = $facultyId;
-                    $schedule->termYear = $semester;
-                    $schedule->schedules = serialize($data['schedule']);
-                    $schedule->room_id = $room ? $room->id : null;
-                    $schedule->save();
-                }  
+                $course = $courseSchema->get($data['id']);
+                
+                $newAdd = false;
+                if (!isset($existingSchedules[$facultyId][$course->id]))
+                {
+                    $schedule = $scheduleSchema->createInstance();
+                    $schedule->createdDate = new DateTime;
+                    $newAdd = true;
+                }
+                else
+                {
+                    $schedule = $existingSchedules[$facultyId][$course->id];
+                }
+
+                $schedule->course_section_id = $course->id;
+                $schedule->faculty_id = $facultyId;
+                $schedule->termYear = $semester;
+                $schedule->schedules = serialize($data['schedule']);
+                $schedule->room_id = $room ? $room->id : null;
+                $schedule->save();
+
+                $fetchedSchedules[$facultyId][$course->id] = $schedule;
             }
+
+            // user is no longer scheduled in this course
+            foreach ($existingSchedules as $instructor => $courses)
+            {
+                foreach ($courses as $courseId => $schedule)
+                {   
+                    if (!isset($fetchedCourses[$instructor][$courseId]))
+                    {
+                        // echo "<pre>"; var_dump($instructor, $courseId, $schedule->id, $schedule->course_section_id); die;
+                        $schedule->userDeleted = true;
+                        $schedule->save();
+                    }
+                }
+            }
+
+            // // user added to schedule in this course
+            // foreach ($fetchedSchedules as $instructor => $courses)
+            // {
+            //     foreach ($courses as $courseId => $schedule)
+            //     {   
+            //         if (!isset($existingCourses[$instructor][$courseId]))
+            //         {
+            //             // echo "<pre>"; var_dump($instructor, $courseId, $schedule->id, $schedule->course_section_id); die;
+            //             $schedule->userDeleted = false;
+            //             $schedule->save();
+            //         }
+            //     }
+            // }         
         }
     }
 
