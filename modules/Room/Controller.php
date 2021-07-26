@@ -456,7 +456,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $location->scheduledBy = $locationData['scheduledBy'];
                     $location->supportedBy = $locationData['supportedBy'];
                     $location->description = $locationData['description'];
-                    $location->url = $locationData['url'];
+                    // $location->url = $locationData['url'];
                     $location->avEquipment = isset($locationData['avEquipment']) ? serialize($locationData['avEquipment']) : '';
                     $location->uniprintQueue = $locationData['uniprintQueue'];
                     $location->releaseStationIp = $locationData['releaseStationIp'];

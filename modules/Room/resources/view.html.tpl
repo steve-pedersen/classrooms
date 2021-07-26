@@ -44,31 +44,28 @@
 	<div class="view-room-details">
 		<dl class="dl-horizontal">
 			<dt>Room Type</dt>
-			<dd>{if $room->type}{$room->type->name}{else}Unknown{/if}</dd>
+				<dd>{if $room->type}{$room->type->name}{else}Unknown{/if}</dd>
 			<dt>Building</dt>
-			<dd>{$room->building->name}</dd>
-			{if $room->scheduledBy}
+				<dd>{$room->building->name}</dd>
+		{if $room->scheduledBy}
 			<dt>Scheduled By</dt>
 			<dd>{$room->scheduledBy}</dd>
-			{/if}
-			{if $room->supportedBy}
+		{/if}
+		{if $room->supportedBy}
 			<dt>Supported By</dt>
 			<dd>{$room->supportedBy}</dd>
-			{/if}
+		{/if}
 			<dt>Capacity</dt>
 			<dd>{if $room->capacity}{$room->capacity}{else}N/A{/if}</dd>
-			{if $room->description}
+		{if $room->description}
 			<dt>Description</dt>
 			<dd>{$room->description}</dd>
-			{/if}
-			{if $room->url}
-			<dt>URL</dt>
-			<dd>{$room->url}</dd>
-			{/if}
-			{if $supportText}
+		{/if}
+
+		{if $supportText}
 			<dt>Support Information</dt>
 			<dd>{$supportText}</dd>
-			{/if}
+		{/if}
 
 		{if $pEdit}
 			{if $room->uniprint}<dt>Uniprint</dt><dd>{$room->uniprint}</dd>{/if}
