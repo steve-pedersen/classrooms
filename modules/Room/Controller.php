@@ -114,6 +114,11 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
     	$viewer = $this->getAccount();
         
+        if (!$viewer)
+        {
+            $this->template->loginToViewOwnRooms = true;
+        }
+
         $schedules = $this->schema('Classrooms_ClassData_CourseSchedule');
         $locations = $this->schema('Classrooms_Room_Location');
         $buildingSchema = $this->schema('Classrooms_Room_Building');
