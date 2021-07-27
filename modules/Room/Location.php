@@ -69,11 +69,10 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
         return $this->building->code . ' ' . $this->number;
     }
 
-    // public function getTutorial ()
-    // {
-    //     $tuts = $this->getSchema('Classrooms_Room_Tutorial');
-    //     return $tuts->findOne($tuts->locationId->equals($this->id));
-    // }
+    public function hasSoftwareOrHardware ()
+    {
+        return $this->configurations->count() > 0;
+    }
 
     public function getCustomConfigurations ()
     {

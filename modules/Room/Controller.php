@@ -71,7 +71,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
         $location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id');
     	$this->addBreadcrumb('rooms', 'List Rooms');
-        
+
         $notes = $this->schema('Classrooms_Notes_Entry');
         $siteSettings = $this->getApplication()->siteSettings;
         

@@ -23,9 +23,11 @@
 		<a data-toggle="pill" href="{$room->roomUrl}?mode=tutorial#tutorial">Room Tutorial</a>
 	</li>
 	{/if}
+	{if $room->hasSoftwareOrHardware()}
 	<li {if $mode == 'software'}class="active"{/if}>
 		<a data-toggle="pill" href="{$room->roomUrl}?mode=software#software">Software/Equipment</a>
 	</li>
+	{/if}
 	{if $notes && $pEdit}
 		<li {if $mode == 'notes'}class="active"{/if}>
 			<a data-toggle="pill" href="{$room->roomUrl}?mode=notes#notes">Notes</a>
@@ -133,6 +135,7 @@
 	{/if}
 </div>
 
+{if $room->hasSoftwareOrHardware()}
 <div id="software" class="tab-pane fade {if $mode == 'software'}in active{/if}" style="margin-top:3em;">
  	<h3>Software/Equipment in this room</h3>
 	<div class="">
@@ -221,6 +224,7 @@
 	{/if}
 	</div>
 </div>
+{/if}
 
 {if $notes && $pEdit}
 <div id="notes" class="tab-pane fade {if $mode == 'notes'}in active{/if}" style="margin-top:3em;">
