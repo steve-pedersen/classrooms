@@ -110,6 +110,67 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->forward('rooms/' . $room->id);
     }
 
+    private function buildUnselectQueries ($selectedBuildings, $selectedTypes, $selectedEquipment, $capacity)
+    {
+        $unselectQueries = [
+            'buildings' => [],
+            'types' => [],
+            'equipment' => [],
+            'cap' => ''
+        ];
+
+        foreach ($selectedBuildings as $selected)
+        {
+            $unselected = array_filter($selectedBuildings, function ($s) use ($selected) {
+                return $s !== $selected;
+            });
+
+            $unselectQueries['buildings'][$selected] = http_build_query([
+                'buildings' => $unselected,
+                'types' => $selectedTypes,
+                'equipment' => $selectedEquipment,
+                'cap' => $capacity
+            ]);
+        }
+
+        foreach ($selectedTypes as $selected)
+        {
+            $unselected = array_filter($selectedTypes, function ($s) use ($selected) {
+                return $s !== $selected;
+            });
+
+            $unselectQueries['types'][$selected] = http_build_query([
+                'buildings' => $selectedBuildings,
+                'types' => $unselected,
+                'equipment' => $selectedEquipment,
+                'cap' => $capacity
+            ]);
+        }   
+
+        foreach ($selectedEquipment as $selected)
+        {
+            $unselected = array_filter($selectedEquipment, function ($s) use ($selected) {
+                return $s !== $selected;
+            });
+
+            $unselectQueries['equipment'][$selected] = http_build_query([
+                'buildings' => $selectedBuildings,
+                'types' => $selectedTypes,
+                'equipment' => $unselected,
+                'cap' => $capacity
+            ]);
+        }  
+
+        $unselectQueries['cap'] = http_build_query([
+            'buildings' => $selectedBuildings,
+            'types' => $selectedTypes,
+            'equipment' => $selectedEquipment,
+            'cap' => null
+        ]);
+
+        return $unselectQueries;
+    }
+
     public function listRooms ()
     {
     	$viewer = $this->getAccount();
@@ -136,9 +197,12 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $selectedBuildings = $this->request->getQueryParameter('buildings', []);
         $selectedTypes = $this->request->getQueryParameter('types', []);
         $selectedTitles = $this->request->getQueryParameter('titles');
-        $selectedEquipment = $this->request->getQueryParameter('equipment');
+        $selectedEquipment = $this->request->getQueryParameter('equipment', []);
         $capacity = $this->request->getQueryParameter('cap');
         $s = $this->request->getQueryParameter('s');
+        
+        $unselectQueries = $this->buildUnselectQueries($selectedBuildings, $selectedTypes, $selectedEquipment, $capacity);
+        // echo "<pre>"; var_dump($unselectQueries); die;
         
         $condition = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
         
@@ -220,6 +284,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->selectedEquipment = $selectedEquipment;
         $this->template->searchQuery = $s;
         $this->template->capacity = $capacity;
+        $this->template->unselectQueries = $unselectQueries;
         $this->template->buildings = $buildings;
         $this->template->types = $types;
         $this->template->rooms = $sortedRooms;
