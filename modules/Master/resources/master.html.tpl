@@ -71,7 +71,9 @@
 						</li>
 					{else}
 						<li>
-							<a class="login-button" href="{$app->baseUrl('login?returnTo=/')}">Login</a>
+							<a class="login-button" href="{$app->baseUrl('login?returnTo=/')}">	
+								Login{if $loginToViewOwnRooms} to see your scheduled rooms{/if}
+							</a>
 						</li>
 					{/if} 
 	            </ul>

@@ -133,17 +133,17 @@
 						</div>
 					</div>
 
-					<div class="form-group">
+<!-- 					<div class="form-group">
 						<label for="url" class="col-sm-2 control-label">URL</label>
 						<div class="col-sm-10">
 							<input type="text" class="form-control" name="room[url]" value="{$location->url}" placeholder="Website URL if applicable">
 						</div>
-					</div>
+					</div> -->
 
 					<div class="form-group">
-						<label for="url" class="col-sm-2 control-label">A/V Equipment</label>
+						<label for="avEquipment" class="col-sm-2 control-label">A/V Equipment</label>
 						<div class="col-sm-10">
-							<table class="table table-bordered">
+							<table class="table table-bordered" id="avEquipment">
 								<thead>
 									<tr>
 									{foreach $allAvEquipment as $key => $equipment}

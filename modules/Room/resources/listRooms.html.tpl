@@ -65,28 +65,52 @@
 			{if $searchQuery}
 				<p id="regular-results">{if $rooms}Showing{else}No{/if} search results for "{$searchQuery}"</p>
 			{elseif $selectedBuildings || $selectedTypes || $selectedEquipment || $capacity}
-				<p class="">Active filters - 
+				<!-- <h4>Active filters:</h4> -->
+				<p class=""> 
 				{if $selectedBuildings}
-					<strong>Buildings: </strong>
+					<strong>Buildings:&nbsp;&nbsp;</strong>
 					{foreach $selectedBuildings as $sb => $id}
-						<em>{$sb}{if !$id@last}, {else}&nbsp;&nbsp;{/if}</em>
+						<em>
+							{$sb}
+							<a href="rooms?{$unselectQueries['buildings'][$id]}">
+								<i class="glyphicon glyphicon-remove text-danger" style="padding-left:1px;font-size:10px;"></i></a>
+							&nbsp;
+						</em>
 					{/foreach}
+					<br>
 				{/if}
 				{if $selectedTypes}
-					<strong>Types: </strong>
+					<strong>Types:&nbsp;&nbsp;</strong>
 					{foreach $selectedTypes as $st => $id}
-						<em>{$st}{if !$id@last}, {else}&nbsp;&nbsp;{/if}</em>
+						<em>
+							{$st}
+							<a href="rooms?{$unselectQueries['types'][$id]}">
+								<i class="glyphicon glyphicon-remove text-danger" style="padding-left:1px;font-size:10px;"></i></a>
+							&nbsp;
+						</em>
 					{/foreach}
+					<br>
 				{/if}
 				{if $selectedEquipment}
-					<strong>Equipment: </strong>
+					<strong>Equipment:&nbsp;&nbsp;</strong>
 					{foreach $selectedEquipment as $se}
-						<em>{$allAvEquipment[$se]}{if !$se@last}, {else}&nbsp;&nbsp;{/if}</em>
+						<em>
+							{$allAvEquipment[$se]}
+							<a href="rooms?{$unselectQueries['equipment'][$se]}">
+								<i class="glyphicon glyphicon-remove text-danger" style="padding-left:1px;font-size:10px;"></i></a>
+							&nbsp;
+						</em>
 					{/foreach}
+					<br>
 				{/if}
 				{if $capacity}
-					<strong>Capacity: </strong>
-					<em>{$capacity}</em>
+					<strong>Capacity:&nbsp;&nbsp;</strong>
+					<em>
+						{$capacity}
+							<a href="rooms?{$unselectQueries['cap']}">
+								<i class="glyphicon glyphicon-remove text-danger" style="padding-left:1px;font-size:10px;"></i></a>
+							&nbsp;
+					</em>
 				{/if}
 				</p>
 			{/if}

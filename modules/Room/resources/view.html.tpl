@@ -23,9 +23,11 @@
 		<a data-toggle="pill" href="{$room->roomUrl}?mode=tutorial#tutorial">Room Tutorial</a>
 	</li>
 	{/if}
+	{if $room->hasSoftwareOrHardware()}
 	<li {if $mode == 'software'}class="active"{/if}>
 		<a data-toggle="pill" href="{$room->roomUrl}?mode=software#software">Software/Equipment</a>
 	</li>
+	{/if}
 	{if $notes && $pEdit}
 		<li {if $mode == 'notes'}class="active"{/if}>
 			<a data-toggle="pill" href="{$room->roomUrl}?mode=notes#notes">Notes</a>
@@ -44,31 +46,28 @@
 	<div class="view-room-details">
 		<dl class="dl-horizontal">
 			<dt>Room Type</dt>
-			<dd>{if $room->type}{$room->type->name}{else}Unknown{/if}</dd>
+				<dd>{if $room->type}{$room->type->name}{else}Unknown{/if}</dd>
 			<dt>Building</dt>
-			<dd>{$room->building->name}</dd>
-			{if $room->scheduledBy}
+				<dd>{$room->building->name}</dd>
+		{if $room->scheduledBy}
 			<dt>Scheduled By</dt>
 			<dd>{$room->scheduledBy}</dd>
-			{/if}
-			{if $room->supportedBy}
+		{/if}
+		{if $room->supportedBy}
 			<dt>Supported By</dt>
 			<dd>{$room->supportedBy}</dd>
-			{/if}
+		{/if}
 			<dt>Capacity</dt>
 			<dd>{if $room->capacity}{$room->capacity}{else}N/A{/if}</dd>
-			{if $room->description}
+		{if $room->description}
 			<dt>Description</dt>
 			<dd>{$room->description}</dd>
-			{/if}
-			{if $room->url}
-			<dt>URL</dt>
-			<dd>{$room->url}</dd>
-			{/if}
-			{if $supportText}
+		{/if}
+
+		{if $supportText}
 			<dt>Support Information</dt>
 			<dd>{$supportText}</dd>
-			{/if}
+		{/if}
 
 		{if $pEdit}
 			{if $room->uniprint}<dt>Uniprint</dt><dd>{$room->uniprint}</dd>{/if}
@@ -136,6 +135,7 @@
 	{/if}
 </div>
 
+{if $room->hasSoftwareOrHardware()}
 <div id="software" class="tab-pane fade {if $mode == 'software'}in active{/if}" style="margin-top:3em;">
  	<h3>Software/Equipment in this room</h3>
 	<div class="">
@@ -224,6 +224,7 @@
 	{/if}
 	</div>
 </div>
+{/if}
 
 {if $notes && $pEdit}
 <div id="notes" class="tab-pane fade {if $mode == 'notes'}in active{/if}" style="margin-top:3em;">

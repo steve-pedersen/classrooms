@@ -71,7 +71,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
         $location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id');
     	$this->addBreadcrumb('rooms', 'List Rooms');
-        
+
         $notes = $this->schema('Classrooms_Notes_Entry');
         $siteSettings = $this->getApplication()->siteSettings;
         
@@ -110,10 +110,76 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->forward('rooms/' . $room->id);
     }
 
+    private function buildUnselectQueries ($selectedBuildings, $selectedTypes, $selectedEquipment, $capacity)
+    {
+        $unselectQueries = [
+            'buildings' => [],
+            'types' => [],
+            'equipment' => [],
+            'cap' => ''
+        ];
+
+        foreach ($selectedBuildings as $selected)
+        {
+            $unselected = array_filter($selectedBuildings, function ($s) use ($selected) {
+                return $s !== $selected;
+            });
+
+            $unselectQueries['buildings'][$selected] = http_build_query([
+                'buildings' => $unselected,
+                'types' => $selectedTypes,
+                'equipment' => $selectedEquipment,
+                'cap' => $capacity
+            ]);
+        }
+
+        foreach ($selectedTypes as $selected)
+        {
+            $unselected = array_filter($selectedTypes, function ($s) use ($selected) {
+                return $s !== $selected;
+            });
+
+            $unselectQueries['types'][$selected] = http_build_query([
+                'buildings' => $selectedBuildings,
+                'types' => $unselected,
+                'equipment' => $selectedEquipment,
+                'cap' => $capacity
+            ]);
+        }   
+
+        foreach ($selectedEquipment as $selected)
+        {
+            $unselected = array_filter($selectedEquipment, function ($s) use ($selected) {
+                return $s !== $selected;
+            });
+
+            $unselectQueries['equipment'][$selected] = http_build_query([
+                'buildings' => $selectedBuildings,
+                'types' => $selectedTypes,
+                'equipment' => $unselected,
+                'cap' => $capacity
+            ]);
+        }  
+
+        $unselectQueries['cap'] = http_build_query([
+            'buildings' => $selectedBuildings,
+            'types' => $selectedTypes,
+            'equipment' => $selectedEquipment,
+            'cap' => null
+        ]);
+
+        return $unselectQueries;
+    }
+
     public function listRooms ()
     {
     	$viewer = $this->getAccount();
         
+        if (!$viewer)
+        {
+            $this->template->loginToViewOwnRooms = true;
+        }
+
         $schedules = $this->schema('Classrooms_ClassData_CourseSchedule');
         $locations = $this->schema('Classrooms_Room_Location');
         $buildingSchema = $this->schema('Classrooms_Room_Building');
@@ -131,9 +197,12 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $selectedBuildings = $this->request->getQueryParameter('buildings', []);
         $selectedTypes = $this->request->getQueryParameter('types', []);
         $selectedTitles = $this->request->getQueryParameter('titles');
-        $selectedEquipment = $this->request->getQueryParameter('equipment');
+        $selectedEquipment = $this->request->getQueryParameter('equipment', []);
         $capacity = $this->request->getQueryParameter('cap');
         $s = $this->request->getQueryParameter('s');
+        
+        $unselectQueries = $this->buildUnselectQueries($selectedBuildings, $selectedTypes, $selectedEquipment, $capacity);
+        // echo "<pre>"; var_dump($unselectQueries); die;
         
         $condition = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
         
@@ -215,6 +284,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->selectedEquipment = $selectedEquipment;
         $this->template->searchQuery = $s;
         $this->template->capacity = $capacity;
+        $this->template->unselectQueries = $unselectQueries;
         $this->template->buildings = $buildings;
         $this->template->types = $types;
         $this->template->rooms = $sortedRooms;
@@ -466,7 +536,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $location->scheduledBy = $locationData['scheduledBy'];
                     $location->supportedBy = $locationData['supportedBy'];
                     $location->description = $locationData['description'];
-                    $location->url = $locationData['url'];
+                    // $location->url = $locationData['url'];
                     $location->avEquipment = isset($locationData['avEquipment']) ? serialize($locationData['avEquipment']) : '';
                     $location->uniprintQueue = $locationData['uniprintQueue'];
                     $location->releaseStationIp = $locationData['releaseStationIp'];
@@ -561,6 +631,13 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
  
         $tuts = $this->schema('Classrooms_Tutorial_Page');
         $tutorials = $tuts->find($tuts->deleted->isFalse()->orIf($tuts->deleted->isNull()),['orderBy', 'name']);
+
+        $scheduledBy = unserialize($siteSettings->getProperty('scheduled-by'));
+        $supportedBy = unserialize($siteSettings->getProperty('supported-by'));
+        $supportedByText = unserialize($siteSettings->getProperty('supported-by-text'));
+        sort($scheduledBy);
+        sort($supportedBy);
+        ksort($supportedByText);
         
         $this->template->location = $location;
         $this->template->selectedConfiguration = $selectedConfiguration;
@@ -574,9 +651,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->notes = $location->inDatasource ? $notes->find(
             $notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']
         ) : [];
-        $this->template->scheduledBy = unserialize($siteSettings->getProperty('scheduled-by'));
-        $this->template->supportedBy = unserialize($siteSettings->getProperty('supported-by'));
-        $this->template->supportedByText = unserialize($siteSettings->getProperty('supported-by-text'));
+        $this->template->scheduledBy = $scheduledBy;
+        $this->template->supportedBy = $supportedBy;
+        $this->template->supportedByText = $supportedByText;
         $this->template->tutorials = $tutorials;
     }
 
