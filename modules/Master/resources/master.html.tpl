@@ -59,6 +59,9 @@
 								<li>
 									<a class="btn btn-link navbar-link" href="rooms">Rooms</a>
 								</li>
+								<li>
+									<a class="btn btn-link navbar-link" href="schedules">Schedules</a>
+								</li>
 								{if $pEdit}
 								<li>
 									<a class="btn btn-link navbar-link" href="software">Software</a>
