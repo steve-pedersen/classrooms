@@ -28,7 +28,7 @@ class Classrooms_Master_UserContext extends Bss_Master_UserContext
                 }
                 else
                 {
-                    $this->response->redirect('rooms');
+                    $this->response->redirect('schedules');
                 }
             }
         }
