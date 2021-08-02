@@ -66,17 +66,21 @@ class Classrooms_ClassData_AdminController extends At_Admin_Controller
                 $semesterCodes = explode(',', $semesterCodes);
             }
             
-            foreach ($semesterCodes as $semesterCode)
-            {
-                $importer->import($semesterCode, $createFacultyAccount);
-            }
+            // foreach ($semesterCodes as $semesterCode)
+            // {
+            //     $importer->import($semesterCode, $createFacultyAccount);
+            // }
 
             // import schedule info
+            // $semesterCodes = ['2217'];
             foreach ($semesterCodes as $semesterCode)
             {
                 $rs = pg_query("
-                    SELECT DISTINCT(user_id) FROM classroom_classdata_enrollments 
-                    WHERE year_semester = '{$semesterCode}' AND role = 'instructor'
+                    SELECT a.username FROM bss_authn_accounts a, classroom_classdata_users u 
+                    WHERE a.username = u.id
+
+                    -- SELECT DISTINCT(user_id) FROM classroom_classdata_enrollments 
+                    -- WHERE year_semester = '{$semesterCode}' AND role = 'instructor'
                 ");                
 
                 $instructors = [];

@@ -246,9 +246,9 @@ class Classrooms_ClassData_Importer
 
             foreach ($result['courses'] as $cid => $data)
             {
+                $room = null;
                 foreach ($data['schedule'] as $sched)
                 {
-                    $room = null;
                     if (!in_array($sched['facility']['building'], $ignoreKeys))
                     {
                         $building = $this->parseBuilding($sched['facility']);
@@ -286,6 +286,10 @@ class Classrooms_ClassData_Importer
                 $schedule->save();
 
                 $fetchedSchedules[$facultyId][$course->id] = $schedule;
+                if ($newAdd)
+                {
+                    $existingSchedules[$facultyId][$course->id] = $schedule;
+                }
             }
 
             // user is no longer scheduled in this course
@@ -295,7 +299,7 @@ class Classrooms_ClassData_Importer
                 {   
                     if (!isset($fetchedCourses[$instructor][$courseId]))
                     {
-                        // echo "<pre>"; var_dump($instructor, $courseId, $schedule->id, $schedule->course_section_id); die;
+                        echo "<pre>"; var_dump($instructor, $courseId, $schedule->id, $schedule->course_section_id); die;
                         $schedule->userDeleted = true;
                         $schedule->save();
                     }
