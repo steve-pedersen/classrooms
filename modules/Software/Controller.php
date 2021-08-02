@@ -36,11 +36,20 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         $notes = $this->schema('Classrooms_Notes_Entry');
         
         $this->addBreadcrumb('software', 'List Software Titles');
-        $this->addBreadcrumb('software/' . $title->id, 'View');
 
-        $selectedVersion = $title->inDatasource ? 
+        if ($title->inDatasource)
+        {
+            $this->addBreadcrumb('software/' . $title->id, 'View');
+            $this->setPageTitle('Edit software ' . $title->name);
+        }
+        else
+        {
+            $this->setPageTitle('Edit new software');
+        }
+        
+        $selectedVersion = @$title->inDatasource ? 
             $title->versions->index($title->versions->count() - 1) : $versions->createInstance();        
-        $selectedLicense = $selectedVersion->inDatasource ? 
+        $selectedLicense = @$selectedVersion->inDatasource ? 
             $selectedVersion->licenses->index($selectedVersion->licenses->count() - 1) : $versions->createInstance();
         
         if ($this->request->wasPostedByUser())
@@ -185,6 +194,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
     {
         $this->requirePermission('edit');
         $this->addBreadcrumb('software/settings', 'Software Settings');
+        $this->setPageTitle('List software developers');
         $schema = $this->schema('Classrooms_Software_Developer');
         $this->template->developers = $schema->find(
             $schema->deleted->isNull()->orIf($schema->deleted->isFalse())
@@ -229,6 +239,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
     public function softwareSettings ()
     {
         $this->requirePermission('edit');
+        $this->setPageTitle('Software settings');
     }
 
     public function listCategories ()
@@ -284,6 +295,8 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
     	$title = $this->helper('activeRecord')->fromRoute('Classrooms_Software_Title', 'id');
         $notes = $this->schema('Classrooms_Notes_Entry');
         
+        $this->setPageTitle('View software ' . $title->name);
+
         // $this->template->pEdit = true ?? $this->hasPermission('edit software');
     	$this->template->title = $title;
         $this->template->notes = $notes->find($notes->path->like($title->getNotePath().'%'), ['orderBy' => '-createdDate']);
@@ -293,6 +306,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
     {
         $viewer = $this->requireLogin();
         $this->requirePermission('edit');
+        $this->setPageTitle('List software');
 
         $categorySchema = $this->schema('Classrooms_Software_Category');
         $developerSchema = $this->schema('Classrooms_Software_Developer');
@@ -377,6 +391,8 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
 
    		$this->addBreadcrumb('software', 'List Software Titles');
    		$this->addBreadcrumb('software/' . $title->id . '/edit', $title->developer->name . ' ' . $title->name);
+
+        $this->setPageTitle('Edit software license '. $license->number . ' for '. $title->name);
 
    		if ($this->request->wasPostedByUser())
    		{
