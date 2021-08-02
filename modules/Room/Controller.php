@@ -71,6 +71,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
         $location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id');
     	$this->addBreadcrumb('rooms', 'List Rooms');
+        $this->setPageTitle('View room ' . $location->codeNumber);
 
         $notes = $this->schema('Classrooms_Notes_Entry');
         $siteSettings = $this->getApplication()->siteSettings;
@@ -174,6 +175,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     public function listRooms ()
     {
     	$viewer = $this->getAccount();
+        $this->setPageTitle('List Classrooms');
         
         if (!$viewer)
         {
@@ -299,6 +301,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $restrictResults = $viewer && !$this->hasPermission('edit') && !$this->hasPermission('view schedules');
         $scheduleSchema = $this->schema('Classrooms_ClassData_CourseSchedule');
 
+        $this->setPageTitle('Room schedules');
+
         $semesters = $this->guessRelevantSemesters();
         $userId = $this->request->getQueryParameter('u', $this->request->getQueryParameter('auto'));
         $roomQuery = $this->request->getQueryParameter('s');
@@ -390,6 +394,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $viewer = $this->requireLogin();
         $this->requirePermission('edit');
 
+        $this->setPageTitle('List configurations');
+
         $configs = $this->schema('Classrooms_Room_Configuration');
         $this->template->configurations = $configs->find(
         	$configs->isBundle->isTrue()->andIf(
@@ -403,6 +409,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $viewer = $this->requireLogin();
         $this->requirePermission('edit');
         $config = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Configuration', 'id');
+
+        $this->setPageTitle('View configuration '. $config->model);
         $this->addBreadcrumb('configurations', 'List Configurations');
         $this->addBreadcrumb('configurations/' . $config->id . '/edit', 'Edit');
 
@@ -420,6 +428,15 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $configs = $this->schema('Classrooms_Room_Configuration');
 
         $config = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Configuration', 'id', ['allowNew' => true]);
+
+        if ($config->inDatasource)
+        {
+            $this->setPageTitle('Edit configuration '. $config->model);
+        }
+        else
+        {
+            $this->setPageTitle('Edit new configuration');
+        }
 
         if ($this->request->wasPostedByUser())
         {
@@ -485,7 +502,16 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $licenses = $this->schema('Classrooms_Software_License');
         $notes = $this->schema('Classrooms_Notes_Entry');
         $siteSettings = $this->getApplication()->siteSettings;
-        
+
+        if ($location->inDatasource)
+        {
+            $this->setPageTitle('Edit room ' . $location->codeNumber);
+        }
+        else
+        {
+            $this->setPageTitle('Edit new room');
+        }
+
         $customConfigurations = $location->customConfigurations;
         if ($cid = $this->request->getQueryParameter('configuration', null))
         {
@@ -652,6 +678,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $viewer = $this->requireLogin();
         $this->requirePermission('edit');
 
+        $this->setPageTitle('Edit room settings');
+
         $siteSettings = $this->getApplication()->siteSettings;
 
         if ($this->request->wasPostedByUser())
@@ -697,6 +725,15 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     	$location = $this->requireExists($this->schema('Classrooms_Room_Location')->get($this->getRouteVariable('roomid')));
     	$tutorial = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Tutorial', 'id', ['allowNew' => true]);
     	$notes = $this->schema('Classrooms_Notes_Entry');
+
+        if ($tutorial->inDatasource)
+        {
+            $this->setPageTitle('Edit tutorial ' . $tutorial->name);
+        }
+        else
+        {
+            $this->setPageTitle('Edit new tutorial');
+        }
 
     	if ($this->request->wasPostedByUser())
     	{
@@ -755,7 +792,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
         $this->requirePermission('edit');
         $this->addBreadcrumb('rooms/metadata', 'Room Settings');
-        
+        $this->setPageTitle('List buildings');
+
         $schema = $this->schema('Classrooms_Room_Building');
         $this->template->buildings = $schema->find(
             $schema->deleted->isNull()->orIf($schema->deleted->isFalse()),
@@ -771,6 +809,15 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
         $building = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Building', 'id', ['allowNew' => true]);
         $this->addBreadcrumb('buildings', 'List Buildings');
+
+        if ($building->inDatasource)
+        {
+            $this->setPageTitle('Edit building ' . $building->name);
+        }
+        else
+        {
+            $this->setPageTitle('Edit new building');
+        }
 
         if ($this->request->wasPostedByUser())
         {
@@ -804,6 +851,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->requirePermission('edit');
         $this->addBreadcrumb('rooms/metadata', 'Room Settings');
 
+        $this->setPageTitle('List room types');
+
         $schema = $this->schema('Classrooms_Room_Type');
         $this->template->types = $schema->find(
             $schema->deleted->isNull()->orIf($schema->deleted->isFalse()),
@@ -819,6 +868,15 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
         $type = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Type', 'id', ['allowNew' => true]);
         $this->addBreadcrumb('types', 'List types');
+
+        if ($type->inDatasource)
+        {
+            $this->setPageTitle('Edit room type ' . $type->name);
+        }
+        else
+        {
+            $this->setPageTitle('Edit new room type');
+        }
 
         if ($this->request->wasPostedByUser())
         {
@@ -860,6 +918,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
         $this->addBreadcrumb('rooms', 'List Rooms');
         $this->addBreadcrumb('rooms/' . $room->id . '/edit', $room->building->name . ' ' . $room->number);
+
+        $this->setPageTitle('Edit configuration ' . $config->model);
 
         if ($this->request->wasPostedByUser())
         {
