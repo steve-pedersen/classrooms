@@ -217,10 +217,11 @@ class Classrooms_ClassData_Importer
         $roomSchema = $this->schema('Classrooms_Room_Location');
         $buildingSchema = $this->schema('Classrooms_Room_Building');
         $accounts = $this->schema('Bss_AuthN_Account');
-
+        
         $accountManager = new Classrooms_ClassData_AccountManager($this->getApplication());
         $service = new Classrooms_ClassData_Service($this->getApplication());
 
+        $existingSchedules = $fetchedSchedules = [];
         foreach ($facultyList as $facultyId)
         {
             $matchingSchedules = $scheduleSchema->find(
@@ -290,36 +291,21 @@ class Classrooms_ClassData_Importer
                 {
                     $existingSchedules[$facultyId][$course->id] = $schedule;
                 }
-            }
+            }  
+        }
 
-            // user is no longer scheduled in this course
-            foreach ($existingSchedules as $instructor => $courses)
-            {
-                foreach ($courses as $courseId => $schedule)
-                {   
-                    if (!isset($fetchedCourses[$instructor][$courseId]))
-                    {
-                        echo "<pre>"; var_dump($instructor, $courseId, $schedule->id, $schedule->course_section_id); die;
-                        $schedule->userDeleted = true;
-                        $schedule->save();
-                    }
+        // user is no longer scheduled in this course
+        foreach ($existingSchedules as $instructor => $courses)
+        {
+            foreach ($courses as $courseId => $schedule)
+            {   
+                if (!isset($fetchedSchedules[$instructor][$courseId]))
+                {
+                    $schedule->userDeleted = true;
+                    $schedule->save();
                 }
             }
-
-            // // user added to schedule in this course
-            // foreach ($fetchedSchedules as $instructor => $courses)
-            // {
-            //     foreach ($courses as $courseId => $schedule)
-            //     {   
-            //         if (!isset($existingCourses[$instructor][$courseId]))
-            //         {
-            //             // echo "<pre>"; var_dump($instructor, $courseId, $schedule->id, $schedule->course_section_id); die;
-            //             $schedule->userDeleted = false;
-            //             $schedule->save();
-            //         }
-            //     }
-            // }         
-        }
+        }  
     }
 
     // constructs a building name from the description. this is not ideal
