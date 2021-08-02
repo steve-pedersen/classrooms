@@ -308,18 +308,25 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $roomQuery = $this->request->getQueryParameter('s');
         $termYear = $this->request->getQueryParameter('t', $semesters['curr']['code']);
 
-        $condition = $scheduleSchema->allTrue(
-            $scheduleSchema->termYear->equals($termYear),
-            $scheduleSchema->userDeleted->isNull()->orIf(
-                $scheduleSchema->userDeleted->isFalse()
-            ),
-            $scheduleSchema->room_id->isNotNull()
-        );
+        $hasSearch = ($this->hasPermission('view schedules') || $this->hasPermission('edit')) && ($userId || $roomQuery);
+        
+        $condition = null;
+        if ($hasSearch || $restrictResults)
+        {
+            $condition = $scheduleSchema->allTrue(
+                $scheduleSchema->termYear->equals($termYear),
+                $scheduleSchema->userDeleted->isNull()->orIf(
+                    $scheduleSchema->userDeleted->isFalse()
+                ),
+                $scheduleSchema->room_id->isNotNull()
+            );
+        }
 
         $onlineCourses = null;
         if ($restrictResults)
         {
-            $condition = $condition->andIf($scheduleSchema->faculty_id->equals($viewer->username));
+            $temp = $scheduleSchema->faculty_id->equals($viewer->username);
+            $condition = $condition ? $condition->andIf($temp) : $temp;
             $condition2 = $scheduleSchema->allTrue(
                 $scheduleSchema->faculty_id->equals($viewer->username),
                 $scheduleSchema->termYear->equals($termYear),
@@ -348,9 +355,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             }
             $condition = $condition->andIf($scheduleSchema->room_id->inList($roomIds));
         }
-
+        
         $scheduledRooms = [];
-        $result = $scheduleSchema->find($condition, ['orderBy' => 'room_id']);
+        $result = $condition ? $scheduleSchema->find($condition, ['orderBy' => 'room_id']) : [];
         
         foreach ($result as $schedule)
         {
