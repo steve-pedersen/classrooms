@@ -97,6 +97,7 @@
 			<tr>
 				<th style="font-size:2rem;">A/V Equipment</th>
 				<th style="font-size:2rem;">In Room?</th>
+				<th style="font-size:2rem;width:25%;">Notes</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -115,6 +116,9 @@
 				{else}
 					<i class="glyphicon glyphicon-remove text-danger" style="font-size:1.5rem;"></i>
 				{/if}
+				</td>
+				<td style="vertical-align:middle;">
+					{$avEquipmentNotes[$key]}
 				</td>
 			</tr>			
 		{/foreach}

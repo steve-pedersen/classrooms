@@ -89,6 +89,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
     	$this->template->room = $location;
     	$this->template->allAvEquipment = self::$AllRoomAvEquipment;
+        $this->template->avEquipmentNotes = @unserialize($siteSettings->getProperty('av-equipment-notes')) ?? [];
         $this->template->notes = $location->inDatasource ? $notes->find(
             $notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']
         ) : [];
@@ -708,6 +709,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $siteSettings->setProperty('scheduled-by', serialize($data['scheduledBy']));
             $siteSettings->setProperty('supported-by', serialize($data['supportedBy']));
             $siteSettings->setProperty('supported-by-text', serialize($data['supportedByText']));
+            $siteSettings->setProperty('av-equipment-notes', serialize($data['avEquipmentNotes']));
             $this->flash('Room metadata updated.');
             $this->response->redirect('rooms/metadata');
         }
@@ -715,13 +717,17 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $scheduledBy = unserialize($siteSettings->getProperty('scheduled-by'));
         $supportedBy = unserialize($siteSettings->getProperty('supported-by'));
         $supportedByText = unserialize($siteSettings->getProperty('supported-by-text'));
+        $avEquipmentNotes = unserialize($siteSettings->getProperty('av-equipment-notes'));
         sort($scheduledBy);
         sort($supportedBy);
         ksort($supportedByText);
+        ksort($avEquipmentNotes);
 
         $this->template->scheduledBy = $scheduledBy;
         $this->template->supportedBy = $supportedBy;
         $this->template->supportedByText = $supportedByText;
+        $this->template->avEquipment = self::$AllRoomAvEquipment;
+        $this->template->avEquipmentNotes = $avEquipmentNotes;
     }
 
     public function editTutorial () 

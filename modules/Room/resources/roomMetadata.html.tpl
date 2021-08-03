@@ -27,58 +27,92 @@
 		</div>	
 </div>
 <form method="post">
-	<div class="">
+
+{if !empty($avEquipment)}
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h2>A/V Equipment Notes</h2>
+		</div>
+		<div class="panel-body">
+		{foreach $avEquipment as $key => $label}
+			<div class="form-group">
+				<label for="equipment{$key}">{$label}</label>
+				<textarea name="avEquipmentNotes[{$key}]" class="wysiwyg form-control" rows="2" id="equipment{$key}">{$avEquipmentNotes[$key]}</textarea>
+			</div>
+		{/foreach}
+		</div>
+	</div>
+	{/if}
+
+
+	<div class="panel panel-default">
 	{if !empty($scheduledBy)}
-		<div class="form-group">
-			<h2>Current "Scheduled By" Departments</h2>
+		<div class="panel-heading"><h2>Current "Scheduled By" Departments</h2></div>
+		<div class="panel-body">
+		
 		{foreach $scheduledBy as $key => $sb}
+		<div class="form-group">
 			<div class="checkbox">
 				<label>
 					<input name="scheduledBy[{$sb}]" type="checkbox" value="{$sb}" checked> {$sb}
 				</label>
 			</div>
-		{/foreach}
 		</div>
+		{/foreach}
+		
+	{else}
+		<div class="panel-body">
 	{/if}
 		<div class="form-group">
 			<label>Add new "Scheduled By" department</label>
 			<input type="text" name="scheduledBy[new]" class="form-control">
 		</div>
+		</div>
 	</div>
-<hr>
-	<div class="">
+
+	<div class="panel panel-default">
 	{if !empty($supportedBy)}
-		<div class="form-group">
-			<h2>Current "Supported By" Departments</h2>
+		<div class="panel-heading"><h2>Current "Supported By" Departments</h2></div>
+		<div class="panel-body">
 		{foreach $supportedBy as $key => $sb}
+		<div class="form-group">
 			<div class="checkbox">
 				<label>
 					<input name="supportedBy[{$sb}]" type="checkbox" value="{$sb}" checked> {$sb}
 				</label>
 			</div>
-		{/foreach}
 		</div>
+		{/foreach}
+	{else}
+		<div class="panel-body">
 	{/if}
 		<div class="form-group">
 			<label>Add new "Supported By" department</label>
 			<input type="text" name="supportedBy[new]" class="form-control">
 		</div>
+		</div>
 	</div>
-<hr>
-	<div class="">
+
+	
 	{if !empty($supportedBy)}
-		<div class="form-group">
+	<div class="panel panel-default">
+		<div class="panel-heading">
 			<h2>Current "Supported By" Department's default room/email text</h2>
+		</div>
+		<div class="panel-body">
+		
 		{foreach $supportedBy as $key => $sb}
+		<div class="form-group">
 			<label for="text{$sb}">Default text for {$sb}</label>
 			<textarea name="supportedByText[{$sb}]" class="wysiwyg form-control" rows="4" id="text{$sb}">{$supportedByText[$sb]}</textarea>
+		</div>
 		{/foreach}
 		</div>
-	{/if}
 	</div>
-<hr>
+	{/if}
+	
 	{generate_form_post_key}
 	<div>
-		<button type="submit" name="command[save]" class="btn btn-primary">Save Room Metadata</button>
+		<button type="submit" name="command[save]" class="btn btn-primary">Save Room Settings</button>
 	</div>
 </form>

@@ -178,6 +178,10 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->save();
 
                 break;
+
+            case 3:
+                $siteSettings->defineProperty('av-equipment-notes', 'Notes for each A/V equipment item', 'text');
+                break;
         }
     }
 }
