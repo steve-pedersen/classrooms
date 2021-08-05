@@ -17,7 +17,7 @@
 </div>
 
 
-{if $customConfigurations && count($customConfigurations) > 1}
+{if $customConfigurations}
 <br><br><br>
 <form action="" method="get" id="selectConfiguration">
 	<div class="container">
@@ -32,7 +32,9 @@
 							<select name="configuration" id="configuration" class="form-control">
 								<option value="">Choose Configuration</option>
 							{foreach $customConfigurations as $configuration}
-								<option value="{$configuration->id}" {if $selectedConfiguration->id == $configuration->id}selected{/if}>{$configuration->model} - {$configuration->location}</option>
+								{if !$configuration->deleted}
+								<option value="{$configuration->id}" {if $selectedConfiguration->id == $configuration->id}selected{/if}>{$configuration->model}{if $configuration->location} - {$configuration->location}{/if}</option>
+								{/if}
 							{/foreach}
 							</select>
 						</div>
