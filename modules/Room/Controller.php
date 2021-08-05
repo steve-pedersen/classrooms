@@ -520,7 +520,15 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $this->setPageTitle('Edit new room');
         }
 
-        $customConfigurations = $location->customConfigurations;
+        $customConfigurations = [];
+        foreach ($location->customConfigurations as $custom)
+        {
+            if (!$custom->deleted)
+            {
+                $customConfigurations[] = $custom;
+            }
+        }
+
         if ($cid = $this->request->getQueryParameter('configuration', null))
         {
             $selectedConfiguration = $configs->get($cid);
@@ -923,12 +931,13 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $viewer = $this->requireLogin();
         $this->requirePermission('edit');
 
-        $rooms = $this->schema('Classrooms_Software_Title');
-        $configs = $this->schema('Classrooms_Software_License');
+        $rooms = $this->schema('Classrooms_Room_Location');
+        $configs = $this->schema('Classrooms_Room_Configuration');
         $notes = $this->schema('Classrooms_Notes_Entry');
+        $licenses = $this->schema('Classrooms_Software_License');
         $room = $rooms->get($this->getRouteVariable('id'));
         $config = $configs->get($this->getRouteVariable('cid'));
-
+        
         $this->addBreadcrumb('rooms', 'List Rooms');
         $this->addBreadcrumb('rooms/' . $room->id . '/edit', $room->building->name . ' ' . $room->number);
 
@@ -942,6 +951,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $config->addNote('Configuration updated', $viewer, $this->request->getPostParameters());
                     $config->absorbData($this->request->getPostParameters());
                     $config->save();
+
+                    $licenseChanges = $this->saveConfigurationLicenses($config, $this->request->getPostParameters());
 
                     $this->flash('Updated');
                     break;
@@ -958,8 +969,20 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $this->response->redirect('rooms/' . $room->id . '/edit');
         }
 
+        $softwareLicenses = [];
+        foreach ($licenses->getAll(['orderBy' => ['-modifiedDate', '-createdDate']]) as $license)
+        {
+            if (!isset($softwareLicenses[$license->version->title->name.$license->version->title->id]))
+            {
+                $softwareLicenses[$license->version->title->name.$license->version->title->id] = [];
+            }
+            $softwareLicenses[$license->version->title->name.$license->version->title->id][] = $license;
+        }
+        ksort($softwareLicenses, SORT_NATURAL);
+
         $this->template->room = $room;
-        $this->template->selectedConfiguration = $config;
+        $this->template->config = $config;
+        $this->template->softwareLicenses = $softwareLicenses;
         $this->template->notes = $notes->find($notes->path->like($config->getNotePath().'%'), ['orderBy' => '-createdDate']);
     }
 

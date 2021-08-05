@@ -6,8 +6,8 @@
 <div class="panel-heading">
 <h2>Custom Configurations 
 	<small>
-	{if $config->id && $location->configurations && $location->configurations->count() > 1}
-		({$config->model} {$model->location})
+	{if $config->inDatasource && $location->configurations}
+		({$config->model} {if $model->location}{$model->location}{/if})
 	{else}
 		(default)
 	{/if}
@@ -146,6 +146,9 @@
 	{if count($customConfigurations) > 0}
 	<div class="container-fluid">
 		<div class="row">
+			<a role="button" class="btn btn-info" href="rooms/{$location->id}/configurations/{$selectedConfiguration->id}/edit">
+				Edit
+			</a>		
 			<a role="button" class="btn btn-default pull-right" data-toggle="collapse" data-parent="#accordion" href="#newConfig" aria-expanded="true" aria-controls="newConfig">
 				+ Add New Configuration
 			</a>
