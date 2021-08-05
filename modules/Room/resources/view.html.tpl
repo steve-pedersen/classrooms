@@ -154,7 +154,7 @@
 	<br><br>
 	{/if}
 	{foreach $room->configurations as $config}
-		{if !$config->isBundle}
+		{if !$config->isBundle && !$config->deleted}
 		<div class="col-sm-12">
 			<div class="panel panel-default">
 				<div class="panel-heading"><strong>Configuration: {$config->model}</strong></div>
@@ -200,7 +200,7 @@
 
 		<div class="row">
 	{foreach $room->configurations as $config}
-		{if $config->softwareLicenses->count() > 0}
+		{if !$config->deleted}
 			{if $config->isBundle}
 			<div class="col-sm-12">
 				<div class="panel panel-default">

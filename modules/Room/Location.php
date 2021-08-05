@@ -71,7 +71,16 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
 
     public function hasSoftwareOrHardware ()
     {
-        return $this->configurations->count() > 0;
+        $total = 0;
+        foreach ($this->configurations as $config)
+        {
+            if (!$config->deleted)
+            {
+                $total++l
+            }
+        }
+
+        return $total > 0;
     }
 
     public function getCustomConfigurations ()
@@ -79,7 +88,7 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
         $customConfigs = [];
         foreach ($this->configurations as $config)
         {
-            if (!$config->isBundle)
+            if (!$config->isBundle && !$config->deleted)
             {
                 $customConfigs[] = $config;
             }
