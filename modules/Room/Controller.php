@@ -84,6 +84,9 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         {
             $this->template->supportText = $supportText[$location->supportedBy];
         }
+
+        // echo "<pre>"; var_dump($location->hasSoftwareOrHardware()); die;
+        
         
         $this->template->trackUrl = $trackRoomUrlApi;
         $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
@@ -674,7 +677,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->location = $location;
         $this->template->selectedConfiguration = $selectedConfiguration;
         $this->template->customConfigurations = $customConfigurations;
-        $this->template->types = $types->getAll();
+        $this->template->types = $types->getAll(['orderBy' => 'name']);
         $this->template->buildings = $buildings->getAll(['orderBy' => 'code']);
         $this->template->roomAvEquipment = $location->avEquipment ? unserialize($location->avEquipment) : [];
         $this->template->allAvEquipment = self::$AllRoomAvEquipment;

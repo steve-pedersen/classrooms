@@ -48,6 +48,25 @@ class Classrooms_Room_Configuration extends Bss_ActiveRecord_Base
         ];
     }
 
+    // public function getModel ()
+    // {
+    //     $model = '';
+    //     if (!$this->_fetch('model'))
+    //     {
+    //         $model = 'Untitled configuration - ';
+    //         $model .= $this->deviceQuantity ? $this->deviceQuantity . ' ' : '';
+    //         $model .= $model && $this->deviceType ? $this->deviceType . ' ' : '';
+    //     }
+    //     else
+    //     {
+    //         $model .= $this->_fetch('model');
+    //     }
+        
+    //     $model .= ' (last updated ' . $this->modifiedDate->format('m.d.Y h:ia') . ')';
+
+    //     return $model;
+    // }
+
     public function getNotePath ()
     {
         return @$this->getNoteBase() . $this->id;

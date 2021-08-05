@@ -4,7 +4,7 @@
 	<h1>New Room</h1>
 {/if}
 
-<div class="row pull-right" style="margin-bottom: 2em;">
+<!-- <div class="row pull-right" style="margin-bottom: 2em;">
 	<div class="col-sm-12">
 	{if $location->inDatasource}
 		{if $location->tutorial}
@@ -15,18 +15,16 @@
 	{/if}
 	</div>
 </div>
-
+ -->
 
 {if $customConfigurations && count($customConfigurations) > 0}
-<br><br><br>
+<br>
 <form action="" method="get" id="selectConfiguration">
 	<div class="container">
-		<hr>
-		<div class="row">
-			<div class="col-sm-12">
+		<!-- <div class="row"> -->
+			<div class="col-sm-12 well">
 				<div class="form-horizontal">
-
-					<div class="form-group existing-items">
+					<div class="form-group existing-items" style="margin-bottom: 0;">
 						<label for="configuration" class="col-sm-2 control-label">Selected Configuration</label>
 						<div class="col-sm-8">
 							<select name="configuration" id="configuration" class="form-control">
@@ -46,7 +44,7 @@
 
 				</div>
 			</div>
-		</div>
+		<!-- </div> -->
 	</div>
 </form>
 {/if}

@@ -170,7 +170,7 @@
     		<h4>Equipment</h4>
     		<ul class="list-unstyled">
     			<li><a href="{$room->roomUrl}?mode=software"></a></li>
-    		{foreach $room->configurations as $config}
+    		{foreach $room->allConfigurations as $config}
     			{if !$config->isBundle}
     				<li>{$config->deviceQuantity} {$config->deviceType}</li>
     			{/if}

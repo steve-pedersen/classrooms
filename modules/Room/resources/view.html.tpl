@@ -46,9 +46,9 @@
 	<div class="view-room-details">
 		<dl class="dl-horizontal">
 			<dt>Room Type</dt>
-				<dd>{if $room->type}{$room->type->name}{else}Unknown{/if}</dd>
+			<dd>{if $room->type}{$room->type->name}{else}Unknown{/if}</dd>
 			<dt>Building</dt>
-				<dd>{$room->building->name}</dd>
+			<dd>{$room->building->name}</dd>
 		{if $room->scheduledBy}
 			<dt>Scheduled By</dt>
 			<dd>{$room->scheduledBy}</dd>
@@ -142,7 +142,7 @@
 {if $room->hasSoftwareOrHardware()}
 <div id="software" class="tab-pane fade {if $mode == 'software'}in active{/if}" style="margin-top:3em;">
  	<h3>Software/Equipment in this room</h3>
-	<div class="">
+	<!-- <div class=""> -->
 
 		<div class="row">
 	{if $trackUrl && ($pEdit || $pSupport)}
