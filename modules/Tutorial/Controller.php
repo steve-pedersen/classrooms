@@ -51,8 +51,8 @@ class Classrooms_Tutorial_Controller extends Classrooms_Master_Controller
 
     				$tutorial->name = $this->request->getPostParameter('name');
                     $tutorial->headerImageUrl = $this->request->getPostParameter('headerImageUrl');
-                    $tutorial->youtubeEmbedCode = $this->request->getPostParameter('youtubeEmbedCode');
-    				$tutorial->description = $this->request->getPostParameter('description');
+                    $tutorial->youtubeEmbedCode = trim($this->request->getPostParameter('youtubeEmbedCode'));
+    				$tutorial->description = trim($this->request->getPostParameter('description'));
     				$tutorial->createdDate = $tutorial->createdDate ?? new DateTime;
     				$tutorial->modifiedDate = new DateTime;
     				$tutorial->save();

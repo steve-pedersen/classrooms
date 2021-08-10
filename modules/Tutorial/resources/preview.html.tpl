@@ -6,7 +6,7 @@
 		</div>
 	</div>
 	{/if}
-	{if $tutorial->youtubeEmbedCode}
+	{if $tutorial->youtubeEmbedCode && $tutorial->youtubeEmbedCode != ''}
 	<div class="row">
 		<div class="col-sm-12">
 			<h3>Video Tutorial</h3>
