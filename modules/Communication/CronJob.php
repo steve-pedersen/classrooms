@@ -24,11 +24,11 @@ class Classrooms_Communication_CronJob extends Bss_Cron_Job
 
             $events = $eventSchema->find(
                 $eventSchema->allTrue(
-                    $eventSchema->sendDate->afterOrEquals($startTime),
+                    $eventSchema->sendDate->beforeOrEquals($startTime),
                     $eventSchema->sent->isFalse()
                 )
             );
-
+            
             $commManager = new Classrooms_Communication_Manager($app, $this);
 
             foreach ($events as $event)
@@ -64,7 +64,7 @@ class Classrooms_Communication_CronJob extends Bss_Cron_Job
     {
         if ($this->userContext === null)
         {
-            $request = new Bss_Core_request($this->getApplication());
+            $request = new Bss_Core_Request($this->getApplication());
             $response = new Bss_Core_Response($request);
             $this->userContext = new Classrooms_Master_UserContext($request, $response);
         }
@@ -75,7 +75,7 @@ class Classrooms_Communication_CronJob extends Bss_Cron_Job
     public function createTemplateInstance()
     {
         $tplClass = $this->getTemplateClass();
-        $request = new Bss_Core_request($this->getApplication());
+        $request = new Bss_Core_Request($this->getApplication());
         $response = new Bss_Core_Response($request);
         
         $inst = new $tplClass ($this, $request, $response);

@@ -65,18 +65,11 @@ class Classrooms_Communication_Manager
       }
 
       $type = '';
-      switch ($schedule->room->type_id)
+      if ($schedule->room)
       {
-          case $labType->id:
-              $type = 'labs';
-              break;
-          case null:
-              $type = $schedule->room->configured ? 'nonlabs' : 'unconfigured';
-              break;
-          default:
-              $type = 'nonlabs';
+        $type = $schedule->room->configured ? 'nonlabs' : 'unconfigured';
       }
-      if (!$schedule->room_id)
+      else
       {
         $type = 'norooms';
       }
