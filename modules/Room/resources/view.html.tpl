@@ -128,16 +128,11 @@
 
 </div>
 
-
+{if $room->tutorial}
 <div id="tutorial" class="tab-pane fade {if $mode == 'tutorial'}in active{/if}" style="margin-top:3em;">
-	{if $room->tutorial}
-		{if $room->tutorial->name}
-			<h2>{$room->tutorial->name}</h2>
-		{/if}
-
-		{include file="partial:_view.tutorial.html.tpl"}
-	{/if}
+	{include file="partial:_view.tutorial.html.tpl"}	
 </div>
+{/if}
 
 {if $room->hasSoftwareOrHardware()}
 <div id="software" class="tab-pane fade {if $mode == 'software'}in active{/if}" style="margin-top:3em;">
