@@ -209,6 +209,9 @@ class Classrooms_ClassData_Importer
 
     public function importSchedules ($semester, $facultyList)
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '-1');  
+
         $facultyList = is_array($facultyList) ? $facultyList : [$facultyList];
         $ignoreKeys = ['ON', 'OFF'];
         $scheduleSchema = $this->schema('Classrooms_ClassData_CourseSchedule');
@@ -227,10 +230,7 @@ class Classrooms_ClassData_Importer
             $matchingSchedules = $scheduleSchema->find(
                 $scheduleSchema->allTrue(
                     $scheduleSchema->faculty_id->equals($facultyId),
-                    $scheduleSchema->termYear->equals($semester),
-                    $scheduleSchema->userDeleted->isFalse()->orIf(
-                        $scheduleSchema->userDeleted->isNull()
-                    )
+                    $scheduleSchema->termYear->equals($semester)
                 )
             );
 
@@ -265,8 +265,8 @@ class Classrooms_ClassData_Importer
                     }
                 }
 
-                $course = $courseSchema->get($data['id']);
-                
+                $course = $courseSchema->get($cid);
+
                 $newAdd = false;
                 if (!isset($existingSchedules[$facultyId][$course->id]))
                 {
@@ -284,12 +284,14 @@ class Classrooms_ClassData_Importer
                 $schedule->termYear = $semester;
                 $schedule->schedules = serialize($data['schedule']);
                 $schedule->room_id = $room ? $room->id : null;
+                $schedule->userDeleted = false;
                 $schedule->save();
 
                 $fetchedSchedules[$facultyId][$course->id] = $schedule;
                 if ($newAdd)
                 {
                     $existingSchedules[$facultyId][$course->id] = $schedule;
+                    $schedule->addNote('New course schedule added #'.$schedule->id, $accounts->get(1));
                 }
             }  
         }
@@ -303,6 +305,7 @@ class Classrooms_ClassData_Importer
                 {
                     $schedule->userDeleted = true;
                     $schedule->save();
+                    $schedule->addNote('Faculty ('.$instructor.') removed from schedule #'.$schedule->id, $accounts->get(1));
                 }
             }
         }  

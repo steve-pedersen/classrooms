@@ -50,7 +50,6 @@ class Classrooms_Communication_Manager
       )
     );
     $schedules = $scheduleSchema->find($condition, ['arrayKey' => 'faculty_id']);
-    $facultyRooms = [];
 
     foreach ($schedules as $facultyId => $schedule)
     {
@@ -76,7 +75,7 @@ class Classrooms_Communication_Manager
 
       $comms[$facultyId][$type][] = ['room' => $schedule->room, 'course' => $schedule->course];
     }
-
+    
     foreach ($comms as $username => $comm)
     {
     	$faculty = $facultySchema->get($username);
@@ -131,7 +130,7 @@ class Classrooms_Communication_Manager
   public function sendRoomMasterTemplate ($comm, $user, $event)
   { 
     $communication = $event->communication;
-
+    
     $params = array(
       '|%FIRST_NAME%|' => $user->firstName,
       '|%LAST_NAME%|' => $user->lastName,
@@ -220,7 +219,7 @@ class Classrooms_Communication_Manager
 
     return '';
   }
-  private function getNoRoomWidget ($rooms, $intro)
+  public function getNoRoomWidget ($rooms, $intro)
   {
     if (!empty($rooms) && $intro)
     {
@@ -233,28 +232,6 @@ class Classrooms_Communication_Manager
 
     return '';
   }
-
-  private function getRequestLink ()
-  {
-    $template = $this->ctrl->createTemplateInstance();
-    $template->disableMasterTemplate();
-    $template->linkUrl = $this->app->baseUrl('fr/request');
-    return $template->fetch($this->ctrl->getModule()->getResource('link.email.tpl'));
-  }
-
-
-  private function getLastSystem($faculty)
-  {
-    $lastSystem = 'Your previous refresh computer';
-
-    if ($faculty && $faculty->systems->count() > 0)
-    {
-      $lastSystem = $faculty->systems->index(0);
-    }
-
-    return $lastSystem;
-  }
-
 
   private function getSchema($schemaName)
   {

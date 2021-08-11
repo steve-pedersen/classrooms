@@ -7,6 +7,8 @@
  */
 class Classrooms_ClassData_CourseSchedule extends Bss_ActiveRecord_Base
 {
+    use Notes_Provider;
+
     public static function SchemaInfo ()
     {
         return [
@@ -29,4 +31,18 @@ class Classrooms_ClassData_CourseSchedule extends Bss_ActiveRecord_Base
         ];
     }
 
+    public function getNotePath ()
+    {
+        return $this->getNoteBase() . $this->id;
+    }
+
+    public function getNoteBase ()
+    {
+        return 'classdata/courseschedules/';
+    }
+
+    public function getNoteUrl ()
+    {
+        return 'courseschedules/' . $this->id;
+    }
 }

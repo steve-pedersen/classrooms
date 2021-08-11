@@ -31,8 +31,8 @@ class Classrooms_ClassData_CronJob extends Bss_Cron_Job
             foreach ($semesterCodes as $semesterCode)
             {
                 $rs = pg_query("
-                    SELECT DISTINCT(u.id) FROM classroom_classdata_users u, bss_authn_accounts a 
-                    WHERE u.id = a.username;
+                    SELECT DISTINCT(user_id) FROM classroom_classdata_enrollments
+                    WHERE year_semester = '{$semesterCode}' AND role = 'instructor' 
                 ");                
 
                 $instructors = [];
