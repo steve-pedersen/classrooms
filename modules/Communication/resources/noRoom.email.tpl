@@ -2,7 +2,7 @@
 <ul>
 	{foreach $rooms as $info}
 	<li>
-		{$info.course->getFullDisplayName()}
+		{if $info.course->fullDisplayName}{$info.course->fullDisplayName}{/if}
 	</li>
 	{/foreach}
 </ul>
