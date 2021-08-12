@@ -665,7 +665,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         ksort($softwareLicenses, SORT_NATURAL);
  
         $tuts = $this->schema('Classrooms_Tutorial_Page');
-        $tutorials = $tuts->find($tuts->deleted->isFalse()->orIf($tuts->deleted->isNull()),['orderBy', 'name']);
+        $tutorials = $tuts->find($tuts->deleted->isFalse()->orIf($tuts->deleted->isNull()),['orderBy' => ['name', 'id']]);
 
         $scheduledBy = unserialize($siteSettings->getProperty('scheduled-by'));
         $supportedBy = unserialize($siteSettings->getProperty('supported-by'));

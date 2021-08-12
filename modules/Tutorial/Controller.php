@@ -100,7 +100,7 @@ class Classrooms_Tutorial_Controller extends Classrooms_Master_Controller
     {
         $this->requirePermission('edit');
         $tuts = $this->schema('Classrooms_Tutorial_Page');
-        $tutorials = $tuts->find($tuts->deleted->isFalse()->orIf($tuts->deleted->isNull()),['orderBy', 'name']);
+        $tutorials = $tuts->find($tuts->deleted->isFalse()->orIf($tuts->deleted->isNull()),['orderBy' => 'name']);
         $this->template->tutorials = $tutorials;
     }
 
