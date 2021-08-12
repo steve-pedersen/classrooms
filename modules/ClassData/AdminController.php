@@ -66,10 +66,10 @@ class Classrooms_ClassData_AdminController extends At_Admin_Controller
                 $semesterCodes = explode(',', $semesterCodes);
             }
             
-            // foreach ($semesterCodes as $semesterCode)
-            // {
-            //     $importer->import($semesterCode, $createFacultyAccount);
-            // }
+            foreach ($semesterCodes as $semesterCode)
+            {
+                $importer->import($semesterCode, $createFacultyAccount);
+            }
 
             // import schedule info
             foreach ($semesterCodes as $semesterCode)
