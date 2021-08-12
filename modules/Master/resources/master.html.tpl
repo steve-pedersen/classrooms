@@ -34,7 +34,7 @@
 	              </button>
 					<a class="navbar-brand" href="{$baseUrl}" style="">
 						<img class="img-responsive" src="assets/images/brand.png" style="">
-						<span class="text">Classrooms Database</span>
+						<span class="text">{$appName}</span>
 					</a>
 	            </div> 
 				<nav class="collapse navbar-collapse" id="navbar-at-collapse">

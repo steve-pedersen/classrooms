@@ -1,4 +1,4 @@
-<h1>Welcome to the Classrooms Database Application</h1>
+<h1>Welcome to the {$appName}</h1>
 <br>
 <div id="welcome-text">
 {if $welcomeText}

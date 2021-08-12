@@ -42,7 +42,7 @@
                                                                                 <tr>
                                                                                     <td valign="top" style="color:#fff;font-weight:bold;font-family:Helvetica,Arial,san-serif;background-color:#202f4b;">
 
-                                                                                       <p style="margin:1em">Classrooms Database</p>
+                                                                                       <p style="margin:1em">Classrooms Technology Database</p>
                                                                                     </td>
                                                                                 </tr>
                                                                             </tbody>
