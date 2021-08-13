@@ -25,7 +25,7 @@ class Classrooms_Tutorial_Page extends Bss_ActiveRecord_Base
             'rooms' => ['1:N', 
                 'to' => 'Classrooms_Room_Location', 
                 'reverseOf' => 'tutorial', 
-                'orderBy' => [ '+modifiedDate', '+createdDate' ]
+                'orderBy' => [ 'building_id', 'number' ]
             ],
             'images' => ['1:N', 
                 'to' => 'Classrooms_Files_File', 
