@@ -94,7 +94,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     	$this->template->allAvEquipment = self::$AllRoomAvEquipment;
         $this->template->avEquipmentNotes = @unserialize($siteSettings->getProperty('av-equipment-notes')) ?? [];
         $this->template->notes = $location->inDatasource ? $notes->find(
-            $notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']
+            $notes->path->like($location->getNotePath().'/%'), ['orderBy' => '-createdDate']
         ) : [];
 
     }
@@ -684,7 +684,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->softwareLicenses = $softwareLicenses;
         $this->template->bundles = $configs->find($configs->isBundle->isTrue(), ['orderBy' => 'model']);
         $this->template->notes = $location->inDatasource ? $notes->find(
-            $notes->path->like($location->getNotePath().'%'), ['orderBy' => '-createdDate']
+            $notes->path->like($location->getNotePath().'/%'), ['orderBy' => '-createdDate']
         ) : [];
         $this->template->scheduledBy = $scheduledBy;
         $this->template->supportedBy = $supportedBy;
@@ -808,7 +808,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     	$this->template->tutorial = $tutorial;
         $this->template->tutorials = $this->schema('Classrooms_Room_Tutorial')->getAll(['orderBy' => 'name']);
     	$this->template->notes = $tutorial->id ? $notes->find(
-            $notes->path->like($tutorial->getNotePath().'%'), ['orderBy' => '-createdDate']
+            $notes->path->like($tutorial->getNotePath().'/%'), ['orderBy' => '-createdDate']
         ) : [];
     }
 
@@ -986,7 +986,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->room = $room;
         $this->template->config = $config;
         $this->template->softwareLicenses = $softwareLicenses;
-        $this->template->notes = $notes->find($notes->path->like($config->getNotePath().'%'), ['orderBy' => '-createdDate']);
+        $this->template->notes = $notes->find($notes->path->like($config->getNotePath().'/%'), ['orderBy' => '-createdDate']);
     }
 
     public function downloadImage ()
