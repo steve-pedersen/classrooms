@@ -118,7 +118,9 @@
 				{/if}
 				</td>
 				<td style="vertical-align:middle;">
-					{$avEquipmentNotes[$key]}
+					{if $avEquipment[$key]}
+						{$avEquipmentNotes[$key]}
+					{/if}
 				</td>
 			</tr>			
 		{/foreach}
