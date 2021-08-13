@@ -889,7 +889,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->requirePermission('edit');
         $this->addBreadcrumb('rooms/metadata', 'Room Settings');
         $this->addBreadcrumb('types', 'Types');
-
+        
         $type = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Type', 'id', ['allowNew' => true]);
         $this->addBreadcrumb('types', 'List types');
 

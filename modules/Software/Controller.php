@@ -186,7 +186,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         $this->template->categories = $categories->getAll(['orderBy' => 'name']);
         $this->template->developers = $developers->getAll(['orderBy' => 'name']);
         $this->template->notes = $title->id ? $notes->find(
-            $notes->path->like($title->getNotePath().'%'), ['orderBy' => '-createdDate']
+            $notes->path->like($title->getNotePath().'/%'), ['orderBy' => '-createdDate']
         ) : [];
     }
 
@@ -299,7 +299,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
 
         // $this->template->pEdit = true ?? $this->hasPermission('edit software');
     	$this->template->title = $title;
-        $this->template->notes = $notes->find($notes->path->like($title->getNotePath().'%'), ['orderBy' => '-createdDate']);
+        $this->template->notes = $notes->find($notes->path->like($title->getNotePath().'/%'), ['orderBy' => '-createdDate']);
     }
 
     public function listSoftware ()
@@ -426,6 +426,6 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
 
    		$this->template->title = $title;
    		$this->template->license = $license;
-        $this->template->notes = $notes->find($notes->path->like($license->version->getNotePath().'%'), ['orderBy' => '-createdDate']);
+        $this->template->notes = $notes->find($notes->path->like($license->version->getNotePath().'/%'), ['orderBy' => '-createdDate']);
    	}
 }
