@@ -87,14 +87,17 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
         // echo "<pre>"; var_dump($location->hasSoftwareOrHardware()); die;
         
-        
         $this->template->trackUrl = $trackRoomUrlApi;
         $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
     	$this->template->room = $location;
     	$this->template->allAvEquipment = self::$AllRoomAvEquipment;
         $this->template->avEquipmentNotes = @unserialize($siteSettings->getProperty('av-equipment-notes')) ?? [];
+        $notesCondition = $notes->anyTrue(
+            $notes->path->equals($location->getNotePath()),
+            $notes->path->like($location->getNotePath().'/%')
+        );
         $this->template->notes = $location->inDatasource ? $notes->find(
-            $notes->path->like($location->getNotePath().'/%'), ['orderBy' => '-createdDate']
+            $notesCondition, ['orderBy' => '-createdDate']
         ) : [];
 
     }
@@ -683,8 +686,12 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->allAvEquipment = self::$AllRoomAvEquipment;
         $this->template->softwareLicenses = $softwareLicenses;
         $this->template->bundles = $configs->find($configs->isBundle->isTrue(), ['orderBy' => 'model']);
+        $notesCondition = $notes->anyTrue(
+            $notes->path->equals($location->getNotePath()),
+            $notes->path->like($location->getNotePath().'/%')
+        );
         $this->template->notes = $location->inDatasource ? $notes->find(
-            $notes->path->like($location->getNotePath().'/%'), ['orderBy' => '-createdDate']
+            $notesCondition, ['orderBy' => '-createdDate']
         ) : [];
         $this->template->scheduledBy = $scheduledBy;
         $this->template->supportedBy = $supportedBy;
@@ -807,8 +814,12 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     	$this->template->room = $location;
     	$this->template->tutorial = $tutorial;
         $this->template->tutorials = $this->schema('Classrooms_Room_Tutorial')->getAll(['orderBy' => 'name']);
-    	$this->template->notes = $tutorial->id ? $notes->find(
-            $notes->path->like($tutorial->getNotePath().'/%'), ['orderBy' => '-createdDate']
+        $notesCondition = $notes->anyTrue(
+            $notes->path->equals($location->getNotePath()),
+            $notes->path->like($location->getNotePath().'/%')
+        );
+        $this->template->notes = $tutorial->inDatasource ? $notes->find(
+            $notesCondition, ['orderBy' => '-createdDate']
         ) : [];
     }
 
@@ -986,7 +997,13 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->room = $room;
         $this->template->config = $config;
         $this->template->softwareLicenses = $softwareLicenses;
-        $this->template->notes = $notes->find($notes->path->like($config->getNotePath().'/%'), ['orderBy' => '-createdDate']);
+        $notesCondition = $notes->anyTrue(
+            $notes->path->equals($location->getNotePath()),
+            $notes->path->like($location->getNotePath().'/%')
+        );
+        $this->template->notes = $location->inDatasource ? $notes->find(
+            $notesCondition, ['orderBy' => '-createdDate']
+        ) : [];
     }
 
     public function downloadImage ()
