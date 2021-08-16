@@ -191,8 +191,8 @@
 						{/foreach}
 						</tbody>
 						</table>
-					</div>
 					{/if}
+					</div>
 				</div>
 			</div>
 			</div>
@@ -259,10 +259,11 @@
 				{include file="partial:_view.notes.html.tpl"}			
 			</div>
 		</div>
-	</div>
+	
+	</div> <!-- end notes panel -->
 	{/if}
 
 
-<!-- </div> -->
+</div>
 
 </div> <!-- end tab-content -->
