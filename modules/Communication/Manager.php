@@ -8,6 +8,8 @@ class Classrooms_Communication_Manager
   private $fixedName;
   private $subjectLine;
   private $facultyRole;
+  private $bccRecipient;
+  private $sentTestBcc;
 
   private $schemas = array();
 
@@ -20,6 +22,8 @@ class Classrooms_Communication_Manager
     $this->contactEmail = $app->getConfiguration()->getProperty('communications.contactEmail', 'at@sfsu.edu');
     $this->replyTo = $app->getConfiguration()->getProperty('communications.replyTo');
     $this->subjectLine = $app->getConfiguration()->getProperty('communications.subjectLine', 'Classroom Database');
+    $this->bccRecipient = $app->getConfiguration()->getProperty('communications.bccRecipient');
+    $this->sentTestBcc = false;
 
     $roleName = $app->getConfiguration()->getProperty('authorization.role', 'Faculty');
     $roleSchema = $this->getSchema('Classrooms_AuthN_Role');
@@ -49,10 +53,11 @@ class Classrooms_Communication_Manager
         $scheduleSchema->userDeleted->isFalse()
       )
     );
-    $schedules = $scheduleSchema->find($condition, ['arrayKey' => 'faculty_id']);
+    $schedules = $scheduleSchema->find($condition);
 
-    foreach ($schedules as $facultyId => $schedule)
+    foreach ($schedules as $schedule)
     {
+      $facultyId = $schedule->faculty_id;
       if (!isset($comms[$facultyId]))
       {
         $comms[$facultyId] = [
@@ -166,6 +171,12 @@ class Classrooms_Communication_Manager
       if ($this->replyTo)
       {
         $mail->AddReplyTo($this->replyTo);
+      }
+
+      if ($this->bccRecipient && !$this->sentTestBcc)
+      {
+        $mail->AddBCC($this->bccRecipient, $this->fixedName);
+        $this->sentTestBcc = true;
       }
 
       $mail->getTemplate()->message = $preppedText;
