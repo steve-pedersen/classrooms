@@ -12,6 +12,7 @@
 {/if}
 <br>
 
+<!-- tab navs -->
 <div class="row">
 	<div class="col-xs-12">
 		<ul class="nav nav-pills nav-justified room-pills" style="margin-top:2em;margin-bottom:2em;">
@@ -258,7 +259,7 @@
 	</div>
 	{/if}
 
-</div> <!-- end tab-content -->
-<!-- </div> -->
 
 <!-- </div> -->
+
+</div> <!-- end tab-content -->

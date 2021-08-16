@@ -1,4 +1,4 @@
-
+<div id="accordion">
 <ul class="list-unstyled">
 
 {foreach $notes as $note}
@@ -10,7 +10,7 @@
 		<a class="collapse-button collapsed" data-toggle="collapse" data-parent="#accordion" href="#noteHistory{$note->id}" aria-expanded="true" aria-controls="noteHistory{$note->id}" style="margin-left: 2em; font-weight: bold;float:right;">
 			Show History &nbsp;
 		</a>
-		<div id="accordion">
+		
 			<div class="panel-collapse collapse" role="tabpanel" id="noteHistory{$note->id}">
 				<table class="table table-bordered">
 					<thead>
@@ -47,9 +47,10 @@
 					</tbody>
 				</table>
 			</div>
-		</div>
+		
 		{/if}
 	</li>
 {/foreach}
 
 </ul>
+</div>
