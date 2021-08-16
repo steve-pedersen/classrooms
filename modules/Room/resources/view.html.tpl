@@ -141,7 +141,6 @@
 	{if $room->hasSoftwareOrHardware()}
 	<div id="software" class="tab-pane fade {if $mode == 'software'}in active{/if}" style="margin-top:3em;">
 	 	<h3>Software/Equipment in this room</h3>
-		<!-- <div class=""> -->
 
 		<div class="row">
 		{if $trackUrl && ($pEdit || $pSupport)}
@@ -153,9 +152,10 @@
 			<br><br>
 		{/if}
 		</div>
-		<div class="row">
+		
 		{foreach $room->configurations as $config}
 			{if !$config->isBundle && !$config->deleted}
+			<div class="row">
 			<div class="col-sm-12">
 				<div class="panel panel-default">
 					<div class="panel-heading"><strong>Configuration: {$config->model}</strong></div>
@@ -195,14 +195,16 @@
 					{/if}
 				</div>
 			</div>
+			</div>
 			{/if}
 		{/foreach}
-		</div>
+		
 
-		<div class="row">
+		
 		{foreach $room->configurations as $config}
 			{if !$config->deleted}
 				{if $config->isBundle}
+				<div class="row">
 				<div class="col-sm-12">
 					<div class="panel panel-default">
 						<div class="panel-heading"><strong>Config Bundle: {$config->model}</strong></div>
@@ -215,10 +217,11 @@
 						</div>
 					</div>
 				</div>
+				</div>
 				{/if}
 			{/if}
 		{/foreach}
-		</div>
+		
 
 		{if $pRequest}
 			<div class="row" style="">
@@ -227,8 +230,8 @@
 				</div>
 			</div>
 		{/if}
-		</div>
-	</div>
+
+	</div> <!-- end software tab -->
 	{/if}
 
 	{if $notes && $pEdit}
