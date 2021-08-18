@@ -34,6 +34,16 @@ abstract class Classrooms_Master_Controller extends Bss_Master_Controller
         parent::afterCallback($callback);
     }
 
+    protected function requireLogin ()
+    {
+        if (!($account = $this->getAccount()))
+        {
+            $this->triggerError('Bss_AuthZ_ExPermissionDenied');
+        }
+        
+        return $account;
+    }
+
     public function createEmailTemplate ()
     {
         $template = $this->createTemplateInstance();
