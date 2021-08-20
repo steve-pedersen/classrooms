@@ -447,11 +447,11 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->onlineCourses = $onlineCourses;
         $this->template->selectedWindow = $windowQuery;
         $this->template->windows = [
-            ['hours' => 0, 'text' => 'Now'],
-            ['hours' => 1, 'text' => 'Now +1 hour'],
-            ['hours' => 2, 'text' => 'Now +2 hours'],
-            ['hours' => 3, 'text' => 'Now +3 hours'],
-            ['hours' => 4, 'text' => 'Now +4 hours'],
+            ['hours' => '0', 'text' => 'Now'],
+            ['hours' => '1', 'text' => 'Now +1 hour'],
+            ['hours' => '2', 'text' => 'Now +2 hours'],
+            ['hours' => '3', 'text' => 'Now +3 hours'],
+            ['hours' => '4', 'text' => 'Now +4 hours'],
         ];
     }
 
