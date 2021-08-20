@@ -315,7 +315,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $roomQuery = $this->request->getQueryParameter('s');
         $termYear = $this->request->getQueryParameter('t', $semesters['curr']['code']);
         $windowQuery = $this->request->getQueryParameter('window', null);
-        
+        $windowQuery = ($windowQuery !== null || $windowQuery === '') ? null : $windowQuery;
+
         if ($windowQuery !== null)
         {
             $meetingWindowStart = date("H:i", strtotime("now"));
