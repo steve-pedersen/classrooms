@@ -3,29 +3,28 @@
  - <small>{$selectedSemester}</small>
 </h1>
 
+<form class="form-inline" role="form" id="filterForm">
 <div class="row">
-	<div class="col-sm-12">
-		<div class="well multiselect-filter">
-			<h2>Filter</h2>
-			<!-- <form action="rooms" id="roomsAutocomplete"></form> -->
-			<form class="form-inline" role="form" id="filterForm">
-		    {if !$pFaculty}
-		    <div class="form-group" id="autcompleteContainer">
-		    	<!-- <label for="u" class="">Capacity</label> -->
-				<input type="text" id="auto" name="auto" value="{$selectedUser}" class="form-control account-autocomplete" placeholder="Search user..."> 
-				<!-- <input type="hidden" name="record" value="0"> -->
-		    	<div class="search-container"></div>
-		    </div>
+<div class="col-sm-12">
+<div class="well multiselect-filter">
+	
+	<h2>Filter</h2>
 
-		    <div class="form-group">
+	<div class="row" style="padding:0;margin:1em 0 1em 0;">
+	  <div class="col-sm-12" style="padding:0;margin:0;">
+			
+	    {if !$pFaculty}
+	    <div class="form-group" id="autcompleteContainer">
+				<input type="text" id="auto" name="auto" value="{$selectedUser}" class="form-control account-autocomplete" placeholder="Search user..."> 
+	    	<div class="search-container"></div>
+	    </div>
+
+	    <div class="form-group">
 		    	<input id="searchBox" type="text" name="s" value="{$roomQuery}" class="form-control autocomplete" placeholder="Building or room #">
-		    </div>
-		    <div class="form-group">
-		    	<div class="loader"></div>
-		    </div>
-		    {/if}
+	    </div>
+	    {/if}
 		    
-		    <div class="form-group">
+	    <div class="form-group">
 				<select class="form-control" name="t" id="selectedTerm">
 				{foreach $semesters as $semester}
 					<option value="{$semester.code}" {if $selectedTerm == $semester.code}selected{/if}>
@@ -33,20 +32,53 @@
 					</option>
 				{/foreach}
 				</select>  
-		    </div>
-		    <div class="form-group">    
-		        <button type="submit" class="btn btn-info filter-col">
-		            Apply
-		        </button>
-		        <a href="schedules" class="btn btn-link filter-col" id="clearFilters">
-		            Clear filters
-		        </a> 
-		    </div>
-			</form>
-		</div>	
+	    </div>
+    
+	    {if !$pFaculty}
+	    <div class="form-group" id="currentCourses">
+		    <label for="selectedWindow">Show courses occurring:</label><br>
+				<select class="form-control" name="window" id="selectedWindow">
+					<option value="" {if !$selectedWindow}selected{/if}> &mdash; Anytime &mdash; </option>
+				{foreach $windows as $window}
+					<option value="{$window.hours}" {if $selectedWindow === $window.hours}selected{/if}>
+						{$window.text}
+					</option>
+				{/foreach}
+				</select>  
+	    </div>
+	    {/if}	
+
+	    <div class="form-group">    
+	        <button type="submit" class="btn btn-info filter-col">
+	            Apply
+	        </button>
+	        <a href="schedules" class="btn btn-link filter-col" id="clearFilters">
+	            Clear filters
+	        </a> 
+	    </div>
+	  </div>
 	</div>
 
+<!-- 	<div class="row" style="padding:0;margin:1em 0 1em 0;">
+	  <div class="col-sm-12" style="padding:0;margin:0;">
+	    <div class="form-group">
+		    <label for="selectedWindow">Show courses occurring:</label><br>
+				<select class="form-control" name="window" id="selectedWindow">
+					<option value="">Choose window...</option>
+				{foreach $windows as $window}
+					<option value="{$window.hours}" {if $selectedWindow == $window.hours}selected{/if}>
+						{$window.text}
+					</option>
+				{/foreach}
+				</select>  
+	    </div> 	
+	  </div>
+	</div> -->
+
+</div>	
 </div>
+</div>
+</form>
 
 <div id="userResultMessage" style="display:none;">
 	Showing rooms for the following users:
