@@ -38,7 +38,7 @@ abstract class Classrooms_Master_Controller extends Bss_Master_Controller
     {
         if (!($account = $this->getAccount()))
         {
-            $this->triggerError('Bss_AuthZ_ExPermissionDenied');
+            $this->triggerError('Bss_AuthN_ExLoginRequired');
         }
         
         return $account;
