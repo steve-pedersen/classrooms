@@ -1199,6 +1199,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
         $role = $this->request->getQueryParameter('role');
         $roleRestrict = null;
+        $limit = 20;
 
         if ($role)
         {
@@ -1256,7 +1257,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             //     $cond = $cond->andIf($accounts->username->inList($instructors));
             // }
 
-            $candidates = $accounts->find($cond, ['orderBy' => ['+lastName', '+firstName'], 'arrayKey' => 'username']);
+            $candidates = $accounts->find($cond, ['limit' => $limit, 'orderBy' => ['+lastName', '+firstName'], 'arrayKey' => 'username']);
 
             $authZ = $this->getAuthorizationManager();
             foreach ($candidates as $i => $candidate)
