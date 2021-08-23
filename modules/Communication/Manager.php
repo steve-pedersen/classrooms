@@ -49,11 +49,10 @@ class Classrooms_Communication_Manager
         $scheduleSchema->userDeleted->isFalse()
       )
     );
-    $schedules = $scheduleSchema->find($condition);
-
-    foreach ($schedules as $schedule)
+    $schedules = $scheduleSchema->find($condition, ['arrayKey' => 'faculty_id']);
+    
+    foreach ($schedules as $facultyId => $schedule)
     {
-      $facultyId = $schedule->faculty_id;
       if (!isset($comms[$facultyId]))
       {
         $comms[$facultyId] = [
@@ -79,8 +78,8 @@ class Classrooms_Communication_Manager
     
     foreach ($comms as $username => $comm)
     {
-    	$faculty = $facultySchema->get($username);
-    	$this->processFacultyCommunicationEvent($event, $faculty, $comm);
+      $faculty = $facultySchema->get($username);
+      $this->processFacultyCommunicationEvent($event, $faculty, $comm);
     }
 
     $event->sent = true;
