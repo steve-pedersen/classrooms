@@ -19,10 +19,7 @@
  */
 class Classrooms_AuthN_AuthenticationFailureErrorHandler extends Classrooms_Master_ErrorHandler
 {
-    public static function getErrorClassList () { 
-        // echo "<pre>"; var_dump('Classrooms_AuthN_AuthenticationFailureErrorHandler'); die;
-        
-        return array('Bss_AuthN_ExAuthenticationFailure'); }
+    public static function getErrorClassList () { return array('Bss_AuthN_ExAuthenticationFailure'); }
     
     protected function getStatusCode () { return 403; }
     protected function getStatusMessage () { return 'Forbidden'; }

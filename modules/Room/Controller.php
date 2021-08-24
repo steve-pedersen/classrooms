@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 /**
  * The Rooms controller
@@ -314,8 +314,19 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $userId = $this->request->getQueryParameter('u', $this->request->getQueryParameter('auto'));
         $roomQuery = $this->request->getQueryParameter('s');
         $termYear = $this->request->getQueryParameter('t', $semesters['curr']['code']);
+        $windowQuery = $this->request->getQueryParameter('window', null);
+        $windowQuery = ($windowQuery === null || $windowQuery === '') ? null : $windowQuery;
 
-        $hasSearch = ($this->hasPermission('view schedules') || $this->hasPermission('edit')) && ($userId || $roomQuery);
+        if ($windowQuery !== null)
+        {
+            $meetingWindowStart = date("H:i", strtotime("now"));
+            $meetingWindowEnd = date("H:i", strtotime("+{$windowQuery} hours"));
+            // $meetingWindowStart = date("H:i", strtotime("+7 hours"));
+            // $meetingWindowEnd = date("H:i", strtotime("+11 hours"));
+            $meetingDOW = lcfirst((new DateTime)->format('l'));
+        }
+
+        $hasSearch = ($this->hasPermission('view schedules') || $this->hasPermission('edit')) && ($userId || $roomQuery || $windowQuery !== null);
         
         $condition = null;
         if ($hasSearch || $restrictResults)
@@ -365,9 +376,43 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         
         $scheduledRooms = [];
         $result = $condition ? $scheduleSchema->find($condition, ['orderBy' => 'room_id']) : [];
-        
+
         foreach ($result as $schedule)
         {
+            if ($windowQuery !== null)
+            {
+                set_time_limit(0);
+                ini_set('memory_limit', '-1'); 
+                $withinWindow = false;
+                $scheds = unserialize($schedule->schedules);
+                
+                if (!empty($scheds))
+                {
+                    foreach ($scheds as $sched)
+                    {
+                        if ($sched['info'][$meetingDOW])
+                        {
+                            if (($sched['info']['start_time'] <= $meetingWindowStart || 
+                                 $sched['info']['start_time'] <= $meetingWindowEnd) 
+                                &&
+                                ($sched['info']['end_time'] >= $meetingWindowStart ||
+                                 $sched['info']['end_time'] >= $meetingWindowEnd))
+                            {
+                                $withinWindow = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // asynchronous
+                }
+            }
+
+            // course isn't within window
+            if ($windowQuery !== null && !$withinWindow) { continue; }
+
             $key1 = $schedule->room->building->code . $schedule->room->number;
             if (!isset($scheduledRooms[$key1]))
             {
@@ -401,6 +446,14 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->roomQuery = $roomQuery;
         $this->template->pFaculty = $restrictResults;
         $this->template->onlineCourses = $onlineCourses;
+        $this->template->selectedWindow = $windowQuery;
+        $this->template->windows = [
+            ['hours' => '0', 'text' => 'Now'],
+            ['hours' => '1', 'text' => 'Now +1 hour'],
+            ['hours' => '2', 'text' => 'Now +2 hours'],
+            ['hours' => '3', 'text' => 'Now +3 hours'],
+            ['hours' => '4', 'text' => 'Now +4 hours'],
+        ];
     }
 
     public function listConfigurations ()
@@ -1146,6 +1199,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     {
         $role = $this->request->getQueryParameter('role');
         $roleRestrict = null;
+        $limit = 20;
 
         if ($role)
         {
@@ -1203,7 +1257,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             //     $cond = $cond->andIf($accounts->username->inList($instructors));
             // }
 
-            $candidates = $accounts->find($cond, ['orderBy' => ['+lastName', '+firstName'], 'arrayKey' => 'username']);
+            $candidates = $accounts->find($cond, ['limit' => $limit, 'orderBy' => ['+lastName', '+firstName'], 'arrayKey' => 'username']);
 
             $authZ = $this->getAuthorizationManager();
             foreach ($candidates as $i => $candidate)

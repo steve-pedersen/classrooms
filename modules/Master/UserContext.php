@@ -9,29 +9,33 @@
  */
 class Classrooms_Master_UserContext extends Bss_Master_UserContext
 {
-    protected function setAccount ($account)
+    public function login (Bss_AuthN_Account $account)
     {
-        parent::setAccount($account);
+        $firstLogin = ($account->firstLoginDate === null);
+        parent::login($account);
+        $this->sendRedirect($account, $firstLogin);
+    }
+
+    public function sendRedirect ($account, $firstLogin)
+    {
+        $authZ = $this->getAuthorizationManager();
+        $returnTo = isset($_SESSION['returnTo']) ? $_SESSION['returnTo'] : null;
         
-        if ($account)
+        if ($return = $this->request->getQueryParameter('returnTo', $returnTo))
         {
-            $authZ = $this->getAuthorizationManager();
-            if ($authZ->hasPermission($account, 'edit') || $authZ->hasPermission($account, 'view schedules'))
-            {
-                $this->response->redirect('/');
-            }
-            else
-            {
-                if ($return = $this->request->getQueryParameter('returnTo'))
-                {
-                    $this->response->redirect($return);
-                }
-                else
-                {
-                    $this->response->redirect('schedules');
-                }
-            }
+            $this->response->redirect($return);
         }
+        elseif ($authZ->hasPermission($account, 'edit'))
+        {
+            if ($returnTo) $this->response->redirect($returnTo);
+            $this->response->redirect('/');
+        }
+        elseif ($authZ->hasPermission($account, 'view schedules'))
+        {
+            if ($returnTo) $this->response->redirect($returnTo);
+            $this->response->redirect('/schedules');
+        }
+
         $this->response->redirect('rooms');
     }
 }

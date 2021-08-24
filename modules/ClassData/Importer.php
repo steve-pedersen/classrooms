@@ -243,6 +243,7 @@ class Classrooms_ClassData_Importer
             }
 
             $service = new Classrooms_ClassData_Service($this->getApplication());
+
             $result = $service->getUserSchedules($semester, $facultyId);
 
             foreach ($result['courses'] as $cid => $data)

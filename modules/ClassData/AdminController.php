@@ -60,7 +60,7 @@ class Classrooms_ClassData_AdminController extends At_Admin_Controller
             $importer = new Classrooms_ClassData_Importer($this->getApplication());
             $createFacultyAccount = true;
 
-            $semesterCodes = $this->application->siteSettings->semesters ?? '2213';
+            $semesterCodes = $this->getApplication()->siteSettings->semesters;
             if (!is_array($semesterCodes))
             {
                 $semesterCodes = explode(',', $semesterCodes);
@@ -75,14 +75,14 @@ class Classrooms_ClassData_AdminController extends At_Admin_Controller
             foreach ($semesterCodes as $semesterCode)
             {
                 $rs = pg_query("
-                    SELECT DISTINCT(user_id) FROM classroom_classdata_enrollments
+                    SELECT user_id FROM classroom_classdata_enrollments
                     WHERE year_semester = '{$semesterCode}' AND role = 'instructor' 
                 ");                
 
                 $instructors = [];
                 while (($row = pg_fetch_row($rs)))
                 {
-                    $instructors[] = $row[0];
+                    $instructors[$row[0]] = $row[0];
                 }
                 
                 $importer->importSchedules($semesterCode, $instructors);
