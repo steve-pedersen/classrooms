@@ -17,7 +17,8 @@ class Classrooms_ClassData_CronJob extends Bss_Cron_Job
             
             list($count, $added, $removed) = $importer->syncDepartments();
 
-            $semesterCodes = $this->application->siteSettings->semesters ?? '2213';
+            $semesterCodes = $this->getApplication()->siteSettings->semesters;
+            
             if (!is_array($semesterCodes))
             {
                 $semesterCodes = explode(',', $semesterCodes);
@@ -31,14 +32,14 @@ class Classrooms_ClassData_CronJob extends Bss_Cron_Job
             foreach ($semesterCodes as $semesterCode)
             {
                 $rs = pg_query("
-                    SELECT DISTINCT(user_id) FROM classroom_classdata_enrollments
+                    SELECT user_id FROM classroom_classdata_enrollments
                     WHERE year_semester = '{$semesterCode}' AND role = 'instructor' 
                 ");                
 
                 $instructors = [];
                 while (($row = pg_fetch_row($rs)))
                 {
-                    $instructors[] = $row[0];
+                    $instructors[$row[0]] = $row[0];
                 }
                 
                 $importer->importSchedules($semesterCode, $instructors);
