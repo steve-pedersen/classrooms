@@ -17,7 +17,7 @@
 			<th scope="">Model</th>
 			<th scope="">Created</th>
 			<th scope="">Modified</th>
-			<th scope=""># of rooms used in</th>
+			<th scope="">Rooms used in</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -28,7 +28,28 @@
 			</th>
 			<td>{$configuration->createdDate->format('Y-m-d')}</td>
 			<td>{$configuration->modifiedDate->format('Y-m-d')}</td>
-			<td>{$configuration->rooms->count()}</td>
+			<td>
+			{if $configuration->rooms->count() > 0}
+				{if $configuration->rooms->count() == 1}
+					{foreach $configuration->rooms as $room}
+						<a href="{$room->roomUrl}">{$room->codeNumber}</a>
+					{/foreach}
+				{else}
+					<a role="button" class="btn btn-default btn-xs  collapse-button collapsed" data-toggle="collapse" data-parent="#accordion" href="#rooms{$configuration->id}" aria-expanded="true" aria-controls="rooms{$configuration->id}">
+						Show/hide all rooms&nbsp;
+					</a>
+					<div class="panel-collapse collapse" role="tabpanel" id="rooms{$configuration->id}">
+						<ul class="list-unstyled">
+						{foreach $configuration->rooms as $room}
+							<li><strong><a href="{$room->roomUrl}">{$room->codeNumber}</a></strong></li>
+						{/foreach}
+						</ul>
+					</div>
+				{/if}
+			{else}
+				{$configuration->rooms->count()}
+			{/if}
+			</td>
 		</tr>
 	{foreachelse}
 		<tr>
