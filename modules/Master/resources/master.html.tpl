@@ -16,6 +16,15 @@
 		<link rel="stylesheet" type="text/css" href="assets/js/blueimp/css/jquery.fileupload.css">
 		<link rel="icon" type="image/png" href="assets/images/favicon3.png">
 		<script>document.write('<link rel="stylesheet" type="text/css" href="assets/css/app-js.css" media="screen">');</script>
+
+		<meta property="og:title" content="Classroom Technology Database" />
+		<meta property="og:description" content="View your classrooms at SF State." />
+		<meta name="twitter:title" content="Classroom Technology Database">
+		<meta name="twitter:description" content="View your classrooms at SF State.">
+		<meta property="og:image" content="assets/images/favicon3.png" />
+		<meta name="twitter:image:src" content="assets/images/favicon3.png">
+		<link rel="apple-touch-icon" sizes="128x128" href="assets/images/favicon3.png">
+		<link rel="icon" sizes="192x192" href="assets/images/favicon3.png">
 	</head>
 
 	<body>
