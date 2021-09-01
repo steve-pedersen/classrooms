@@ -15,8 +15,20 @@
 
     // AUTO-COMPLETE
 	var autoCompleteUrl = document.baseURI + 'rooms/autocomplete';
+	var animationTime = window.innerWidth < 480 ? 0 : 400;
+
+	var showRoom = function (item) {
+		// $(item).removeClass('filter-hide');
+		$(item).show(animationTime);
+	}
+
+	var hideRoom = function (item) {
+		// $(item).addClass('filter-hide');
+		$(item).hide(animationTime);
+	}
 
 	var filterRooms = function (data, term, error = false) {
+
 		$('.loader').hide();
 		var ids = new Array;
 		for (const id in data) {
@@ -25,9 +37,11 @@
 
 		$('.room-card').each(function (i, item) {
 			if (ids.includes($(item).attr('id'))) {
-				$(this).show(500);
+				// $(this).show(animationTime);
+				showRoom(this);
 			} else {
-				$(this).hide(500);
+				// $(this).hide(animationTime);
+				hideRoom(this);
 			}
 		});
 
@@ -43,12 +57,10 @@
 	$('.autocomplete').autocomplete({
 		delay: 50,
 		minLength: 2,
-		// appendTo: ".search-container",
 		source: function (request, response) {
 			var term = request.term;
 
 			if (term.length > 1) {
-				// $('.loader').show();
 				$.ajax(autoCompleteUrl + '?s=' + term, {
 					type: 'get',
 					dataType: 'json',
@@ -69,8 +81,8 @@
 			}
 			else
 			{
-				// console.log('deleted query');
-				$('.room-card').show(500);
+				// $('.room-card').show(animationTime);
+				showRoom('.room-card');
 			}
 		}
 	});
@@ -80,7 +92,8 @@
 	        if ($(this).val() === "") {
 	        	$('#regular-results').hide();
 	        	$('#js-results').hide();
-	        	$('.room-card').show(500);
+	        	// $('.room-card').show(animationTime);
+	        	showRoom('.room-card');
 	        	$('.loader').hide();
 	        } 
 	    }
