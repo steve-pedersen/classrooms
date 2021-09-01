@@ -8,33 +8,9 @@
  */
 class Classrooms_Room_Controller extends Classrooms_Master_Controller
 {
-	private static $Fields = array(
-        'serialNumber',
-        'tagNumber',
-        'description',
-        'department',
-        'location',
-        'assignee',
-        'acquisitionCost',
-        'acquisitionDate',
-        'modifiedDate',
-        'lastCheckedDate',
-        'model',
-        'modelNumber',
-        'poNumber',
-        'poNumber',
-        'area',
-        'status',
-        'type',
-        'pcType',
-        'officialDescription',
-        'officialSerialNumber',
-        'officialStatus',
-        'officialLocation',
-        'manufacturer',
-        'fleet',
-        'ucorpTag',
-    );
+	private static $Fields = [
+        'serialNumber', 'tagNumber', 'description', 'department', 'location', 'assignee', 'acquisitionCost', 'acquisitionDate','modifiedDate', 'lastCheckedDate', 'model', 'modelNumber', 'poNumber', 'area', 'status', 'type', 'pcType', 'officialDescription', 'officialSerialNumber', 'officialStatus', 'officialLocation', 'manufacturer', 'fleet', 'ucorpTag'
+    ];
 
     public static $AllRoomAvEquipment = [
         'lcd_proj'=>'LCD Projector', 'lcd_tv'=>'LCD TV', 'vcr_dvd'=>'VCR/DVD', 'hdmi'=>'HDMI', 'vga'=>'VGA',
@@ -184,6 +160,11 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     	$viewer = $this->getAccount();
         $this->setPageTitle('List Classrooms');
         
+        if ($this->hasPermission('edit') || $this->hasPermission('view schedules'))
+        {
+            $this->addBreadcrumb('schedules', 'View Scheduled Rooms');
+        }
+
         if (!$viewer)
         {
             $this->template->loginToViewOwnRooms = true;
@@ -211,7 +192,6 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $s = $this->request->getQueryParameter('s');
         
         $unselectQueries = $this->buildUnselectQueries($selectedBuildings, $selectedTypes, $selectedEquipment, $capacity);
-        // echo "<pre>"; var_dump($unselectQueries); die;
         
         $condition = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
         
@@ -309,6 +289,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $scheduleSchema = $this->schema('Classrooms_ClassData_CourseSchedule');
 
         $this->setPageTitle('Room schedules');
+        $this->addBreadcrumb('rooms', 'View All Rooms');
 
         $semesters = $this->guessRelevantSemesters();
         $userId = $this->request->getQueryParameter('u', $this->request->getQueryParameter('auto'));
@@ -321,8 +302,6 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         {
             $meetingWindowStart = date("H:i", strtotime("now"));
             $meetingWindowEnd = date("H:i", strtotime("+{$windowQuery} hours"));
-            // $meetingWindowStart = date("H:i", strtotime("+7 hours"));
-            // $meetingWindowEnd = date("H:i", strtotime("+11 hours"));
             $meetingDOW = lcfirst((new DateTime)->format('l'));
         }
 
@@ -376,19 +355,20 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         
         $scheduledRooms = [];
         $result = $condition ? $scheduleSchema->find($condition, ['orderBy' => 'room_id']) : [];
+        $order = ['M'=>[], 'MW'=>[], 'MWF'=>[], 'T'=>[], 'TR'=>[], 'W'=>[], 'R'=>[], 'F'=>[], 'S'=>[]];
 
-        foreach ($result as $schedule)
+        foreach ($result as $courseSchedule)
         {
             if ($windowQuery !== null)
             {
                 set_time_limit(0);
                 ini_set('memory_limit', '-1'); 
                 $withinWindow = false;
-                $scheds = unserialize($schedule->schedules);
+                $savedScheduleInfo = unserialize($courseSchedule->schedules);
                 
-                if (!empty($scheds))
+                if (!empty($savedScheduleInfo))
                 {
-                    foreach ($scheds as $sched)
+                    foreach ($savedScheduleInfo as $sched)
                     {
                         if ($sched['info'][$meetingDOW])
                         {
@@ -406,37 +386,82 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 }
                 else
                 {
-                    // asynchronous
+                    // asynchronous course
                 }
             }
 
-            // course isn't within window
+            // course meeting time isn't within window
             if ($windowQuery !== null && !$withinWindow) { continue; }
 
-            $key1 = $schedule->room->building->code . $schedule->room->number;
-            if (!isset($scheduledRooms[$key1]))
+            // group by building and room (e.g. BUS104)
+            $keyRoom = $courseSchedule->room->building->code . $courseSchedule->room->number;
+            if (!isset($scheduledRooms[$keyRoom]))
             {
-                $scheduledRooms[$key1] = [
-                    'room' => $schedule->room, 
+                $scheduledRooms[$keyRoom] = [
+                    'room' => $courseSchedule->room, 
                     'schedules' => []
                 ];
             }
 
-            $key2 = $schedule->faculty->lastName . $schedule->faculty->firstName;
-
-            if (!isset($scheduledRooms[$key1]['schedules'][$key2]))
+            // order by first occurring scheduled meeting during the week (e.g. W & M results in M)
+            $scheduleInfo = unserialize($courseSchedule->schedules);
+            usort($scheduleInfo, function ($a, $b) use ($order) {
+                $posA = array_search($a['info']['stnd_mtg_pat'], array_keys($order));
+                $posB = array_search($b['info']['stnd_mtg_pat'], array_keys($order));
+                return $posA - $posB;
+            });
+            
+            // combine multiple meetings into a single day-of-week key (e.g. M & W become MW)
+            $keySched = '';
+            foreach ($scheduleInfo as $sched)
             {
-                $scheduledRooms[$key1]['schedules'][$key2] = [];
+                if ($sched['info']['stnd_mtg_pat'] !== $keySched)
+                {
+                    $keySched .= $sched['info']['stnd_mtg_pat'];
+                }
             }
-            $scheduledRooms[$key1]['schedules'][$key2][] = $schedule;
+            
+            // add course schedule to the day of week indexed array
+            if (!isset($scheduledRooms[$keyRoom]['schedules'][$keySched]))
+            {
+                $scheduledRooms[$keyRoom]['schedules'][$keySched] = [];
+            }
+            $scheduledRooms[$keyRoom]['schedules'][$keySched][] = $courseSchedule;
         }
         
+        // add the room and course schedule info to the order defined by $order
         foreach ($scheduledRooms as $key => $sr)
         {
-            ksort($sr['schedules'], SORT_NATURAL);
-            $scheduledRooms[$key]['schedules'] = $sr['schedules'];
+            $sorted = $order;
+            foreach ($sr['schedules'] as $dow => $scheds)
+            {
+                // sort course schedules that meet on the same days by meeting time
+                $timeOrder = [];
+                foreach ($scheds as $sched)
+                {
+                    $scheduleInfo = unserialize($sched->schedules);
+                    foreach ($scheduleInfo as $details)
+                    {
+                        $timeOrder[$details['info']['start_time'] . $sched->id] = $sched;
+                        break;
+                    }
+                }
+                ksort($timeOrder, SORT_NATURAL);
+                $scheds = $timeOrder;
+
+                // add time sorted to day of week array
+                foreach ($scheds as $sched)
+                {
+                    $sorted[$dow][] = $sched;
+                }
+            }
+
+            $scheduledRooms[$key]['schedules'] = $sorted;
         }
+
+        // overall sort by building and room (e.g. BUS104)
         ksort($scheduledRooms, SORT_NATURAL);
+
 
         $this->template->selectedSemester = $this->codeToDisplay($termYear);
         $this->template->scheduledRooms = $scheduledRooms;

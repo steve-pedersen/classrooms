@@ -72,14 +72,10 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
     public function hasSoftwareOrHardware ()
     {
         $total = 0;
-        // echo "<pre>"; var_dump($this->configurations); die;
-        
         foreach ($this->getAllConfigurations() as $config)
         {
             if (!$config->deleted)
             {
-                // echo "<pre>"; var_dump(123); die;
-                
                 $total++;
             }
         }

@@ -119,9 +119,9 @@
     		<table class="table table-condensed table-striped">
     			<thead>
     				<tr>
-    					<th>Instructor</th>
-    					<th>Course</th>
-    					<th>Details</th>
+    					<th style="width: 30%">Instructor</th>
+    					<th style="width: 50%">Course</th>
+    					<th style="width: 20%;">Details</th>
     				</tr>
     			</thead>
     			<tbody>
@@ -138,7 +138,7 @@
 	    					<ul class="list-unstyled">
 	    					{foreach $details as $detail}
 	    						<li>
-	    							{$detail.info.stnd_mtg_pat} {$detail.info.start_time} to {$detail.info.end_time}
+	    							<strong>{$detail.info.stnd_mtg_pat}</strong> {$detail.info.start_time} to {$detail.info.end_time}
 	    						</li>
 	    					{/foreach}
 	    					</ul>
