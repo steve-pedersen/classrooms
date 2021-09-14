@@ -24,7 +24,7 @@
 	    </div>
 	    {/if}
 		    
-	    <div class="form-group">
+	    <div class="form-group" style="padding-right:0em;">
 				<select class="form-control" name="t" id="selectedTerm">
 				{foreach $semesters as $semester}
 					<option value="{$semester.code}" {if $selectedTerm == $semester.code}selected{/if}>
@@ -46,9 +46,17 @@
 				{/foreach}
 				</select>  
 	    </div>
+
+	    <div class="form-group">
+				<div class="checkbox">
+					<label>
+						<input name="showEmptyRooms" type="checkbox" {if $showEmptyRooms}checked{/if}> Show empty rooms only
+					</label>
+				</div>
+	    </div>
 	    {/if}	
 
-	    <div class="form-group">    
+	    <div class="form-group pull-right">    
 	        <button type="submit" class="btn btn-info filter-col">
 	            Apply
 	        </button>
@@ -145,6 +153,12 @@
 	    				</td>
 	    			</tr>
 	    			{/foreach}
+		    		{foreachelse}
+		    			<tr>
+		    				<td colspan="3">
+		    					<p class="text-muted">There are no courses scheduled in this room.</p>
+		    				</td>
+		    			</tr>
 	    		{/foreach}
     			</tbody>
     		</table>

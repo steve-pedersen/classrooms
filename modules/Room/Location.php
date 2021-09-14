@@ -64,9 +64,9 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
         );
     }
 
-    public function getCodeNumber ()
+    public function getCodeNumber ($delimiter = ' ')
     {
-        return $this->building->code . ' ' . $this->number;
+        return $this->building->code . $delimiter . $this->number;
     }
 
     public function hasSoftwareOrHardware ()

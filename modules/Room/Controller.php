@@ -287,6 +287,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $viewer = $this->requireLogin();
         $restrictResults = $viewer && !$this->hasPermission('edit') && !$this->hasPermission('view schedules');
         $scheduleSchema = $this->schema('Classrooms_ClassData_CourseSchedule');
+        $locationSchema = $this->schema('Classrooms_Room_Location');
 
         $this->setPageTitle('Room schedules');
         $this->addBreadcrumb('rooms', 'View All Rooms');
@@ -294,6 +295,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $semesters = $this->guessRelevantSemesters();
         $userId = $this->request->getQueryParameter('u', $this->request->getQueryParameter('auto'));
         $roomQuery = $this->request->getQueryParameter('s');
+        $showEmptyRooms = $this->request->getQueryParameter('showEmptyRooms');
         $termYear = $this->request->getQueryParameter('t', $semesters['curr']['code']);
         $windowQuery = $this->request->getQueryParameter('window', null);
         $windowQuery = ($windowQuery === null || $windowQuery === '') ? null : $windowQuery;
@@ -303,6 +305,13 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $meetingWindowStart = date("H:i", strtotime("now"));
             $meetingWindowEnd = date("H:i", strtotime("+{$windowQuery} hours"));
             $meetingDOW = lcfirst((new DateTime)->format('l'));
+            
+            // if ($showEmptyRooms !== null)
+            // {
+            //     $temp = $meetingWindowStart;
+            //     $meetingWindowStart = $meetingWindowEnd;
+            //     $meetingWindowEnd = $temp;
+            // }
         }
 
         $hasSearch = ($this->hasPermission('view schedules') || $this->hasPermission('edit')) && ($userId || $roomQuery || $windowQuery !== null);
@@ -353,12 +362,15 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $condition = $condition->andIf($scheduleSchema->room_id->inList($roomIds));
         }
         
+        $allScheduledRooms = [];
         $scheduledRooms = [];
         $result = $condition ? $scheduleSchema->find($condition, ['orderBy' => 'room_id']) : [];
         $order = ['M'=>[], 'MW'=>[], 'MWF'=>[], 'T'=>[], 'TR'=>[], 'W'=>[], 'R'=>[], 'F'=>[], 'S'=>[]];
 
         foreach ($result as $courseSchedule)
         {
+            $allScheduledRooms[$courseSchedule->room->id] = $courseSchedule->room->id;
+
             if ($windowQuery !== null)
             {
                 set_time_limit(0);
@@ -390,11 +402,14 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 }
             }
 
-            // course meeting time isn't within window
-            if ($windowQuery !== null && !$withinWindow) { continue; }
+            // skip if meeting time is not within specified time window
+            if ($windowQuery !== null && !$withinWindow && !$showEmptyRooms) { continue; }
 
-            // group by building and room (e.g. BUS104)
-            $keyRoom = $courseSchedule->room->building->code . $courseSchedule->room->number;
+            // skip if meeting time IS within window (i.e. room is not empty during window)
+            if ($windowQuery !== null && $withinWindow && $showEmptyRooms) { continue; }
+
+            // group by building and room for alpha-numeric sort (e.g. BUS104)
+            $keyRoom = $courseSchedule->room->getCodeNumber('');
             if (!isset($scheduledRooms[$keyRoom]))
             {
                 $scheduledRooms[$keyRoom] = [
@@ -459,6 +474,24 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $scheduledRooms[$key]['schedules'] = $sorted;
         }
 
+        // add any remaining unscheduled rooms that fit the search criteria.
+        // don't do this if searching by instructor   
+        if ($showEmptyRooms && !$userId)
+        {
+            $unscheduledCondition = $locationSchema->allTrue(
+                $locationSchema->deleted->isFalse()->orIf($locationSchema->deleted->isNull()),
+                $locationSchema->id->notInList($allScheduledRooms)
+            );
+            $unscheduledCondition = $roomQuery ? $unscheduledCondition->andIf($locationSchema->id->inList($roomIds)) : $unscheduledCondition;
+            
+            $unscheduledLocations = $locationSchema->find($unscheduledCondition);
+
+            foreach ($unscheduledLocations as $room)
+            {
+                $scheduledRooms[$room->getCodeNumber('')] = ['room' => $room, 'schedules' => []];
+            }
+        }
+
         // overall sort by building and room (e.g. BUS104)
         ksort($scheduledRooms, SORT_NATURAL);
 
@@ -472,6 +505,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->pFaculty = $restrictResults;
         $this->template->onlineCourses = $onlineCourses;
         $this->template->selectedWindow = $windowQuery;
+        $this->template->showEmptyRooms = $showEmptyRooms;
         $this->template->windows = [
             ['hours' => '0', 'text' => 'Now'],
             ['hours' => '1', 'text' => 'Now +1 hour'],
