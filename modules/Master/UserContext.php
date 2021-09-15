@@ -20,8 +20,18 @@ class Classrooms_Master_UserContext extends Bss_Master_UserContext
     {
         $authZ = $this->getAuthorizationManager();
         $returnTo = isset($_SESSION['returnTo']) ? $_SESSION['returnTo'] : null;
+        $returnToWithParams = false;
+        if (isset($_SESSION['returnToQueryString']))
+        {
+            $returnToWithParams = true;
+            $returnTo .= '?' . $_SESSION['returnToQueryString'];
+        }
         
-        if ($return = $this->request->getQueryParameter('returnTo', $returnTo))
+        if ($returnToWithParams)
+        {
+            $this->response->redirect($returnTo);
+        }
+        elseif ($return = $this->request->getQueryParameter('returnTo', $returnTo))
         {
             $this->response->redirect($return);
         }

@@ -70,6 +70,13 @@ class Classrooms_AuthN_LoginErrorHandler extends Classrooms_Master_ErrorHandler
     {   
         $request = $this->getApplication()->request;
         $returnTo = $request->getQueryParameter('returnTo', $request->getRequestedUri());
+        
+        $queryString = '';
+        if ($queryParams = $request->getQueryParameters())
+        {
+            $_SESSION['returnToQueryString'] = http_build_query($queryParams);
+        }
+        
         $_SESSION['returnTo'] = $returnTo;
 
         $this->getApplication()->response->redirect('login?returnTo=' . $returnTo);
