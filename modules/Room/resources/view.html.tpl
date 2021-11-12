@@ -129,6 +129,45 @@
 			{/foreach}
 			</tbody>
 		</table>
+
+
+{assign var=hasHDMI value=isset($avEquipment.hdmi)}
+{assign var=hasVGA value=isset($avEquipment.vga)}
+
+<table class="table table-condensed table-responsive table-bordered table-striped">
+	<caption>Common computer ports and adapters needed</caption>
+	<thead>
+		<tr>
+			<th style="border-right:2px solid #DDD;">Computer Port Type</th>
+			{if $hasHDMI}<th>Adapter for HDMI</th>{/if}
+			{if $hasVGA}<th>Adapter for VGA</th>{/if}
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<th style="border-right:2px solid #DDD;">USB-C</th>
+			{if $hasHDMI}<td>USB-C to HDMI</td>{/if}
+			{if $hasVGA}<td>USB-C to VGA</td>{/if}
+		</tr>
+		<tr>
+			<th style="border-right:2px solid #DDD;">Mini DisplayPort</th>
+			{if $hasHDMI}<td>MiniDP to HDMI</td>{/if}
+			{if $hasVGA}<td>MiniDP to VGA</td>{/if}
+		</tr>
+		<tr>
+			<th style="border-right:2px solid #DDD;">HDMI</th>
+			{if $hasHDMI}<td>None</td>{/if}
+			{if $hasVGA}<td>HDMI to VGA</td>{/if}
+		</tr>
+		<tr>
+			<th style="border-right:2px solid #DDD;">VGA</th>
+			{if $hasHDMI}<td>VGA to HDMI</td>{/if}
+			{if $hasVGA}<td>None</td>{/if}
+		</tr>
+	</tbody>
+</table>
+
+
 	{/if}
 	</div> <!-- end basic info -->
 
