@@ -2,16 +2,133 @@
 
 /**
  */
-class MediasiteBackup_Mediasite_Controller extends MediasiteBackup_Master_Controller
+class MediasiteBackup_Mediasite_Controller extends Classrooms_Master_Controller
 {
     public static function getRouteMap ()
     {
         return [
-            'test' => ['callback' => 'test'],
+            // 'test' => ['callback' => 'test'],
+            'test' => ['callback' => 'rooms'],
             'backup' => ['callback' => 'backup'],
             'settings' => ['callback' => 'settings'],
             'status' => ['callback' => 'status'],
+            'test2' => ['callback' => 'test2']
         ];
+    }
+
+    public function test2 ()
+    {
+        $roomService = new MediasiteBackup_Mediasite_RoomService($this->getApplication());
+
+        // // get Mediasite room from CTDB room name/num
+        // $roomNum = 'LIB240D';
+        // $mediasiteRoom = null;
+        // $mediasiteRooms = $roomService->getRooms();
+        // foreach ($mediasiteRooms['value'] as $room)
+        // {
+        //     if ($room['Name'] === $roomNum)
+        //     {
+        //         $mediasiteRoom = $room;
+        //         break;
+        //     }
+        // }
+        // // get recording times for Mediasite room
+        // $recordingTimes = [];
+        // foreach ($mediasiteRoom['DeviceConfigurations'] as $dConfig)
+        // {
+        //     foreach ($roomService->getDeviceScheduledRecordingTimes($dConfig['DeviceId']) as $srt)
+        //     {
+        //         $recordingTimes[] = $srt;
+        //     }
+        // }
+        // echo "<pre>"; print_r(json_encode($recordingTimes)); die;
+
+        $scheduleSchema = $this->schema('Classrooms_ClassData_CourseSchedule');
+        $courseSchema = $this->schema('Classrooms_ClassData_CourseSection');
+
+        // get Mediasite Schedules from course long name
+        $name = 'ERTH 335-01 Fall 2021';
+        $schedules = [];
+        foreach ($roomService->getSchedules()['value'] as $sched)
+        {
+            $nameParts = explode(' ', $sched['Name']);
+
+            $course = $courseSchedule = null;
+            if (count($nameParts) > 1)
+            {
+
+                list($classNumber, $sectionNumber) = explode('-', $nameParts[1]);
+                $classNumber = strlen($classNumber) < 4 ? '0' . $classNumber : $classNumber;
+                $classNumber = $nameParts[0] . ' ' . ($classNumber);
+                list($year, $semester) = Classrooms_ClassData_CourseSection::ConvertToYearSemester($nameParts[2] .' '. $nameParts[3]);
+          
+                // if ($nameParts[0] === 'PHYS')
+                // {
+                //     echo "<pre>"; var_dump($nameParts); die;
+                // }
+
+                $course = $courseSchema->findOne($courseSchema->allTrue(
+                    $courseSchema->classNumber->equals($classNumber),
+                    $courseSchema->sectionNumber->equals($sectionNumber),
+                    $courseSchema->year->equals($year),
+                    $courseSchema->semester->equals($semester)
+                ));
+
+                if ($course)
+                {
+                    $courseSchedule = $scheduleSchema->findOne($scheduleSchema->course_section_id->equals($course->id));
+                }
+            }
+
+            $schedules[$sched['Id']] = [
+                'mediasiteSchedule' => $sched,
+                'mediasiteScheduleInfo' => $roomService->getScheduleRecurrences($sched['Id'])['value'],
+                'recorder' => $sched['RecorderId'] ? $roomService->getRecorder($sched['RecorderId']) : null,
+                'recorderStatus' => $roomService->getRecorderStatus($sched['RecorderId']),
+                'course' => $course ? $course->id : null, 
+                'courseSchedule' => $courseSchedule ? $courseSchedule->id : null,
+                'room' => $courseSchedule ? $courseSchedule->room_id : null
+            ];
+        }
+
+        echo "<pre>"; print_r(json_encode($schedules)); die;
+    }
+
+    public function rooms ()
+    {
+        $roomService = new MediasiteBackup_Mediasite_RoomService($this->getApplication());
+        $folderService = new MediasiteBackup_Mediasite_FolderService($this->getApplication());
+        $siteSettings = $this->getApplication()->siteSettings;  
+        // echo "<pre>"; var_dump($roomService->getRooms()['value'][3]); die;
+        // echo "<pre>"; var_dump($roomService->getRoom('ea3cbd23c7df49208c96500fef95230f52')); die;
+
+
+        
+        // $response = $roomService->getFolder('faa0784a9f644537b9c2d78203218c6814');
+        // $response = $roomService->getPresentation('dad504b0ec4649149f1d90a014e62b210b');
+        // $response = $roomService->getFolderPresentations('dad504b0ec4649149f1d90a014e62b210b');
+        // $response = $roomService->getDeviceScheduledRecordingTimes('10eaab4eb531498f9ddcab9ccdfdff784e');
+
+        foreach ($roomService->getSchedules()['value'] as $s)
+        {
+            $sched[] = $s;
+        }
+     
+        $response = [];
+        foreach ($sched as $did)
+        {
+            $response[] = $did['Name'];
+            // foreach ($roomService->getDeviceScheduledRecordingTimes($did)['value'] as $srt)
+            // {
+            //     // $response[] = $roomService->getScheduleRecurrence($srt['ScheduleId'], $srt['RecurrenceId']);
+            //     $response[] = $srt;
+            // }
+        }
+        // $response = $roomService->getRecorder('d1d5836cde834919aba9172b4556e05b4e');
+        
+        echo "<pre>";
+        print_r(json_encode($response));
+        die;
     }
 
 

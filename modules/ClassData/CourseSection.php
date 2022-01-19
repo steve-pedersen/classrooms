@@ -111,6 +111,11 @@ class Classrooms_ClassData_CourseSection extends Bss_ActiveRecord_Base
         return $this->getFullDisplayName() .' ['.$this->getTerm().']';
     }
 
+    public function getMediasiteName ()
+    {
+        return $this->shortName;
+    }
+
     public function isTaughtByUser ($user)
     {
         $isTaughtByUser = false;
@@ -152,5 +157,32 @@ class Classrooms_ClassData_CourseSection extends Bss_ActiveRecord_Base
         }
 
         return $year[0] . $year[2] . $year[3] . $term;
+    }
+
+    public static function ConvertToYearSemester ($display)
+    {
+        $space = strpos($display, ' ');
+        $term = substr($display, 0, $space);
+        $year = substr($display, $space + 1);
+
+        switch ($term) {
+            case 'Winter':
+                $term = 1;
+                break;
+            
+            case 'Spring':
+                $term = 3;
+                break;
+
+            case 'Summer':
+                $term = 5;
+                break;
+
+            case 'Fall':
+                $term = 7;
+                break;
+        }
+
+        return [$year, $term];
     }
 }
