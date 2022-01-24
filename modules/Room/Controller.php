@@ -495,7 +495,6 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         // overall sort by building and room (e.g. BUS104)
         ksort($scheduledRooms, SORT_NATURAL);
 
-
         $this->template->selectedSemester = $this->codeToDisplay($termYear);
         $this->template->scheduledRooms = $scheduledRooms;
         $this->template->semesters = $semesters;
@@ -1493,7 +1492,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $day = date('d');
         $prev = $curr = $next1 = $next2 = '';
 
-        if ($month == 12 && $d > 15)
+        if ($month == 12 && $day > 15)
         {
             $year += 1;
             $prev = ($year - 1) . '7';
@@ -1501,7 +1500,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $next1 = $year . '3';
             $next2 = $year . '5';
         }
-        elseif ($month < 2)
+        elseif ($month < 2 && $day < 10)
         {
             $prev = ($year - 1) . '7';
             $curr = $year . '1';
