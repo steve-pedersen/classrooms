@@ -8,11 +8,12 @@ class MediasiteBackup_Mediasite_Controller extends Classrooms_Master_Controller
     {
         return [
             // 'test' => ['callback' => 'test'],
-            'test' => ['callback' => 'rooms'],
-            'backup' => ['callback' => 'backup'],
-            'settings' => ['callback' => 'settings'],
-            'status' => ['callback' => 'status'],
-            'test2' => ['callback' => 'test2']
+            
+            // 'test' => ['callback' => 'rooms'],
+            // 'backup' => ['callback' => 'backup'],
+            // 'settings' => ['callback' => 'settings'],
+            // 'status' => ['callback' => 'status'],
+            // 'test2' => ['callback' => 'test2']
         ];
     }
 
