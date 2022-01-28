@@ -4,19 +4,6 @@
 	<h1>New Room</h1>
 {/if}
 
-<!-- <div class="row pull-right" style="margin-bottom: 2em;">
-	<div class="col-sm-12">
-	{if $location->inDatasource}
-		{if $location->tutorial}
-			<a href="rooms/{$location->id}/tutorials/{$location->tutorial->id}/edit" class="btn btn-info">Edit Tutorial</a>
-		{else}
-			<a href="rooms/{$location->id}/tutorials/new/edit" class="btn btn-success">Add New Tutorial</a>
-		{/if}
-	{/if}
-	</div>
-</div>
- -->
-
 {if $customConfigurations && count($customConfigurations) > 0}
 <br>
 <form action="" method="get" id="selectConfiguration">
@@ -76,7 +63,10 @@
 							<select name="room[type]" id="type" class="form-control" required>
 								<option value="">Choose Room Type</option>
 							{foreach $types as $type}
-								<option value="{$type->id}"{if $location->type_id == $type->id} selected{/if}>{$type->name}</option>
+								<option value="{$type->id}"{if $location->type_id == $type->id} selected{/if}>
+									{$type->name}
+									{if $type->isLab} &nbsp;[Lab type room]{/if}
+								</option>
 							{/foreach}
 							</select>
 						</div>

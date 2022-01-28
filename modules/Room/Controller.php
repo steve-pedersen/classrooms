@@ -23,6 +23,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/rooms' => ['callback' => 'listRooms'],
             '/rooms/autocomplete' => ['callback' => 'autoComplete'],
             '/rooms/metadata' => ['callback' => 'roomMetadata'],
+            '/rooms/unconfigured' => ['callback' => 'listUnconfiguredRooms'],
             '/rooms/:id' => ['callback' => 'view', ':id' => '[0-9]+'],
             '/rooms/:id/edit' => ['callback' => 'editRoom', ':id' => '[0-9]+|new'],
             '/rooms/:building/:number' => ['callback' => 'parseUrl'],
@@ -992,6 +993,26 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->building = $building;
     }
 
+    public function listUnconfiguredRooms ()
+    {
+        $this->requirePermission('edit');
+        $this->addBreadcrumb('rooms/metadata', 'Room Settings');
+
+        $this->setPageTitle('List unconfigured rooms');
+
+        $schema = $this->schema('Classrooms_Room_Location');
+        $condition = $schema->allTrue(
+            $schema->deleted->isNull()->orIf($schema->deleted->isFalse()),
+            $schema->type_id->isNull()->orIf(
+                $schema->configured->isFalse()->orIf($schema->configured->isNull())
+            )
+        );
+        $this->template->rooms = $schema->find(
+            $condition,
+            ['orderBy' => ['building_id', 'number']]
+        );
+    }
+
     public function listTypes ()
     {
         $this->requirePermission('edit');
@@ -1029,7 +1050,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             switch ($this->getPostCommand())
             {
                 case 'save':
-                    if ($this->processSubmission($type, ['name']))
+                    if ($this->processSubmission($type, ['name', 'isLab']))
                     {
                         $type->save();
                         $this->flash('Room type saved.');

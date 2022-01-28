@@ -17,6 +17,7 @@ class Classrooms_Communication_CronJob extends Bss_Cron_Job
         if ($timeDelta >= self::PROCESS_ACTIVE_JOBS_EVERY)
         {
             set_time_limit(0);
+            ini_set('memory_limit', '-1');  
             
             $app = $this->getApplication();
             $schemaManager = $app->schemaManager;

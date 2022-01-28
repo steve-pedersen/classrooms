@@ -34,6 +34,11 @@
 
 (function ($) {
     $(function () {
+
+      $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+      });
+      
       $(document.body).on('click', '.disabled :input', function (e) {
         e.stopPropagation();
         e.preventDefault();

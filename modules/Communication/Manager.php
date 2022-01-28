@@ -28,6 +28,7 @@ class Classrooms_Communication_Manager
 
   public function processCommunicationEvent (Classrooms_Communication_Event $event)
   {
+    // ini_set('memory_limit', '-1');  
     if ($event->sent)
     {
       $this->app->log('info', 'Event #' . $event->id . ' already sent.');
@@ -40,8 +41,11 @@ class Classrooms_Communication_Manager
     $roomSchema = $this->getSchema('Classrooms_Room_Location');
     $typeSchema = $this->getSchema('Classrooms_Room_Type');
 
-    // fetch and format the schedules data
-    $labType = $typeSchema->findOne($typeSchema->name->equals('Lab'));
+    $communicationRoomTypes = [];
+    foreach ($event->communication->type->roomTypes as $roomType)
+    {
+      $communicationRoomTypes[$roomType->id] = $roomType->id;
+    }
 
     $condition = $scheduleSchema->allTrue(
       $scheduleSchema->termYear->equals($event->termYear),
@@ -50,7 +54,7 @@ class Classrooms_Communication_Manager
       )
     );
     $schedules = $scheduleSchema->find($condition, ['arrayKey' => 'faculty_id']);
-    
+
     foreach ($schedules as $facultyId => $schedule)
     {
       if (!isset($comms[$facultyId]))
@@ -66,20 +70,67 @@ class Classrooms_Communication_Manager
       $type = '';
       if ($schedule->room)
       {
-        $type = $schedule->room->configured ? 'nonlabs' : 'unconfigured';
+        if ((!$schedule->room->type_id || !$schedule->room->configured) && $event->communication->type->includeUnconfiguredRooms)
+        {
+          $type = 'unconfigured';
+        }
+        elseif ($schedule->room->type_id && in_array($schedule->room->type_id, $communicationRoomTypes))
+        {
+          $type = $schedule->room->type->isLab ? 'labs' : 'nonlabs';
+          // echo "<pre>"; var_dump(2, $schedule->id); die;
+        }
+        elseif ($schedule->room->type_id && !in_array($schedule->room->type_id, $communicationRoomTypes))
+        {
+          // echo "<pre>"; var_dump(3, $schedule->id); die;
+          // this room type is not to be included in this communication
+          // continue;
+          $type = '';
+        }
+      }
+      elseif ($event->communication->type->includeCoursesWithoutRooms)
+      {
+        echo "<pre>"; var_dump(4, $schedule->id); die;
+        $type = 'norooms';
       }
       else
       {
-        $type = 'norooms';
+        // echo "<pre>"; var_dump(5, $schedule->id); die;
+        // continue;
+        $type = '';
       }
+      // if ($facultyId == '906496258')
+      // {
+      //   echo "<pre>"; var_dump($comms[$facultyId], !$schedule->room && $event->communication->type->includeCoursesWithoutRooms); die;
+      // }
 
-      $comms[$facultyId][$type][] = ['room' => $schedule->room, 'course' => $schedule->course];
+      if ($type !== '')
+      {
+        $comms[$facultyId][$type][] = ['room' => $schedule->room, 'course' => $schedule->course];
+        // if ($schedule->id == '34359')
+        // {
+        //   echo "<pre>"; var_dump($comms[$facultyId]); die;
+        // }
+      }
     }
-    
+    // echo "<pre>"; var_dump(123, $comms['900014445']['labs'][0]['room']->id, $comms['900014445']['labs'][0]['course']->id); die;
     foreach ($comms as $username => $comm)
     {
-      $faculty = $facultySchema->get($username);
-      $this->processFacultyCommunicationEvent($event, $faculty, $comm);
+      $hasRoomTypeForCommunication = false;
+      foreach ($comm as $type)
+      {
+        if (!empty($type))
+        {
+          $hasRoomTypeForCommunication = true;
+          break;
+        }
+      }
+
+      if ($hasRoomTypeForCommunication)
+      {
+        // echo "<pre>"; var_dump(321, $username, $hasRoomTypeForCommunication, $comm['labs']); die;
+        $faculty = $facultySchema->get($username);
+        $this->processFacultyCommunicationEvent($event, $faculty, $comm);
+      }
     }
 
     $event->sent = true;
@@ -122,7 +173,7 @@ class Classrooms_Communication_Manager
     $eventLog->emailAddress = $faculty->emailAddress;
     $eventLog->creationDate = new DateTime;
 
-    $this->sendRoomMasterTemplate($commData, $faculty, $event);
+    $this->sendRoomMasterTemplate($commData, $account, $event);
 
     $event->logs->add($eventLog);
   }
@@ -130,7 +181,7 @@ class Classrooms_Communication_Manager
   public function sendRoomMasterTemplate ($comm, $user, $event)
   { 
     $communication = $event->communication;
-    
+
     $params = array(
       '|%FIRST_NAME%|' => $user->firstName,
       '|%LAST_NAME%|' => $user->lastName,
@@ -141,7 +192,7 @@ class Classrooms_Communication_Manager
       '|%UNCONFIGURED_ROOM_WIDGET%|' => $this->getUnconfiguredRoomWidget($comm['unconfigured'], $communication->unconfiguredRoom),
       '|%NO_ROOM_WIDGET%|' => $this->getNoRoomWidget($comm['norooms'], $communication->noRoom),
     );
-    
+
     $this->sendEmail($user, $params, $communication->roomMasterTemplate);
   }
 

@@ -9,7 +9,7 @@
 		</div>
 	</div>
 </div>
-
+<hr>
 <form action="" method="post">
 	<div class="container"> 
 
@@ -18,15 +18,23 @@
 				<h2>Room Type Details</h2>
 				<div class="form-horizontal">
 					<div class="form-group">
-						<label for="name" class="col-sm-2 control-label">Type Name</label>
-						<div class="col-sm-2">
+						<label for="name" class="col-sm-3 control-label">Type Name</label>
+						<div class="col-sm-9">
 							<input type="text" class="form-control" name="name" value="{$type->name}" placeholder="">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="isLab" class="col-sm-3 control-label">
+							This room type is a <u href="#" data-toggle="tooltip" data-placement="top" title="Lab type rooms typically have hardware and software information that may be configured for that room.">Lab</u>
+						</label>
+						<div class="col-sm-9">
+							<input type="checkbox" id="isLab" name="isLab" {if $type->isLab}checked{/if}>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-
+<hr>
 		<div class="controls">
 			{generate_form_post_key}
 			<input type="hidden" name="typeId" value="{$type->id}">
