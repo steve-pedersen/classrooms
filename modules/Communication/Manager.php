@@ -77,11 +77,9 @@ class Classrooms_Communication_Manager
         elseif ($schedule->room->type_id && in_array($schedule->room->type_id, $communicationRoomTypes))
         {
           $type = $schedule->room->type->isLab ? 'labs' : 'nonlabs';
-          // echo "<pre>"; var_dump(2, $schedule->id); die;
         }
         elseif ($schedule->room->type_id && !in_array($schedule->room->type_id, $communicationRoomTypes))
         {
-          // echo "<pre>"; var_dump(3, $schedule->id); die;
           // this room type is not to be included in this communication
           // continue;
           $type = '';
@@ -89,30 +87,20 @@ class Classrooms_Communication_Manager
       }
       elseif ($event->communication->type->includeCoursesWithoutRooms)
       {
-        echo "<pre>"; var_dump(4, $schedule->id); die;
         $type = 'norooms';
       }
       else
       {
-        // echo "<pre>"; var_dump(5, $schedule->id); die;
         // continue;
         $type = '';
       }
-      // if ($facultyId == '906496258')
-      // {
-      //   echo "<pre>"; var_dump($comms[$facultyId], !$schedule->room && $event->communication->type->includeCoursesWithoutRooms); die;
-      // }
 
       if ($type !== '')
       {
         $comms[$facultyId][$type][] = ['room' => $schedule->room, 'course' => $schedule->course];
-        // if ($schedule->id == '34359')
-        // {
-        //   echo "<pre>"; var_dump($comms[$facultyId]); die;
-        // }
       }
     }
-    // echo "<pre>"; var_dump(123, $comms['900014445']['labs'][0]['room']->id, $comms['900014445']['labs'][0]['course']->id); die;
+
     foreach ($comms as $username => $comm)
     {
       $hasRoomTypeForCommunication = false;
@@ -127,7 +115,6 @@ class Classrooms_Communication_Manager
 
       if ($hasRoomTypeForCommunication)
       {
-        // echo "<pre>"; var_dump(321, $username, $hasRoomTypeForCommunication, $comm['labs']); die;
         $faculty = $facultySchema->get($username);
         $this->processFacultyCommunicationEvent($event, $faculty, $comm);
       }
