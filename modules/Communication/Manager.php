@@ -28,7 +28,6 @@ class Classrooms_Communication_Manager
 
   public function processCommunicationEvent (Classrooms_Communication_Event $event)
   {
-    // ini_set('memory_limit', '-1');  
     if ($event->sent)
     {
       $this->app->log('info', 'Event #' . $event->id . ' already sent.');
