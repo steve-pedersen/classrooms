@@ -22,6 +22,7 @@
 		    </div>
 		    <div class="form-group">
 				<select id="filter-types" class="multiselect form-control" name="types[]" multiple label="Room Types">
+					<option value="allLabs" {if $allLabsSelected}selected{/if}>Select All Labs</option>
 				{foreach $types as $type}
 					<option value="{$type->id}" {if $selectedTypes && in_array($type->id, $selectedTypes)}selected{/if}>
 						{$type->name}
@@ -156,6 +157,11 @@
 		    		</li>
 		    		<li>{$room->building->name}</li>
 		    		<li>{$room->type->name}</li>
+		    		{if $room->type->isLab}
+		    		<li class="text-dark" style="margin-top:5px;">
+		    			<img style="max-width:20px;display:inline-block;" src="assets/images/laboratory.png" class="img-responsive"> <em style="display:inline-block;"><strong style="margin-bottom:-15px;">Lab room</strong></em>
+		    		</li>
+		    		{/if}
 	    		</ul>    				
 			</div>
 			<div class="col-sm-6 building-image text-center">

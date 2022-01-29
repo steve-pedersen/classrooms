@@ -190,6 +190,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $selectedTitles = $this->request->getQueryParameter('titles');
         $selectedEquipment = $this->request->getQueryParameter('equipment', []);
         $capacity = $this->request->getQueryParameter('cap');
+        $allLabsSelected = false;
         $s = $this->request->getQueryParameter('s');
         
         $unselectQueries = $this->buildUnselectQueries($selectedBuildings, $selectedTypes, $selectedEquipment, $capacity);
@@ -215,8 +216,30 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             }
             $condition = $building ? $condition->andIf($building) : $condition;
         }
+
         if ($selectedTypes)
         {
+            $index = array_search('allLabs', $selectedTypes);
+            if ($index !== false)
+            {
+                $allLabs = $typeSchema->findValues('id',
+                    $typeSchema->allTrue(
+                        $typeSchema->deleted->isFalse()->orIf($typeSchema->deleted->isNull()),
+                        $typeSchema->isLab->isTrue()
+                    )
+                );
+                unset($selectedTypes[$index]);
+
+                foreach ($allLabs as $typeId)
+                {
+                    if (!in_array($typeId, $selectedTypes))
+                    {
+                        $selectedTypes[] = $typeId;
+                    }
+                }
+                $allLabsSelected = true;
+            }
+
             $type = null;
             foreach ($selectedTypes as $selected)
             {
@@ -270,6 +293,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->selectedTypes = $typeSchema->findValues(['name' => 'id'], 
             $typeSchema->id->inList($selectedTypes)
         );
+        $this->template->allLabsSelected = $allLabsSelected;
         $this->template->selectedTitles = $selectedTitles;
         $this->template->selectedEquipment = $selectedEquipment;
         $this->template->searchQuery = $s;

@@ -1,7 +1,9 @@
 <h1>
 	Room <small>{$room->building->code} {$room->number}</small>
 </h1>
-
+<p class="alert alert-info">
+	<img style="max-width:30px;display:inline-block;" src="assets/images/laboratory.png" class="img-responsive" alt="Icon of microscope"> <span style="display:inline-block;"><strong>This is a Lab type room.</strong> To view information about any computers, lab equipment, and/or software available in this room, click the <em>Software/Equipment</em> tab below.</span>
+</p>
 
 {if $pEdit}
 <div class="row pull-right" style="margin-bottom:10px;">
@@ -26,7 +28,9 @@
 			{/if}
 			{if $room->hasSoftwareOrHardware()}
 			<li {if $mode == 'software'}class="active"{/if}>
-				<a data-toggle="pill" href="{$room->roomUrl}?mode=software#software">Software/Equipment</a>
+				<a data-toggle="pill" href="{$room->roomUrl}?mode=software#software">
+					<strong>Software/Equipment</strong>
+				</a>
 			</li>
 			{/if}
 			{if $notes && $pEdit}
@@ -50,7 +54,13 @@
 		<div class="view-room-details">
 			<dl class="dl-horizontal">
 				<dt>Room Type</dt>
-				<dd>{if $room->type}{$room->type->name}{else}Unknown{/if}</dd>
+				<dd>{if $room->type}
+						{if $room->type->isLab}<u>Lab</u> - {/if}
+						{$room->type->name}
+					{else}
+						Unknown
+					{/if}
+				</dd>
 				<dt>Building</dt>
 				<dd>{$room->building->name}</dd>
 			{if $room->scheduledBy}
@@ -94,7 +104,9 @@
 		<br><br>
 		{/if}
 	{if $room->configured}
-
+		{if $room->type->isLab}
+		<p>To view information about any computers, lab equipment, and/or software available in this room, click the Software/Equipment tab above.</p>
+		{/if}
 		<table class="table table-bordered table-condensed table-responsive">
 			<thead>
 				<tr>
