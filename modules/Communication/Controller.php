@@ -8,6 +8,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
     {
         return [
             '/admin/communications' => ['callback' => 'communications'],
+            '/admin/communications/types/:id/edit' => ['callback' => 'editCommunicationType', ':id' => '[0-9]+|new'],
             '/admin/communications/:id' => ['callback' => 'editCommunication', ':id' => '[0-9]+|new'],
             '/admin/communications/:cid/events/:eid' => ['callback' => 'editCommunicationEvent', ':cid' => '[0-9]+', ':eid' => '[0-9]+|new'],
             'admin/cron' => ['callback' => 'cron'],
@@ -21,9 +22,62 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
         $this->addBreadcrumb($this->baseUrl(''), 'Home');
         $this->setPageTitle('Manage Communications');
 
-        $schema = $this->schema('Classrooms_Communication_Communication');
+        $commSchema = $this->schema('Classrooms_Communication_Communication');
+        $typeSchema = $this->schema('Classrooms_Communication_Type');
+        $communicationTypes = $typeSchema->find(
+            $typeSchema->deleted->isFalse()->orIf($typeSchema->deleted->isNull()),
+            ['orderBy' => 'name']
+        );
 
-        $this->template->communications = $schema->getAll(['orderBy' => '-creationDate']);
+        $this->template->communications = $commSchema->getAll(['orderBy' => '-creationDate']);
+        $this->template->communicationTypes = $communicationTypes;
+    }
+
+    public function editCommunicationType ()
+    {
+        $this->requirePermission('edit');
+        $this->addBreadcrumb('admin/communications', 'Manage Communications');
+        $type = $this->helper('activeRecord')->fromRoute('Classrooms_Communication_Type', 'id', array('allowNew' => true));
+
+        $this->addBreadcrumb('', ($type->inDatasource ? 'Edit' : 'New') . ' Communication Type');
+        $this->setPageTitle(($type->inDatasource ? 'Edit' : 'Create') . ' Communication Type');
+
+        $roomTypeSchema = $this->schema('Classrooms_Room_Type');
+        $roomTypes = $roomTypeSchema->find(
+            $roomTypeSchema->deleted->isFalse()->orIf($roomTypeSchema->deleted->isNull()),
+            ['orderBy' => 'name']
+        );
+
+        if ($this->request->wasPostedByUser())
+        {
+            switch ($this->getPostCommand())
+            {
+                case 'save':
+                    $this->processSubmission($type, ['name', 'includeUnconfiguredRooms', 'includeCoursesWithoutRooms']);
+                    $type->roomTypes->removeAll();
+                    foreach ($this->request->getPostParameter('roomTypes') as $id => $checked)
+                    {
+                        if ($roomType = $roomTypeSchema->get($id))
+                        {
+                            $type->roomTypes->add($roomType);
+                        }
+                    }
+                    $type->save();
+                    $type->roomTypes->save();
+
+                    $this->flash('Communication type saved.');
+                    $this->response->redirect('admin/communications');
+                    break;
+
+                case 'delete':
+                    $type->deleted = true;
+                    $type->save();
+                    break;
+            }
+        }
+
+        $this->template->type = $type;
+        $this->template->roomTypes = $roomTypes; 
     }
 
     public function editCommunication ()
@@ -39,9 +93,17 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
         $roomSchema = $this->schema('Classrooms_Room_Location');
         $typeSchema = $this->schema('Classrooms_Room_Type');
         $courseSchema = $this->schema('Classrooms_ClassData_CourseSection');
+        $commTypeSchema = $this->schema('Classrooms_Communication_Type');
+
+        $commType = null;
+        if ($typeId = $this->request->getPostParameter('type'))
+        {
+            $commType = $commTypeSchema->get($typeId);
+        }  
+        $this->template->commType = $comm->inDatasource ? $comm->type : $commType;
 
         $nonlabRooms = [];
-        $nonlabRoomTypes = $typeSchema->find($typeSchema->name->notEquals('Lab'));
+        $nonlabRoomTypes = $typeSchema->find($typeSchema->isLab->isFalse()->orIf($typeSchema->isLab->isNull()));
         foreach ($nonlabRoomTypes as $type)
         {
             foreach ($type->locations as $location)
@@ -50,7 +112,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
             }
         }
         
-        $labRooms = $typeSchema->findOne($typeSchema->name->equals('Lab'))->locations;
+        $labRooms = $typeSchema->findOne($typeSchema->isLab->isTrue())->locations;
         $unconfiguredRooms = $roomSchema->find($roomSchema->allTrue(
             $roomSchema->deleted->isFalse()->orIf($roomSchema->deleted->isNull()),
             $roomSchema->configured->isFalse()->orIf($roomSchema->configured->isNull())
@@ -66,7 +128,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
                     break;
 
                 case 'save':
-                    $this->processSubmission($comm, ['roomMasterTemplate', 'labRoom', 'nonlabRoom', 'unconfiguredRoom', 'noRoom']);
+                    $this->processSubmission($comm, ['roomMasterTemplate', 'type_id','labRoom', 'nonlabRoom', 'unconfiguredRoom', 'noRoom']);
 
                     if ($comm->isValid())
                     {
@@ -83,7 +145,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
 
                 case 'send':
                     $viewer = $this->getAccount();
-                    $this->processSubmission($comm, ['roomMasterTemplate', 'labRoom', 'nonlabRoom', 'unconfiguredRoom', 'noRoom']);
+                    $this->processSubmission($comm, ['roomMasterTemplate', 'type_id','labRoom', 'nonlabRoom', 'unconfiguredRoom', 'noRoom']);
                     $command = $this->request->getPostParameter('command');
                     $which = array_keys($command['send']);
                     $which = array_pop($which);
@@ -93,7 +155,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
                         $manager = new Classrooms_Communication_Manager($this->getApplication(), $this);
                         $event = $this->schema('Classrooms_Communication_Event')->createInstance();
                         $now = date('Y');
-                        $event->termYear = $now[0] . $now[2] . $now[3] . '7';
+                        $event->termYear = $now[0] . $now[2] . $now[3] . (date('m') < 6 ? '3' : '7');
                         $event->communication = $comm;
                         
                         $rooms = $this->request->getPostParameter('rooms');
@@ -183,6 +245,10 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
         $this->template->labRooms = $labRooms;
         $this->template->unconfiguredRooms = $unconfiguredRooms;
         $this->template->comm = $comm; 
+        $this->template->communicationTypes = $commTypeSchema->find(
+            $commTypeSchema->deleted->isFalse()->orIf($commTypeSchema->deleted->isNull()),
+            ['orderBy' => 'name']
+        );
     }
 
 
@@ -231,6 +297,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
         {
             $years[(string)$row[0][0].$row[0][2].$row[0][3]] = $row[0];
         }
+        krsort($years);
 
         $this->template->eventTerm = $event->inDatasource ? $event->termYear[3] : '';
         $this->template->eventYear = $event->inDatasource ? substr($event->termYear, 0, 3) : '';

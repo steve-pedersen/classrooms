@@ -17,6 +17,7 @@ class Classrooms_Room_Type extends Bss_ActiveRecord_Base
             
             'id' => 'int',
             'name' => 'string',
+            'isLab' => ['bool', 'nativeName' => 'is_lab'],
             'deleted' => 'bool',
 
             'locations' => ['1:N', 
@@ -32,7 +33,7 @@ class Classrooms_Room_Type extends Bss_ActiveRecord_Base
 
     public static function GetAllLabTypes ()
     {
-        return ['Teaching Lab', 'Self Inst Comp Lab'];
+        return ['Teaching Lab', 'Self Inst Comp Lab', 'Lab'];
     }
 
     public function getLocations ($includeDeleted = false)

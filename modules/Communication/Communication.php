@@ -26,6 +26,7 @@ class Classrooms_Communication_Communication extends Bss_ActiveRecord_Base
             'noRoom' => ['string', 'nativeName' => 'no_room'],
             'creationDate' => ['datetime', 'nativeName' => 'creation_date'],
 
+            'type' => [ '1:1', 'to' => 'Classrooms_Communication_Type', 'keyMap' => [ 'type_id' => 'id' ] ],
             'events' => ['1:N', 'to' => 'Classrooms_Communication_Event', 'reverseOf' => 'communication', 'orderBy' => ['-creationDate']],
         ];
     }

@@ -1,4 +1,6 @@
-<h1>Faculty Communication Template</h1>
+<h1>Faculty Communication Template
+ - <small>{$commType->name}</small>
+</h1>
 
 {if $sendSuccess}
 <div class="alert alert-info">
@@ -9,7 +11,7 @@
 
 <form action="" method="post">
 	{generate_form_post_key}
-
+	<input type="hidden" name="type_id" value={$commType->id}>
 	<div class="row">
 		<div class="col-xs-8">
 			<div class="form-group template-widget">

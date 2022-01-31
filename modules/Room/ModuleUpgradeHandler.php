@@ -182,6 +182,12 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
             case 3:
                 $siteSettings->defineProperty('av-equipment-notes', 'Notes for each A/V equipment item', 'text');
                 break;
+
+            case 4:
+                $def = $this->alterEntityType('classroom_room_types', $this->getDataSource('Classrooms_Room_Type'));
+                $def->addProperty('is_lab', 'bool');
+                $def->save();
+                break;
         }
     }
 }

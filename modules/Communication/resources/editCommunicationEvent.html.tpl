@@ -1,5 +1,5 @@
 <h1>
-	Faculty Communication - 
+	<u>{$comm->type->name}</u> Faculty Communication - 
 	<small>
 	{if !$event->inDatasource}
 		New Scheduled Email Event

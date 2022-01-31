@@ -52,6 +52,37 @@ class Classrooms_Communication_ModuleUpgradeHandler extends Bss_ActiveRecord_Bas
                 $def->addProperty('no_room', 'string');
                 $def->save();
                 break;
+
+            case 2:
+                $def = $this->alterEntityType('classroom_communication_communications', 'Classrooms_Communication_Communication');
+                $def->addProperty('type_id', 'int');
+                $def->save();
+                
+                $def = $this->createEntityType('classroom_communication_types', 'Classrooms_Communication_Type');
+                $def->addProperty('id', 'int', array('primaryKey' => true, 'sequence' => true));
+                $def->addProperty('name', 'string');
+                $def->addProperty('deleted', 'bool');
+                $def->save();
+                break;   
+
+            case 3:
+                $def = $this->createEntityType('classroom_communication_type_room_type_map', 'Classrooms_Communication_Type');
+                $def->addProperty('communication_type_id', 'int', ['primaryKey' => true]);
+                $def->addProperty('room_type_id', 'int', ['primaryKey' => true]);
+                $def->save();
+                break;    
+
+            case 4:
+                $def = $this->alterEntityType('classroom_communication_types', 'Classrooms_Communication_Type');
+                $def->addProperty('include_courses_without_rooms', 'bool');
+                $def->save();
+                break;   
+
+            case 5:
+                $def = $this->alterEntityType('classroom_communication_types', 'Classrooms_Communication_Type');
+                $def->addProperty('include_unconfigured_rooms', 'bool');
+                $def->save();
+                break;             
         }
     }
 }

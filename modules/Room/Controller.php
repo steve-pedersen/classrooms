@@ -23,6 +23,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/rooms' => ['callback' => 'listRooms'],
             '/rooms/autocomplete' => ['callback' => 'autoComplete'],
             '/rooms/metadata' => ['callback' => 'roomMetadata'],
+            '/rooms/unconfigured' => ['callback' => 'listUnconfiguredRooms'],
             '/rooms/:id' => ['callback' => 'view', ':id' => '[0-9]+'],
             '/rooms/:id/edit' => ['callback' => 'editRoom', ':id' => '[0-9]+|new'],
             '/rooms/:building/:number' => ['callback' => 'parseUrl'],
@@ -189,6 +190,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $selectedTitles = $this->request->getQueryParameter('titles');
         $selectedEquipment = $this->request->getQueryParameter('equipment', []);
         $capacity = $this->request->getQueryParameter('cap');
+        $allLabsSelected = false;
         $s = $this->request->getQueryParameter('s');
         
         $unselectQueries = $this->buildUnselectQueries($selectedBuildings, $selectedTypes, $selectedEquipment, $capacity);
@@ -214,8 +216,30 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             }
             $condition = $building ? $condition->andIf($building) : $condition;
         }
+
         if ($selectedTypes)
         {
+            $index = array_search('allLabs', $selectedTypes);
+            if ($index !== false)
+            {
+                $allLabs = $typeSchema->findValues('id',
+                    $typeSchema->allTrue(
+                        $typeSchema->deleted->isFalse()->orIf($typeSchema->deleted->isNull()),
+                        $typeSchema->isLab->isTrue()
+                    )
+                );
+                unset($selectedTypes[$index]);
+
+                foreach ($allLabs as $typeId)
+                {
+                    if (!in_array($typeId, $selectedTypes))
+                    {
+                        $selectedTypes[] = $typeId;
+                    }
+                }
+                $allLabsSelected = true;
+            }
+
             $type = null;
             foreach ($selectedTypes as $selected)
             {
@@ -269,6 +293,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->selectedTypes = $typeSchema->findValues(['name' => 'id'], 
             $typeSchema->id->inList($selectedTypes)
         );
+        $this->template->allLabsSelected = $allLabsSelected;
         $this->template->selectedTitles = $selectedTitles;
         $this->template->selectedEquipment = $selectedEquipment;
         $this->template->searchQuery = $s;
@@ -992,6 +1017,26 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->building = $building;
     }
 
+    public function listUnconfiguredRooms ()
+    {
+        $this->requirePermission('edit');
+        $this->addBreadcrumb('rooms/metadata', 'Room Settings');
+
+        $this->setPageTitle('List unconfigured rooms');
+
+        $schema = $this->schema('Classrooms_Room_Location');
+        $condition = $schema->allTrue(
+            $schema->deleted->isNull()->orIf($schema->deleted->isFalse()),
+            $schema->type_id->isNull()->orIf(
+                $schema->configured->isFalse()->orIf($schema->configured->isNull())
+            )
+        );
+        $this->template->rooms = $schema->find(
+            $condition,
+            ['orderBy' => ['building_id', 'number']]
+        );
+    }
+
     public function listTypes ()
     {
         $this->requirePermission('edit');
@@ -1029,7 +1074,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             switch ($this->getPostCommand())
             {
                 case 'save':
-                    if ($this->processSubmission($type, ['name']))
+                    if ($this->processSubmission($type, ['name', 'isLab']))
                     {
                         $type->save();
                         $this->flash('Room type saved.');
