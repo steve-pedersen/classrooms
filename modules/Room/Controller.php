@@ -192,9 +192,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $capacity = $this->request->getQueryParameter('cap');
         $allLabsSelected = false;
         $s = $this->request->getQueryParameter('s');
-        
-        $unselectQueries = $this->buildUnselectQueries($selectedBuildings, $selectedTypes, $selectedEquipment, $capacity);
-        
+
         $condition = $locations->deleted->isFalse()->orIf($locations->deleted->isNull());
         
         $userRooms = [];
@@ -273,6 +271,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $condition = $condition ? $condition->andIf($query) : $query;
         }
 
+        $unselectQueries = $this->buildUnselectQueries($selectedBuildings, $selectedTypes, $selectedEquipment, $capacity);
+        
         $rooms = $locations->find($condition, ['orderBy' => ['building_id', '-number']]);
 
         if ($s)
