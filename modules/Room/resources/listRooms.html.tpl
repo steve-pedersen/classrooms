@@ -22,7 +22,7 @@
 		    </div>
 		    <div class="form-group">
 				<select id="filter-types" class="multiselect form-control" name="types[]" multiple label="Room Types">
-					<option value="allLabs" {if $allLabsSelected}selected{/if}>Select All Labs</option>
+					<option value="allLabs" {if $allLabsSelected}selected{/if}>Select all Labs</option>
 				{foreach $types as $type}
 					<option value="{$type->id}" {if $selectedTypes && in_array($type->id, $selectedTypes)}selected{/if}>
 						{$type->name}
