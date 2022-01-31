@@ -105,7 +105,7 @@
 		{/if}
 	{if $room->configured}
 		{if $room->type->isLab}
-		<p>If the <em>Software/Equipment</em> tab is visible below, click on it to view additional information about any computers, lab equipment, and/or software in this room.</p>
+		<p>If the <em>Software/Equipment</em> tab is visible above, click on it to view additional information about any computers, lab equipment, and/or software in this room.</p>
 		{/if}
 		<table class="table table-bordered table-condensed table-responsive">
 			<thead>
