@@ -52,10 +52,11 @@ class Classrooms_Communication_Manager
         $scheduleSchema->userDeleted->isFalse()
       )
     );
-    $schedules = $scheduleSchema->find($condition, ['arrayKey' => 'faculty_id']);
+    $schedules = $scheduleSchema->find($condition);
 
-    foreach ($schedules as $facultyId => $schedule)
+    foreach ($schedules as $schedule)
     {
+      $facultyId = $schedule->faculty_id;
       if (!isset($comms[$facultyId]))
       {
         $comms[$facultyId] = [
