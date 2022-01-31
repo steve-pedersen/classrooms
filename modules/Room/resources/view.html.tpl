@@ -1,9 +1,12 @@
 <h1>
 	Room <small>{$room->building->code} {$room->number}</small>
 </h1>
+
+{if $room->type->isLab}
 <p class="alert alert-info">
 	<img style="max-width:30px;display:inline;" src="assets/images/laboratory.png" class="img-responsive" alt="Icon of microscope"> <strong style="display:inline;">This is a Lab type room.</strong> <span style="display:inline;">If the <em>Software/Equipment</em> tab is visible below, click on it to view additional information about any computers, software, and/or lab equipment in this room.</span>
 </p>
+{/if}
 
 {if $pEdit}
 <div class="row pull-right" style="margin-bottom:10px;">
