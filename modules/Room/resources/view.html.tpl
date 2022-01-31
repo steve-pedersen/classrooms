@@ -2,7 +2,7 @@
 	Room <small>{$room->building->code} {$room->number}</small>
 </h1>
 <p class="alert alert-info">
-	<img style="max-width:30px;display:inline-block;" src="assets/images/laboratory.png" class="img-responsive" alt="Icon of microscope"> <span style="display:inline-block;"><strong>This is a Lab type room.</strong> If the <em>Software/Equipment</em> tab is visible below, click on it to view additional information about any computers, lab equipment, and/or software in this room.</span>
+	<img style="max-width:30px;display:inline;" src="assets/images/laboratory.png" class="img-responsive" alt="Icon of microscope"> <strong style="display:inline;">This is a Lab type room.</strong> <span style="display:inline;">If the <em>Software/Equipment</em> tab is visible below, click on it to view additional information about any computers, lab equipment, and/or software in this room.</span>
 </p>
 
 {if $pEdit}
