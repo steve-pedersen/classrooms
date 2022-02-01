@@ -4,7 +4,10 @@
 
 {if $room->type->isLab}
 <p class="alert alert-info">
-	<img style="max-width:30px;display:inline;" src="assets/images/laboratory.png" class="img-responsive" alt="Icon of microscope"> <strong style="display:inline;">This is a Lab type room.</strong> <span style="display:inline;">If the <em>Software/Equipment</em> tab is visible below, click on it to view additional information about any computers, software, and/or lab equipment in this room.</span>
+	<img style="max-width:30px;display:inline;" src="assets/images/laboratory.png" class="img-responsive" alt="Icon of microscope"> <strong style="display:inline;">This is a Lab type room.</strong> 
+	{if $room->hasSoftwareOrHardware()}
+		<span style="display:inline;">Select the <em>Software/Equipment</em> tab below to view additional information about any computers, software, and/or lab equipment in this room.</span>
+	{/if}
 </p>
 {/if}
 
@@ -107,9 +110,7 @@
 		<br><br>
 		{/if}
 	{if $room->configured}
-		{if $room->type->isLab}
-		<p>If the <em>Software/Equipment</em> tab is visible above, click on it to view additional information about any computers, software, and/or lab equipment in this room.</p>
-		{/if}
+
 		<table class="table table-bordered table-condensed table-responsive">
 			<thead>
 				<tr>
@@ -143,6 +144,15 @@
 				</tr>			
 			{/foreach}
 			</tbody>
+		{if $room->type->isLab && $room->hasSoftwareOrHardware()}
+			<tfoot>
+				<tr>
+					<td colspan="3">
+						Select the <em>Software/Equipment</em> tab at the top of the page to view additional information about any computers, software, and/or lab equipment in this room.
+					</td>
+				</tr>
+			</tfoot>
+		{/if}
 		</table>
 
 
