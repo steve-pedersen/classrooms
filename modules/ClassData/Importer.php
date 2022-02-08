@@ -242,8 +242,6 @@ class Classrooms_ClassData_Importer
                 $existingSchedules[$facultyId][$match->course_section_id] = $match;
             }
 
-            $service = new Classrooms_ClassData_Service($this->getApplication());
-
             $result = $service->getUserSchedules($semester, $facultyId);
 
             foreach ($result['courses'] as $cid => $data)
