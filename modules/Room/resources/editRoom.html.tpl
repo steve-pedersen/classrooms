@@ -36,7 +36,85 @@
 </form>
 {/if}
 
-<form action="" method="post">
+
+<!-- UPLOAD IMAGES -->
+<div class="container">
+{if $location->inDatasource}
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h3>Room Images</h3>
+	</div>
+	<div class="panel-body">
+		<form
+			id="fileupload"
+			action="rooms/{$location->id}/upload"
+			method="POST"
+			enctype="multipart/form-data">
+			<input type="hidden" name="roomId" value="{$location->id}">
+			<input type="hidden" name="imageCopy" id="imageCopy">
+
+			<div class="row fileupload-buttonbar">
+				<div class="col-lg-7">
+					<span class="btn btn-success fileinput-button">
+						<i class="glyphicon glyphicon-plus"></i>
+						<span>Add image...</span>
+						<input type="file" name="file" />
+					</span>
+
+					<span class="fileupload-process"></span>
+				</div>
+			</div>
+
+			<table role="presentation" class="table table-striped">
+				<tbody class="files"></tbody>
+			</table>
+		{generate_form_post_key}
+		</form>
+
+		<div id="image-gallery" class="container image-gallery" style="display:none">
+			<div class="row">
+		{if $location->images && count($location->images) > 0}
+			{foreach $location->images as $image}
+				<div class="col-xs-3">
+					<div data-src="{$image->getRoomImageSrc($location->id)}" class="image-container">
+						<a href="#" class="view-image-modal" data-toggle="modal" data-target="#viewImageModal" data-image-src="{$image->getRoomImageSrc($location->id)}" data-filename="{$image->remoteName}" data-id="{$image->id}">
+							<img src="{$image->getRoomImageSrc($location->id)}" class="img-responsive">
+						</a>
+						<a href="files/{$image->id}/delete?returnTo=rooms/{$location->id}/edit&room={$location->id}" id="{$image->id}" class="delete-image" onclick="return confirm('Are you sure you want to delete this image? Be sure to save any edits to this page first.')">
+							<span class="text-danger">Delete <i class="glyphicon glyphicon-remove"></i></span>
+						</a>
+					</div>
+				</div>
+			{/foreach}		
+		{/if}
+			</div>
+		</div>
+	</div>
+</div>
+{else}
+	<p>Images can be added once this room has been saved.</p>
+{/if}
+</div>
+
+<div id="viewImageModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body">
+        <img src="" class="img-responsive">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<form action="" method="post" id="detailsForm">
 <div class="container"> 
 <div class="row">
 	<div class="col-xs-12 edit-details">

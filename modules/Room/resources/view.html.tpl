@@ -98,8 +98,42 @@
 				{if $room->printerServer}<dt>Printer Server</dt><dd>{$room->printerServer}</dd>{/if}
 			{/if}
 			</dl>
+
+{if count($room->images) > 0}
+
+<div class="container image-gallery">
+<div class="row">
+	{foreach $room->images as $image}
+		<div class="col-xs-3">
+			<a href="#" class="view-image-modal" data-toggle="modal" data-target="#viewImageModal" data-image-src="{$image->getRoomImageSrc($room->id)}" data-filename="{$image->remoteName}" data-id="{$image->id}">
+				<img src="{$image->getRoomImageSrc($room->id)}" class="img-responsive">
+			</a>
+		</div>
+	{/foreach}
+</div>
+</div>
+
+<div id="viewImageModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body">
+        <img src="" class="img-responsive">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{/if}
+
 		</div>
 		{if $trackUrl && ($pEdit || $pSupport)}
+		<br>
 		<div class="row">
 			<div class="col-sm-12">
 				<a href="{$trackUrl}" target="_blank" class="">View all computers and hardware in this room
