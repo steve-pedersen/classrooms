@@ -44,11 +44,20 @@
         e.preventDefault();
       });
 
+      var imageWrapper = '';
+      var viewImage = true;
+      if ($('.image-gallery').length) {
+        imageWrapper = '<a href="#" class="view-image-modal" data-toggle="modal" data-target="#viewImageModal" data-image-src="" data-filename="" data-id="">';
+      } else {
+        viewImage = false;
+        imageWrapper = '<div data-src="null" class="copy-image-btn"><img src="null" class="img-responsive"></div>';
+      }
+
       $('#fileupload').fileupload({
         dataType: "json",
         add: function(e, data) {
-          data.context = $('<div class="col-xs-2"></div>')
-            .append($('<div data-src="null" class="copy-image-btn"><img src="null" class="img-responsive"></div>'))
+          data.context = $('<div class="col-xs-3 image-container"></div>')
+            .append($(imageWrapper))
             .appendTo($('#image-gallery .row:last-child'));
           data.submit();
         },
@@ -61,27 +70,57 @@
         },
         done: function(e, data) {
           $('#image-gallery').show();
-          // console.log("file done with info: ", data._response.result.file);
-          data.context
-            .addClass("done")
-            .find(".copy-image-btn")
-            .attr('data-src', data._response.result.file.fullUrl)
-            .on("click", function (e) {
-              e.preventDefault();
-              $('#copy-message').animate({opacity:1}, 10).animate({opacity:0}, 1000);
-              var imageUrl = data._response.result.file.fullUrl;
-              navigator.clipboard.writeText(imageUrl).then(function() {
-                console.log('clipboard successfully set');
-              }, function() {
-                console.log('clipboard write failed');
-              });
-            })
-            .find('img')
-            .attr('src', data._response.result.file.url);
-          $('#tutorialForm').append(`<input name="newfiles[]" value="${data._response.result.file.id}" type="hidden">`);
+          var id = data._response.result.file.id;
+          var filename = data._response.result.file.name;
+          var imageSrc = data._response.result.file.fullUrl;
+          var roomId = data._response.result.roomId;
+
+          if (viewImage) {
+            var deleteLink = `
+              <a href="files/${id}/delete?returnTo=rooms/${roomId}/edit&room=${roomId}" id="${id}" class="delete-image pull-left" onclick="return confirm('Are you sure you want to delete this image? Be sure to save any edits to this page first.')">
+                <span class="text-danger">Delete <i class="glyphicon glyphicon-remove"></i></span>
+              </a>
+            `;
+
+            data.context
+              .addClass("done")
+              .find(".view-image-modal")
+              .attr('data-image-src', imageSrc)
+              .attr('data-filename', filename)
+              .attr('data-id', id)
+              .on("click", function (e) {
+                $('#viewImageModal .modal-title').text(filename);
+                $('#viewImageModal .modal-body img').attr('src', imageSrc);
+                $('#viewImageModal .modal-footer').prepend(deleteLink);
+              })
+              .append(`<img src="${imageSrc}" class="img-responsive">`);
+              data.context.append(deleteLink);
+          } else {
+            data.context
+              .addClass("done")
+              .find(".copy-image-btn")
+              .attr('data-src', imageSrc)
+              .on("click", function (e) {
+                e.preventDefault();
+                $('#copy-message').animate({opacity:1}, 10).animate({opacity:0}, 1000);
+                navigator.clipboard.writeText(imageSrc).then(function() {
+                  console.log('clipboard successfully set');
+                }, function() {
+                  console.log('clipboard write failed');
+                });
+              })
+              .find('img')
+              .attr('src', imageSrc);
+          }
+
+          $('#detailsForm').append(`<input name="newfiles[]" value="${id}" type="hidden">`);
         }
       });
-      
+   
+      if ($('.image-container').length) {
+        $('#image-gallery').show();
+      }
+
       if ($('.copy-image-btn').length) {
         $('#image-gallery').show();
         $('.copy-image-btn').each(function (index, em) {
@@ -98,6 +137,16 @@
           });
         });        
       }
+
+      $('.view-image-modal').on('click', function (e) {
+        var filename = $(this).attr('data-filename');
+        var imageSrc = $(this).attr('data-image-src');
+        var fileId = $(this).attr('data-id');
+        var deleteLink = $('.delete-image#'+fileId).clone().addClass('pull-left');
+        $('#viewImageModal .modal-title').text(filename);
+        $('#viewImageModal .modal-body img').attr('src', imageSrc);
+        $('#viewImageModal .modal-footer').prepend(deleteLink);
+      });
 
       $('.existing-items select').on('change', function (e) {
         if ($(this).val()) {

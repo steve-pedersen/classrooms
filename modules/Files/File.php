@@ -21,6 +21,7 @@ class Classrooms_Files_File extends Bss_ActiveRecord_Base
             'uploadedBy' => array('1:1', 'to' => 'Bss_AuthN_Account', 'keyMap' => array('uploaded_by_id' => 'id')),
             'uploadedDate' => array('datetime', 'nativeName' => 'uploaded_date'),
             'tutorial' => array('1:1', 'to' => 'Classrooms_Tutorial_Page', 'keyMap' => array('tutorial_id' => 'id')),
+            'room' => array('1:1', 'to' => 'Classrooms_Room_Location', 'keyMap' => array('location_id' => 'id')),
         );
     }
 

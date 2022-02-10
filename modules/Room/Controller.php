@@ -26,16 +26,17 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/rooms/unconfigured' => ['callback' => 'listUnconfiguredRooms'],
             '/rooms/:id' => ['callback' => 'view', ':id' => '[0-9]+'],
             '/rooms/:id/edit' => ['callback' => 'editRoom', ':id' => '[0-9]+|new'],
+            '/rooms/:id/upload' => ['callback' => 'uploadImages'],
+            '/rooms/:id/files/:fileid/download' => ['callback' => 'downloadImage'],
+            '/rooms/files/:fileid/preview' => ['callback' => 'previewImage'],
             '/rooms/:building/:number' => ['callback' => 'parseUrl'],
             '/rooms/:roomid/tutorials/:id/edit' => ['callback' => 'editTutorial', ':id' => '[0-9]+|new'],
             '/rooms/:id/configurations/:cid/edit' => ['callback' => 'editConfiguration'],
-            '/tutorials' => ['callback' => 'listTutorials'],
+            // '/tutorials' => ['callback' => 'listTutorials'],
             '/buildings' => ['callback' => 'listBuildings'],
             '/buildings/:id/edit' => ['callback' => 'editBuilding', ':id' => '[0-9]+|new'],
             '/types' => ['callback' => 'listTypes'],
             '/types/:id/edit' => ['callback' => 'editType', ':id' => '[0-9]+|new'],
-            '/rooms/:id/tutorials/upload' => ['callback' => 'uploadImages'],
-            '/rooms/:id/files/:fileid/download' => ['callback' => 'downloadImage'],
             '/configurations' => ['callback' => 'listConfigurations'],
             '/configurations/:id' => ['callback' => 'viewConfigurationBundle'],
             '/configurations/:id/edit' => ['callback' => 'editConfigurationBundle'],
@@ -61,8 +62,6 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         {
             $this->template->supportText = $supportText[$location->supportedBy];
         }
-
-        // echo "<pre>"; var_dump($location->hasSoftwareOrHardware()); die;
         
         $this->template->trackUrl = $trackRoomUrlApi;
         $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
@@ -775,6 +774,18 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
                     $bundleChanges = $this->saveRoomBundles($location, $this->request->getPostParameters());
 
+                    // if ($newFiles = $this->request->getPostParameter('newfiles'))
+                    // {
+                    //     $files = $this->schema('Classrooms_Files_File');
+                    //     foreach ($newFiles as $fid)
+                    //     {
+                    //         $file = $files->get($fid);
+                    //         $file->location_id = $location->id;
+                    //         $file->moveToPermanentStorage();
+                    //         $file->save();
+                    //     }
+                    // }
+
                     $this->flash('Room saved.');
                     $this->response->redirect('rooms/' . $location->id);
 
@@ -1170,9 +1181,17 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
     	$this->forward('files/' . $fileId . '/download', ['allowed' => true]);
     }
 
+    public function previewImage ()
+    {   
+        // $this->requirePermission('edit');
+        $fileId = $this->getRouteVariable('fileid');
+        $this->forward('files/' . $fileId . '/download', ['allowed' => true]);
+    }
+
     public function uploadImages ()
     {
         $viewer = $this->requireLogin();
+        $this->requirePermission('edit');
 
         if ($this->request->wasPostedByUser())
         {
@@ -1185,7 +1204,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $files = $this->schema('Classrooms_Files_File');
             $file = $files->createInstance();
             $file->createFromRequest($this->request, 'file', false);
-    
+   
             if ($file->isValid())
             {
                 $uploadedBy = (int)$this->request->getPostParameter('uploadedBy', $viewer->id);
@@ -1194,14 +1213,21 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 $file->location_id = $roomId;
                 $file->moveToPermanentStorage();
                 $file->save();
-            
+
+                $location = $this->schema('Classrooms_Room_Location')->get($roomId);
+                $location->addNote('Image added to room.', $viewer, 
+                    ['old' => ['image' => null], 'new' => ['image' => $file->getDownloadLink()]]
+                );
+
                 $results = [
                     'message' => 'Your file has been uploaded.',
                     'status' => 200,
                     'success' => true,
+                    'roomId' => $roomId,
                     'file' => [
-                        'url' => 'rooms/'.$roomId.'/files/' . $file->id . '/download',
-                        'fullUrl' => $this->baseUrl('rooms/'.$roomId.'/files/' . $file->id . '/download'),
+                        'id' => $file->id,
+                        'url' => 'rooms/files/' . $file->id . '/preview',
+                        'fullUrl' => $this->baseUrl('rooms/files/' . $file->id . '/preview'),
                         'name' => $file->remoteName,
                     ],
                 ];
@@ -1217,8 +1243,59 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             exit;  
         }    
 
+        $this->template->roomId = $this->getRouteVariable('id');
         $this->template->viewer = $viewer;
     }
+
+    // public function uploadImages ()
+    // {
+    //     $viewer = $this->requireLogin();
+
+    //     if ($this->request->wasPostedByUser())
+    //     {
+    //         $results = [
+    //             'message' => 'Server error when uploading.',
+    //             'status' => 500,
+    //             'success' => false
+    //         ];
+
+    //         $files = $this->schema('Classrooms_Files_File');
+    //         $file = $files->createInstance();
+    //         $file->createFromRequest($this->request, 'file', false);
+    
+    //         if ($file->isValid())
+    //         {
+    //             $uploadedBy = (int)$this->request->getPostParameter('uploadedBy', $viewer->id);
+    //             $roomId = (int)$this->request->getPostParameter('roomId', $this->getRouteVariable('id'));
+    //             $file->uploaded_by_id = $uploadedBy;
+    //             $file->location_id = $roomId;
+    //             $file->moveToPermanentStorage();
+    //             $file->save();
+            
+    //             $results = [
+    //                 'message' => 'Your file has been uploaded.',
+    //                 'status' => 200,
+    //                 'success' => true,
+    //                 'file' => [
+    //                     'url' => 'rooms/'.$roomId.'/files/' . $file->id . '/download',
+    //                     'fullUrl' => $this->baseUrl('rooms/'.$roomId.'/files/' . $file->id . '/download'),
+    //                     'name' => $file->remoteName,
+    //                 ],
+    //             ];
+    //         }
+    //         else
+    //         {
+    //             $messages = 'Incorrect file type or file too large.';
+    //             $results['status'] = $messages !== '' ? 400 : 422;
+    //             $results['message'] = $messages;
+    //         }
+
+    //         echo json_encode($results);
+    //         exit;  
+    //     }    
+
+    //     $this->template->viewer = $viewer;
+    // }
 
     protected function saveRoomBundles ($room, $data)
     {

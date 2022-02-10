@@ -88,7 +88,7 @@ class Classrooms_Tutorial_Controller extends Classrooms_Master_Controller
     				break;
     		}
     	}
-
+        
         $this->template->images = $tutorial->images;
     	$this->template->tutorial = $tutorial;
     	$this->template->notes = $tutorial->inDatasource ? $notes->find(

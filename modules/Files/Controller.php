@@ -6,6 +6,7 @@ class Classrooms_Files_Controller extends Classrooms_Master_Controller
     {
         return array(
             '/files/:id/download' => ['callback' => 'download', 'id' => '[0-9]+'],
+            '/files/:id/delete'    => ['callback' => 'delete', 'id' => '[0-9]+'],
             '/files/:fid/imagesrc' => ['callback' => 'imageSrc', 'fid' => '[0-9]+'],
             '/files/check'         => ['callback' => 'check'],
         );
@@ -61,6 +62,27 @@ class Classrooms_Files_Controller extends Classrooms_Master_Controller
         }
         
         $file->sendFile($this->response);
+    }
+
+    public function delete ()
+    {
+        $viewer = $this->requireLogin();
+        $this->requirePermission('edit');
+
+        $returnTo = $this->requireExists($this->request->getQueryParameter('returnTo', 'rooms'));
+        $file = $this->requireExists($this->schema('Classrooms_Files_File')->get($this->getRouteVariable('id')));
+
+        if ($roomId = $this->request->getQueryParameter('room'))
+        {
+            $location = $this->schema('Classrooms_Room_Location')->get($roomId);
+            $location->addNote('Image deleted from room.', $viewer, 
+                ['old' => ['image' => $file->remoteName], 'new' => ['image' => null]]
+            );
+        }
+
+        $file->delete();
+
+        $this->response->redirect($returnTo);
     }
 
 }
