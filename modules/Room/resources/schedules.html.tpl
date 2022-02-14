@@ -106,7 +106,7 @@
 			<div class="col-sm-6">
 	    		<ul class="list-unstyled">
 		    		<li>
-		    			<h3>
+		    			<h3 id="room{$room->id}">
 		    				<a href="{$room->roomUrl}?mode=basic" class="room-link">{if $room->building->code}{$room->building->code} {/if}{$room->number}</a>
 		    			</h3>
 		    		</li>
