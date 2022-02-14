@@ -62,6 +62,13 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         {
             $this->template->supportText = $supportText[$location->supportedBy];
         }
+
+        $schedules = $this->schema('Classrooms_ClassData_CourseSchedule');
+        // $currentSemester = $this->guessRelevantSemesters()['curr']['code'];
+        $this->template->roomSchedules = $schedules->find(
+            $schedules->room_id->equals($location->id)
+            // $schedules->termYear->equals($currentSemester)->andIf($schedules->room_id->equals($location->id))
+        );
         
         $this->template->trackUrl = $trackRoomUrlApi;
         $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
@@ -319,6 +326,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $semesters = $this->guessRelevantSemesters();
         $userId = $this->request->getQueryParameter('u', $this->request->getQueryParameter('auto'));
         $roomQuery = $this->request->getQueryParameter('s');
+        $exactRoom = (int) $this->request->getQueryParameter('room');
         $showEmptyRooms = $this->request->getQueryParameter('showEmptyRooms');
         $termYear = $this->request->getQueryParameter('t', $semesters['curr']['code']);
         $windowQuery = $this->request->getQueryParameter('window', null);
@@ -338,7 +346,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             // }
         }
 
-        $hasSearch = ($this->hasPermission('view schedules') || $this->hasPermission('edit')) && ($userId || $roomQuery || $windowQuery !== null);
+        $hasSearch = ($this->hasPermission('view schedules') || $this->hasPermission('edit')) && ($exactRoom || $userId || $roomQuery || $windowQuery !== null);
         
         $condition = null;
         if ($hasSearch || $restrictResults)
@@ -375,7 +383,14 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $condition = $condition->andIf($scheduleSchema->faculty_id->equals($userId));
         }
 
-        if ($roomQuery)
+        if ($exactRoom)
+        {
+            $room = $locationSchema->get($exactRoom);
+            $condition = $condition->andIf($scheduleSchema->room_id->equals($room->id));
+            $this->addBreadcrumb($room->roomUrl, $room->codeNumber);
+            $roomQuery = $room->codeNumber;
+        }
+        elseif ($roomQuery)
         {
             $rooms = $this->autoComplete($roomQuery);
             $roomIds = [];

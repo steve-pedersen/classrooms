@@ -11,10 +11,11 @@
 </p>
 {/if}
 
-{if $pEdit}
+{if $pEdit || $pSupport}
 <div class="row pull-right" style="margin-bottom:10px;">
 	<div class="col-sm-12">
-		<a href="rooms/{$room->id}/edit" class="btn btn-info">Edit Room</a>
+		{if $pSupport && $roomSchedules}<a  href="schedules?room={$room->id}" class="btn btn-primary">Schedules for this room</a>{/if}
+		{if $pEdit}<a href="rooms/{$room->id}/edit" class="btn btn-info">Edit Room</a>{/if}
 	</div>
 </div>
 {/if}
@@ -101,7 +102,7 @@
 
 {if count($room->images) > 0}
 
-<div class="container image-gallery">
+<div class="container image-gallery" style="margin-bottom: 15px;">
 <div class="row">
 	{foreach $room->images as $image}
 		<div class="col-xs-3">
