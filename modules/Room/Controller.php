@@ -1100,7 +1100,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             switch ($this->getPostCommand())
             {
                 case 'save':
-                    if ($this->processSubmission($type, ['name', 'isLab']))
+                    if ($this->processSubmission($type, ['name', 'description', 'isLab']))
                     {
                         $type->save();
                         $this->flash('Room type saved.');

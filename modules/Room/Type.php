@@ -18,6 +18,7 @@ class Classrooms_Room_Type extends Bss_ActiveRecord_Base
             'id' => 'int',
             'name' => 'string',
             'isLab' => ['bool', 'nativeName' => 'is_lab'],
+            'description' => 'string',
             'deleted' => 'bool',
 
             'locations' => ['1:N', 
