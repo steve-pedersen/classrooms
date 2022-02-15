@@ -188,6 +188,12 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('is_lab', 'bool');
                 $def->save();
                 break;
+
+            case 5:
+                $def = $this->alterEntityType('classroom_room_types', $this->getDataSource('Classrooms_Room_Type'));
+                $def->addProperty('description', 'string');
+                $def->save();
+                break;
         }
     }
 }

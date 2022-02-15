@@ -24,6 +24,12 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label for="description" class="col-sm-3 control-label">Description <small class="text-muted">(for internal use)</small></label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" name="description" value="{$type->description}" placeholder="">
+						</div>
+					</div>
+					<div class="form-group">
 						<label for="isLab" class="col-sm-3 control-label">
 							This room type is a <u href="#" data-toggle="tooltip" data-placement="top" title="Lab type rooms typically have hardware and software information that may be configured for that room.">Lab</u>
 						</label>
