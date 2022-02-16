@@ -71,7 +71,7 @@
 		{generate_form_post_key}
 		</form>
 
-		<div id="image-gallery" class="container image-gallery" style="display:none">
+		<div id="image-gallery" class="image-gallery" style="display:none">
 			<div class="row">
 		{if $location->images && count($location->images) > 0}
 			{foreach $location->images as $image}
