@@ -102,7 +102,7 @@
 
 {if count($room->images) > 0}
 
-<div class="container image-gallery" style="margin-bottom: 15px;">
+<div class="image-gallery" style="margin-bottom: 15px;">
 <div class="row">
 	{foreach $room->images as $image}
 		<div class="col-xs-3">
