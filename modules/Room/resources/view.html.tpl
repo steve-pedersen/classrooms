@@ -24,7 +24,7 @@
 <!-- tab navs -->
 <div class="row">
 	<div class="col-xs-12">
-		<ul class="nav nav-pills nav-justified room-pills" style="margin-top:2em;margin-bottom:2em;">
+		<ul class="nav nav-pills nav-justified room-pills" style="margin-top:1em;margin-bottom:2em;">
 			<li {if $mode == 'basic'}class="active"{/if}>
 				<a data-toggle="pill" href="{$room->roomUrl}?mode=basic#basicInfo">Basic Info</a>
 			</li>
@@ -56,10 +56,10 @@
 
 <div class="tab-content">
 
-	<div id="basicInfo" class="tab-pane fade {if $mode == 'basic'}in active{/if}" style="margin-top:3em;">
-		<h3>Basic info</h3>
-		<div class="view-room-details">
-			<dl class="dl-horizontal">
+<div id="basicInfo" class="tab-pane fade {if $mode == 'basic'}in active{/if}" style="margin-top:1em;">
+	<h3 style="font-weight:600;">Basic Information</h3>
+	<div class="view-room-details">
+		<dl class="dl-horizontal">
 				<dt>Room Type</dt>
 				<dd>{if $room->type}
 						{if $room->type->isLab}<u>Lab</u> - {/if}
@@ -98,65 +98,143 @@
 				{if $room->printerIp}<dt>Printer IP</dt><dd>{$room->printerIp}</dd>{/if}
 				{if $room->printerServer}<dt>Printer Server</dt><dd>{$room->printerServer}</dd>{/if}
 			{/if}
-			</dl>
+			
+			{if $trackUrl && ($pEdit || $pSupport)}
+				<dt>Computer/Hardware info from <em style="font-weight:500;text-decoration:underline;">https://track.sfsu.edu</em></dt>
+				<dd>
+					<a href="{$trackUrl}" target="_blank" class="">View all computers and hardware in this room
+						<i class="glyphicon glyphicon-new-window"></i>
+					</a>
+				</dd>
+			{/if}
+		</dl>
 
 {if count($room->images) > 0}
-
-<div class="image-gallery" style="margin-bottom: 15px;">
-<div class="row">
-	{foreach $room->images as $image}
-		<div class="col-xs-3">
-			<a href="#" class="view-image-modal" data-toggle="modal" data-target="#viewImageModal" data-image-src="{$image->getRoomImageSrc($room->id)}" data-filename="{$image->remoteName}" data-id="{$image->id}">
-				<img src="{$image->getRoomImageSrc($room->id)}" class="img-responsive">
-			</a>
+	<div class="image-gallery" style="margin: 30px 0 40px 0;">
+		<h3 style="font-weight:600;">Images</h3>
+		<div class="row">
+			{foreach $room->images as $image}
+				<div class="col-xs-3">
+					<a href="#" class="view-image-modal" data-toggle="modal" data-target="#viewImageModal" data-image-src="{$image->getRoomImageSrc($room->id)}" data-filename="{$image->remoteName}" data-id="{$image->id}">
+						<img src="{$image->getRoomImageSrc($room->id)}" class="img-responsive">
+					</a>
+				</div>
+			{/foreach}
 		</div>
-	{/foreach}
-</div>
-</div>
+	</div>
+{/if}
 
-<div id="viewImageModal" class="modal fade" role="dialog">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title"></h4>
-      </div>
-      <div class="modal-body">
-        <img src="" class="img-responsive">
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
+{if $room->configured}
+	{assign var="avEquipment" value=unserialize($room->avEquipment)}
+	{assign var=hasHDMI value=isset($avEquipment.hdmi)}
+	{assign var=hasVGA value=isset($avEquipment.vga)}
+<div style="margin: 40px 0;">
+	<h3 style="font-weight:600;">Computer Ports & Adapters</h3>
+	<p class="">
+		{if $hasHDMI || $hasVGA} In this room, you can connect your computer to {if $hasHDMI && $hasVGA}both{/if} {if $hasHDMI}<strong>HDMI</strong>{if $hasVGA} and {/if}{/if}{if $hasVGA}<strong>VGA</strong>{/if} ports.
+		Make sure you have the right adapter(s) before coming to class.
+	{/if}
+	<em>Please note that the adapters in this table are just examples. Adapters vary by brand, color, shape, etc.</em>
+	</p>
+	<table class="table table-condensed table-responsive table-bordered">
+		<!-- <caption style="font-size:1.7rem;text-align:center;">Common computer ports and adapters needed</caption> -->
+		<thead>
+			<tr>
+				<th style="vertical-align:middle;font-size:1.6rem;">If your computer has...</th>
+				{if $hasHDMI}<th style="font-size:1.6rem;">Adapter for HDMI</th>{/if}
+				{if $hasVGA}<th style="font-size:1.6rem;">Adapter for VGA</th>{/if}
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td style="vertical-align:middle;padding:6px;">
+					<img src="assets/images/ports-usbc.jpg" class="img-responsive" style="max-width:50px;padding:3px;display:inline;">
+					<span style="margin-left:15px;font-weight:bold">USB-C</span>
+					<!-- <img src="assets/images/cables-usbc.jpg" class="img-responsive" style="max-width:80px;padding:3px;display:inline;"> -->
+				</td>
+			{if $hasHDMI}
+				<td style="vertical-align:middle;">
+					<img src="assets/images/adapters-usbc-hdmi.jpg" class="img-responsive" style="max-height:100px;display:inline;">
+					<span style="margin-left:15px;font-weight:bold">USB-C to HDMI</span>
+				</td>
+			{/if}
+			{if $hasVGA}
+				<td style="vertical-align:middle;">
+					<img src="assets/images/adapters-usbc-vga.jpg" class="img-responsive" style="max-height:100px;display:inline;">
+					<span style="margin-left:35px;font-weight:bold">USB-C to VGA</span>
+				</td>
+			{/if}
+			</tr>
+			<tr>
+				<td style="vertical-align:middle;padding:6px;">
+					<img src="assets/images/ports-minidp.jpg" class="img-responsive" style="max-width:50px;padding:3px;display:inline;">
+					<span style="margin-left:15px;font-weight:bold">Mini DisplayPort</span>
+					<!-- <img src="assets/images/cables-minidp.jpg" class="img-responsive" style="max-width:80px;padding:3px;display:inline;"> -->
+				</td>
+			{if $hasHDMI}
+				<td style="vertical-align:middle;">
+					<img src="assets/images/adapters-minidp-hdmi.jpg" class="img-responsive" style="max-height:100px;display:inline;">
+					<span style="margin-left:15px;font-weight:bold">MiniDP to HDMI</span>
+				</td>
+			{/if}
+			{if $hasVGA}
+				<td style="vertical-align:middle;">
+					<img src="assets/images/adapters-minidp-vga.jpg" class="img-responsive" style="max-height:100px;display:inline;">
+					<span style="margin-left:15px;font-weight:bold">MiniDP to VGA</span>
+				</td>
+			{/if}
+			</tr>
+			<tr>
+				<td style="vertical-align:middle;padding:6px;">
+					<img src="assets/images/ports-hdmi.jpg" class="img-responsive" style="max-width:50px;padding:3px;display:inline;">
+					<span style="margin-left:15px;font-weight:bold">HDMI</span>
+					<!-- <img src="assets/images/cables-hdmi.jpg" class="img-responsive" style="max-width:80px;padding:3px;display:inline;"> -->
+				</td>
+			{if $hasHDMI}
+				<td style="vertical-align:middle;font-weight:bold;text-align:center;">None</td>
+			{/if}
+			{if $hasVGA}
+				<td style="vertical-align:middle;">
+					<img src="assets/images/adapters-hdmi-vga.jpg" class="img-responsive" style="max-height:100px;display:inline;">
+					<span style="margin-left:15px;font-weight:bold">HDMI to VGA</span>
+				</td>
+			{/if}
+			</tr>
+			<tr>
+				<td style="vertical-align:middle;padding:6px;">
+					<img src="assets/images/ports-vga.jpg" class="img-responsive" style="max-width:50px;padding:3px;display:inline;">
+					<span style="margin-left:15px;font-weight:bold">VGA</span>
+					<!-- <img src="assets/images/cables-vga.jpg" class="img-responsive" style="max-width:80px;padding:3px;display:inline;"> -->
+				</td>
+			{if $hasHDMI}
+				<td style="vertical-align:middle;">
+					<img src="assets/images/adapters-vga-hdmi.jpg" class="img-responsive" style="max-height:100px;display:inline;">
+					<span style="margin-left:15px;font-weight:bold">VGA to HDMI</span>
+				</td>
+			{/if}
+			{if $hasVGA}
+				<td style="vertical-align:middle;font-weight:bold;text-align:center;">None</td>
+			{/if}
+			</tr>
+		</tbody>
+	</table>
 </div>
 {/if}
 
-		</div>
-		{if $trackUrl && ($pEdit || $pSupport)}
-		<br>
-		<div class="row">
-			<div class="col-sm-12">
-				<a href="{$trackUrl}" target="_blank" class="">View all computers and hardware in this room
-					<i class="glyphicon glyphicon-new-window"></i>
-				</a>
-			</div>
-		</div>
-		<br><br>
-		{/if}
-	{if $room->configured}
+</div> <!-- end view-room-details -->
 
+{if $room->configured}
+	<div style="margin: 40px 0;">
+		<h3 style="font-weight:600;">Audio & Visual Equipment</h3>
 		<table class="table table-bordered table-condensed table-responsive">
 			<thead>
 				<tr>
-					<th style="font-size:2rem;">A/V Equipment</th>
-					<th style="font-size:2rem;">In Room?</th>
-					<th style="font-size:2rem;width:25%;">Notes</th>
+					<th style="font-size:1.6rem;">A/V Equipment</th>
+					<th style="font-size:1.6rem;">In Room?</th>
+					<th style="font-size:1.6rem;width:25%;">Notes</th>
 				</tr>
 			</thead>
 			<tbody>
-
-			{assign var="avEquipment" value=unserialize($room->avEquipment)}
 				
 			{foreach $allAvEquipment as $key => $equipment}
 				<tr>
@@ -189,47 +267,9 @@
 			</tfoot>
 		{/if}
 		</table>
-
-
-{assign var=hasHDMI value=isset($avEquipment.hdmi)}
-{assign var=hasVGA value=isset($avEquipment.vga)}
-
-<table class="table table-condensed table-responsive table-bordered table-striped">
-	<caption>Common computer ports and adapters needed</caption>
-	<thead>
-		<tr>
-			<th style="border-right:2px solid #DDD;">Computer Port Type</th>
-			{if $hasHDMI}<th>Adapter for HDMI</th>{/if}
-			{if $hasVGA}<th>Adapter for VGA</th>{/if}
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<th style="border-right:2px solid #DDD;">USB-C</th>
-			{if $hasHDMI}<td>USB-C to HDMI</td>{/if}
-			{if $hasVGA}<td>USB-C to VGA</td>{/if}
-		</tr>
-		<tr>
-			<th style="border-right:2px solid #DDD;">Mini DisplayPort</th>
-			{if $hasHDMI}<td>MiniDP to HDMI</td>{/if}
-			{if $hasVGA}<td>MiniDP to VGA</td>{/if}
-		</tr>
-		<tr>
-			<th style="border-right:2px solid #DDD;">HDMI</th>
-			{if $hasHDMI}<td>None</td>{/if}
-			{if $hasVGA}<td>HDMI to VGA</td>{/if}
-		</tr>
-		<tr>
-			<th style="border-right:2px solid #DDD;">VGA</th>
-			{if $hasHDMI}<td>VGA to HDMI</td>{/if}
-			{if $hasVGA}<td>None</td>{/if}
-		</tr>
-	</tbody>
-</table>
-
-
-	{/if}
-	</div> <!-- end basic info -->
+	</div>
+{/if}
+</div> <!-- end basic info -->
 
 	{if $room->tutorial}
 	<div id="tutorial" class="tab-pane fade {if $mode == 'tutorial'}in active{/if}" style="margin-top:3em;">
@@ -298,7 +338,6 @@
 			{/if}
 		{/foreach}
 		
-
 		
 		{foreach $room->configurations as $config}
 			{if !$config->deleted}
@@ -350,7 +389,6 @@
 			{/if}
 		{/foreach}
 		
-
 		{if $pRequest}
 			<div class="row" style="">
 				<div class="col-sm-12">
@@ -395,3 +433,21 @@
 </div>
 
 </div> <!-- end tab-content -->
+
+
+<div id="viewImageModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body">
+        <img src="" class="img-responsive">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
