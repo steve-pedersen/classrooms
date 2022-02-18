@@ -74,10 +74,10 @@ class Classrooms_Files_Controller extends Classrooms_Master_Controller
 
         if ($roomId = $this->request->getQueryParameter('room'))
         {
-            $location = $this->schema('Classrooms_Room_Location')->get($roomId);
-            $location->addNote('Image deleted from room.', $viewer, 
-                ['old' => ['image' => $file->remoteName], 'new' => ['image' => null]]
-            );
+            // $location = $this->schema('Classrooms_Room_Location')->get($roomId);
+            // $location->addNote('Image deleted from room.', $viewer, 
+            //     ['old' => ['image' => $file->remoteName], 'new' => ['image' => null]]
+            // );
         }
 
         $file->delete();

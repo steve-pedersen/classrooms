@@ -1229,10 +1229,10 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 $file->moveToPermanentStorage();
                 $file->save();
 
-                $location = $this->schema('Classrooms_Room_Location')->get($roomId);
-                $location->addNote('Image added to room.', $viewer, 
-                    ['old' => ['image' => null], 'new' => ['image' => $file->getDownloadLink()]]
-                );
+                // $location = $this->schema('Classrooms_Room_Location')->get($roomId);
+                // $location->addNote('Image added to room.', $viewer, 
+                //     ['old' => ['image' => null], 'new' => ['image' => $file->getDownloadLink()]]
+                // );
 
                 $results = [
                     'message' => 'Your file has been uploaded.',

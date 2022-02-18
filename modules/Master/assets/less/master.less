@@ -22,10 +22,26 @@ div#currentCourses {
     border: 1px solid gray;
     border-radius: 3px;
     &:hover, &:focus {
-      box-shadow: 2px 2px 2px gray;
+      box-shadow: 3px 3px 3px gray;
     }
   }
 }
+
+@media (min-width: 768px) {
+  .dl-horizontal {
+    font-size: 1.5rem;
+    // font-weight: lighter;
+    dt {
+      width:220px;
+      white-space: normal;
+      margin-bottom: 2px;
+    }
+    dd {
+      margin-left:240px;
+    }
+  }
+}
+
 
 .navbar-brand {
   padding: 6px 15px 5px 15px;
