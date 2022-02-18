@@ -124,19 +124,20 @@
 	</div>
 {/if}
 
-{if $room->configured}
-	{assign var="avEquipment" value=unserialize($room->avEquipment)}
-	{assign var=hasHDMI value=isset($avEquipment.hdmi)}
-	{assign var=hasVGA value=isset($avEquipment.vga)}
+
+{assign var="avEquipment" value=unserialize($room->avEquipment)}
+{assign var=hasHDMI value=isset($avEquipment.hdmi)}
+{assign var=hasVGA value=isset($avEquipment.vga)}
+
+{if $room->configured && ($hasHDMI || $hasVGA)}
+
 <div style="margin: 40px 0;">
 	<h3 style="font-weight:600;">Computer Ports & Adapters</h3>
-	{if $hasHDMI || $hasVGA}
 	<p class="">
 		In this room, you can connect your computer to {if $hasHDMI && $hasVGA}both{/if} {if $hasHDMI}<strong>HDMI</strong>{if $hasVGA} and {/if}{/if}{if $hasVGA}<strong>VGA</strong>{/if} ports.
 		Make sure you have the right adapter(s) before coming to class.
 		<em>Please note that the adapters in this table are just examples. Adapters vary by brand, color, shape, etc.</em>
 	</p>
-	{/if}
 	<table class="table table-condensed table-responsive table-bordered">
 		<!-- <caption style="font-size:1.7rem;text-align:center;">Common computer ports and adapters needed</caption> -->
 		<thead>
