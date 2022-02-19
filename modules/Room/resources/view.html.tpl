@@ -193,7 +193,7 @@
 					<!-- <img src="assets/images/cables-hdmi.jpg" class="img-responsive" style="max-width:80px;padding:3px;display:inline;"> -->
 				</td>
 			{if $hasHDMI}
-				<td style="vertical-align:middle;font-weight:bold;text-align:center;">None</td>
+				<td style="vertical-align:middle;font-weight:bold;text-align:center;background-color:#fafafa;height:100px;color:#999;">&mdash; None &mdash;</td>
 			{/if}
 			{if $hasVGA}
 				<td style="vertical-align:middle;">
@@ -215,7 +215,7 @@
 				</td>
 			{/if}
 			{if $hasVGA}
-				<td style="vertical-align:middle;font-weight:bold;text-align:center;">None</td>
+				<td style="vertical-align:middle;font-weight:bold;text-align:center;background-color:#fafafa;height:100px;color:#999;">&mdash; None &mdash;</td>
 			{/if}
 			</tr>
 		</tbody>
