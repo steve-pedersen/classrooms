@@ -142,7 +142,7 @@
 		<!-- <caption style="font-size:1.7rem;text-align:center;">Common computer ports and adapters needed</caption> -->
 		<thead>
 			<tr>
-				<th {if $hasHDMI && $hasVGA}style="width:20%;"{/if}>If your computer has...</th>
+				<th {if $hasHDMI && $hasVGA}style="width:22%;"{/if}>If your computer has...</th>
 				{if $hasHDMI}<th>Adapter for HDMI</th>{/if}
 				{if $hasVGA}<th>Adapter for VGA</th>{/if}
 			</tr>
