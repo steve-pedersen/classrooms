@@ -233,7 +233,7 @@
 				<tr>
 					<th style="font-size:1.6rem;">A/V Equipment</th>
 					<th style="font-size:1.6rem;">In Room?</th>
-					<th style="font-size:1.6rem;width:25%;">Notes</th>
+					<th style="font-size:1.6rem;width:40%;">Notes</th>
 				</tr>
 			</thead>
 			<tbody>
