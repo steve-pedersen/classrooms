@@ -138,84 +138,80 @@
 		Make sure you have the right adapter(s) before coming to class.
 		<em>Please note that the adapters in this table are just examples. Adapters vary by brand, color, shape, etc.</em>
 	</p>
-	<table class="table table-condensed table-responsive table-bordered">
+	<table class="table table-condensed table-responsive table-bordered adapter-table">
 		<!-- <caption style="font-size:1.7rem;text-align:center;">Common computer ports and adapters needed</caption> -->
 		<thead>
 			<tr>
-				<th style="vertical-align:middle;font-size:1.6rem;">If your computer has...</th>
-				{if $hasHDMI}<th style="font-size:1.6rem;">Adapter for HDMI</th>{/if}
-				{if $hasVGA}<th style="font-size:1.6rem;">Adapter for VGA</th>{/if}
+				<th {if $hasHDMI && $hasVGA}style="width:20%;"{/if}>If your computer has...</th>
+				{if $hasHDMI}<th>Adapter for HDMI</th>{/if}
+				{if $hasVGA}<th>Adapter for VGA</th>{/if}
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
-				<td style="vertical-align:middle;padding:6px;">
-					<img src="assets/images/ports-usbc.jpg" class="img-responsive" style="max-width:50px;padding:3px;display:inline;">
-					<span style="margin-left:15px;font-weight:bold">USB-C</span>
-					<!-- <img src="assets/images/cables-usbc.jpg" class="img-responsive" style="max-width:80px;padding:3px;display:inline;"> -->
+				<td>
+					<img src="assets/images/ports-usbc.jpg" class="img-responsive">
+					<span>USB-C</span>
 				</td>
 			{if $hasHDMI}
-				<td style="vertical-align:middle;">
-					<img src="assets/images/adapters-usbc-hdmi.jpg" class="img-responsive" style="max-height:100px;display:inline;">
-					<span style="margin-left:15px;font-weight:bold">USB-C to HDMI</span>
+				<td>
+					<img src="assets/images/adapters-usbc-hdmi.jpg" class="img-responsive">
+					<span>USB-C to HDMI</span>
 				</td>
 			{/if}
 			{if $hasVGA}
-				<td style="vertical-align:middle;">
-					<img src="assets/images/adapters-usbc-vga.jpg" class="img-responsive" style="max-height:100px;display:inline;">
-					<span style="margin-left:35px;font-weight:bold">USB-C to VGA</span>
+				<td>
+					<img src="assets/images/adapters-usbc-vga.jpg" class="img-responsive">
+					<span style="margin-left:35px">USB-C to VGA</span>
 				</td>
 			{/if}
 			</tr>
 			<tr>
-				<td style="vertical-align:middle;padding:6px;">
-					<img src="assets/images/ports-minidp.jpg" class="img-responsive" style="max-width:50px;padding:3px;display:inline;">
-					<span style="margin-left:15px;font-weight:bold">Mini DisplayPort</span>
-					<!-- <img src="assets/images/cables-minidp.jpg" class="img-responsive" style="max-width:80px;padding:3px;display:inline;"> -->
+				<td>
+					<img src="assets/images/ports-minidp.jpg" class="img-responsive">
+					<span>Mini DisplayPort</span>
 				</td>
 			{if $hasHDMI}
-				<td style="vertical-align:middle;">
-					<img src="assets/images/adapters-minidp-hdmi.jpg" class="img-responsive" style="max-height:100px;display:inline;">
-					<span style="margin-left:15px;font-weight:bold">MiniDP to HDMI</span>
+				<td>
+					<img src="assets/images/adapters-minidp-hdmi.jpg" class="img-responsive">
+					<span>MiniDP to HDMI</span>
 				</td>
 			{/if}
 			{if $hasVGA}
-				<td style="vertical-align:middle;">
-					<img src="assets/images/adapters-minidp-vga.jpg" class="img-responsive" style="max-height:100px;display:inline;">
-					<span style="margin-left:15px;font-weight:bold">MiniDP to VGA</span>
+				<td>
+					<img src="assets/images/adapters-minidp-vga.jpg" class="img-responsive">
+					<span>MiniDP to VGA</span>
 				</td>
 			{/if}
 			</tr>
 			<tr>
-				<td style="vertical-align:middle;padding:6px;">
-					<img src="assets/images/ports-hdmi.jpg" class="img-responsive" style="max-width:50px;padding:3px;display:inline;">
-					<span style="margin-left:15px;font-weight:bold">HDMI</span>
-					<!-- <img src="assets/images/cables-hdmi.jpg" class="img-responsive" style="max-width:80px;padding:3px;display:inline;"> -->
+				<td>
+					<img src="assets/images/ports-hdmi.jpg" class="img-responsive">
+					<span>HDMI</span>
 				</td>
 			{if $hasHDMI}
-				<td style="vertical-align:middle;font-weight:bold;text-align:center;background-color:#fafafa;height:100px;color:#999;">&mdash; None &mdash;</td>
+				<td class="no-adapter"><span>&mdash; None &mdash;</span></td>
 			{/if}
 			{if $hasVGA}
-				<td style="vertical-align:middle;">
-					<img src="assets/images/adapters-hdmi-vga.jpg" class="img-responsive" style="max-height:100px;display:inline;">
-					<span style="margin-left:15px;font-weight:bold">HDMI to VGA</span>
+				<td>
+					<img src="assets/images/adapters-hdmi-vga.jpg" class="img-responsive">
+					<span>HDMI to VGA</span>
 				</td>
 			{/if}
 			</tr>
 			<tr>
-				<td style="vertical-align:middle;padding:6px;">
-					<img src="assets/images/ports-vga.jpg" class="img-responsive" style="max-width:50px;padding:3px;display:inline;">
-					<span style="margin-left:15px;font-weight:bold">VGA</span>
-					<!-- <img src="assets/images/cables-vga.jpg" class="img-responsive" style="max-width:80px;padding:3px;display:inline;"> -->
+				<td>
+					<img src="assets/images/ports-vga.jpg" class="img-responsive">
+					<span>VGA</span>
 				</td>
 			{if $hasHDMI}
-				<td style="vertical-align:middle;">
-					<img src="assets/images/adapters-vga-hdmi.jpg" class="img-responsive" style="max-height:100px;display:inline;">
-					<span style="margin-left:15px;font-weight:bold">VGA to HDMI</span>
+				<td>
+					<img src="assets/images/adapters-vga-hdmi.jpg" class="img-responsive">
+					<span>VGA to HDMI</span>
 				</td>
 			{/if}
 			{if $hasVGA}
-				<td style="vertical-align:middle;font-weight:bold;text-align:center;background-color:#fafafa;height:100px;color:#999;">&mdash; None &mdash;</td>
+				<td class="no-adapter"><span>&mdash; None &mdash;</span></td>
 			{/if}
 			</tr>
 		</tbody>
