@@ -205,9 +205,10 @@
 					<span>VGA</span>
 				</td>
 			{if $hasHDMI}
-				<td>
-					<img src="assets/images/adapters-vga-hdmi.jpg" class="img-responsive">
-					<span>VGA to HDMI</span>
+				<td class="no-adapter">
+					<span>&mdash; None &mdash;</span>
+<!-- 					<img src="assets/images/adapters-vga-hdmi.jpg" class="img-responsive">
+					<span>VGA to HDMI</span> -->
 				</td>
 			{/if}
 			{if $hasVGA}
