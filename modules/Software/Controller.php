@@ -186,8 +186,8 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         $this->template->categories = $categories->getAll(['orderBy' => 'name']);
         $this->template->developers = $developers->getAll(['orderBy' => 'name']);
         $notesCondition = $notes->anyTrue(
-            $notes->path->equals($location->getNotePath()),
-            $notes->path->like($location->getNotePath().'/%')
+            $notes->path->equals($title->getNotePath()),
+            $notes->path->like($title->getNotePath().'/%')
         );
         $this->template->notes = $title->inDatasource ? $notes->find(
             $notesCondition, ['orderBy' => '-createdDate']
@@ -304,8 +304,8 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         // $this->template->pEdit = true ?? $this->hasPermission('edit software');
     	$this->template->title = $title;
         $notesCondition = $notes->anyTrue(
-            $notes->path->equals($location->getNotePath()),
-            $notes->path->like($location->getNotePath().'/%')
+            $notes->path->equals($title->getNotePath()),
+            $notes->path->like($title->getNotePath().'/%')
         );
         $this->template->notes = $title->inDatasource ? $notes->find(
             $notesCondition, ['orderBy' => '-createdDate']
@@ -437,8 +437,8 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
    		$this->template->title = $title;
    		$this->template->license = $license;
         $notesCondition = $notes->anyTrue(
-            $notes->path->equals($location->getNotePath()),
-            $notes->path->like($location->getNotePath().'/%')
+            $notes->path->equals($title->getNotePath()),
+            $notes->path->like($title->getNotePath().'/%')
         );
         $this->template->notes = $title->inDatasource ? $notes->find(
             $notesCondition, ['orderBy' => '-createdDate']
