@@ -2,6 +2,12 @@
 	Room <small>{$room->building->code} {$room->number}</small>
 </h1>
 
+{if $upgrade}
+<p class="alert alert-warning">
+	{$upgrade->getSummary()}
+</p>
+{/if}
+
 {if $room->type->isLab}
 <p class="alert alert-info">
 	<img style="max-width:30px;display:inline;" src="assets/images/laboratory.png" class="img-responsive" alt="Icon of microscope"> <strong style="display:inline;">This is a Lab type room.</strong> 
@@ -16,6 +22,13 @@
 	<div class="col-sm-12">
 		{if $pSupport && $roomSchedules}<a  href="schedules?room={$room->id}" class="btn btn-primary">Schedules for this room</a>{/if}
 		{if $pEdit}<a href="rooms/{$room->id}/edit" class="btn btn-info">Edit Room</a>{/if}
+		{if $pEdit}
+			{if $upgrade}
+				<a href="rooms/{$room->id}/upgrades/{$upgrade->id}/edit" class="btn btn-default">Edit Scheduled Upgrade</a>
+			{else}
+				<a href="rooms/{$room->id}/upgrades/new/edit" class="btn btn-default">Schedule Upgrade</a>
+			{/if}
+		{/if}
 	</div>
 </div>
 {/if}

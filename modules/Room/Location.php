@@ -55,7 +55,12 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
                 'reverseOf' => 'room', 
                 'orderBy' => [ '-uploadedDate' ]
             ],
-            
+            'upgrades' => ['1:N', 
+                'to' => 'Classrooms_Room_Upgrade', 
+                'reverseOf' => 'room', 
+                'orderBy' => [ '-upgradeDate' ]
+            ],
+         
             'createdDate' => [ 'datetime', 'nativeName' => 'created_date' ],
             'modifiedDate' => [ 'datetime', 'nativeName' => 'modified_date' ],
         ];

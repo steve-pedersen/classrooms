@@ -194,6 +194,21 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('description', 'string');
                 $def->save();
                 break;
+
+            case 6:
+                $def = $this->createEntityType('classroom_room_upgrades', $this->getDataSource('Classrooms_Room_Upgrade'));
+                $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
+                $def->addProperty('room_id', 'int');
+                $def->addProperty('relocated_to', 'int');
+                $def->addProperty('upgrade_date', 'datetime');
+                $def->addProperty('is_complete', 'bool');
+                $def->addProperty('notification_sent', 'bool');
+                $def->addProperty('created_date', 'datetime');
+                $def->addProperty('modified_date', 'datetime');
+                $def->addIndex('room_id');
+                $def->addIndex('relocated_to');
+                $def->save();
+                break;
         }
     }
 }

@@ -32,7 +32,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/rooms/:building/:number' => ['callback' => 'parseUrl'],
             '/rooms/:roomid/tutorials/:id/edit' => ['callback' => 'editTutorial', ':id' => '[0-9]+|new'],
             '/rooms/:id/configurations/:cid/edit' => ['callback' => 'editConfiguration'],
-            // '/tutorials' => ['callback' => 'listTutorials'],
+            '/rooms/:id/upgrades/:uid/edit' => ['callback' => 'editUpgrade'],
             '/buildings' => ['callback' => 'listBuildings'],
             '/buildings/:id/edit' => ['callback' => 'editBuilding', ':id' => '[0-9]+|new'],
             '/types' => ['callback' => 'listTypes'],
@@ -45,6 +45,90 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         ];
     }
 
+    public function editUpgrade ()
+    {
+        $viewer = $this->requireLogin();
+        $this->requirePermission('edit');
+
+        $_locations = $this->schema('Classrooms_Room_Location');
+        $upgrades = $this->schema('Classrooms_Room_Upgrade');
+        $room = $this->requireExists($this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id'));
+        $uid = $this->getRouteVariable('uid');
+        $upgrade = $uid === 'new' ? $upgrades->createInstance() : $upgrades->get($uid);
+        
+        $this->addBreadcrumb('rooms', 'List Rooms');
+        $this->addBreadcrumb('rooms/' . $room->id . '/edit', 'Edit ' . $room->codeNumber);
+        $this->setPageTitle('Upgrade room ' . $room->codeNumber);
+
+        if ($this->request->wasPostedByUser())
+        {
+            switch ($this->getPostCommand())
+            {
+                case 'update':
+                    $existing = $upgrade->inDatasource ? clone $upgrade : null;
+                case 'save':
+                    $upgrade->room = $room;
+                    $upgrade->relocated_to = (int) $this->request->getPostParameter('relocatedTo');
+                    $upgrade->upgradeDate = new DateTime($this->request->getPostParameter('upgradeDate'));
+                    $upgrade->isComplete = $this->request->getPostParameter('isComplete', false);
+                    $upgrade->notificationSent = $this->request->getPostParameter('notificationSent', false);
+                    $upgrade->createdDate = $upgrade->inDatasource ? $upgrade->createdDate : new DateTime;
+                    $upgrade->save();
+
+                    $relocatedTo = $upgrade->relocated_to ? $_locations->get($upgrade->relocated_to) : null;
+                    $message = 'Room '.$room->codeNumber.' scheduled for upgrade on '. $upgrade->upgradeDate->format('m/d/Y').'.'; 
+                    $message .= $relocatedTo ? ' Classes relocated to '.$relocatedTo->codeNumber.'.' : '';
+
+                    if ($existing && $upgrade->hasDiff($existing))
+                    {
+                        $message = '[Updated] ' . $message;
+                        $upgrade->modifiedDate = new DateTime;
+                        $upgrade->save();
+                        $upgrade->addNote($message, $viewer, $upgrade->getDiff($existing));
+                    }
+                    elseif (!$existing)
+                    {
+                        $upgrade->addNote($message, $viewer);
+                    }
+                    else
+                    {
+                        $this->flash('No changes were applied', 'danger');
+                        break;
+                    }
+
+                    // TODO: queue mail for delivery
+
+                    $this->flash($message);
+                    break;
+
+                case 'delete':
+                    $message = 'The upgrade scheduled for Room '.$room->codeNumber.' on '. $upgrade->upgradeDate->format('m/d/Y').' was deleted.'; 
+                    $upgrade->addNote($message, $viewer);
+                    $upgrade->delete();
+                    $this->flash($message);
+                    break;
+            }
+
+            $this->response->redirect($room->roomUrl);
+        }
+
+        $locations = [];
+        $results = $_locations->find(
+            $_locations->deleted->isNull()->orIf($_locations->deleted->isFalse()),
+            ['orderBy' => ['building_id', 'number']]
+        );
+        foreach ($results as $result)
+        {
+            $locations[$result->codeNumber] = $result;
+        }
+        ksort($locations, SORT_NATURAL);
+
+        $this->template->room = $room;
+        $this->template->upgrade = $upgrade;
+        $this->template->viewer = $viewer;
+        $this->template->locations = $locations;
+    }
+
     public function view ()
     {
         $location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id');
@@ -52,6 +136,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->setPageTitle('View room ' . $location->codeNumber);
 
         $notes = $this->schema('Classrooms_Notes_Entry');
+        $upgrades = $this->schema('Classrooms_Room_Upgrade');
         $siteSettings = $this->getApplication()->siteSettings;
         
         $facilityId = $location->building->code . '^' . $location->number;
@@ -70,6 +155,13 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             // $schedules->termYear->equals($currentSemester)->andIf($schedules->room_id->equals($location->id))
         );
         
+        $upgrade = $upgrades->findOne(
+            $upgrades->room_id->equals($location->id)->andIf(
+                $upgrades->isComplete->isNull()->orIf($upgrades->isComplete->isFalse())
+            )
+        );
+
+        $this->template->upgrade = $upgrade;
         $this->template->trackUrl = $trackRoomUrlApi;
         $this->template->mode = $this->request->getQueryParameter('mode', 'basic');
     	$this->template->room = $location;
@@ -665,6 +757,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $buildings = $this->schema('Classrooms_Room_Building');
         $licenses = $this->schema('Classrooms_Software_License');
         $notes = $this->schema('Classrooms_Notes_Entry');
+        $upgrades = $this->schema('Classrooms_Room_Upgrade');
         $siteSettings = $this->getApplication()->siteSettings;
 
         if ($location->inDatasource)
@@ -675,6 +768,12 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         {
             $this->setPageTitle('Edit new room');
         }
+
+        $upgrade = $upgrades->findOne(
+            $upgrades->room_id->equals($location->id)->andIf(
+                $upgrades->isComplete->isNull()->orIf($upgrades->isComplete->isFalse())
+            )
+        );
 
         $customConfigurations = [];
         foreach ($location->customConfigurations as $custom)
@@ -700,7 +799,6 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             {
                 case 'save':
                     $data = $this->request->getPostParameters();
-                    // echo "<pre>"; var_dump($data['config']); die;
                     
                     if (!isset($data['room']['number']) || $data['room']['number'] === '')
                     {
@@ -789,17 +887,12 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
                     $bundleChanges = $this->saveRoomBundles($location, $this->request->getPostParameters());
 
-                    // if ($newFiles = $this->request->getPostParameter('newfiles'))
-                    // {
-                    //     $files = $this->schema('Classrooms_Files_File');
-                    //     foreach ($newFiles as $fid)
-                    //     {
-                    //         $file = $files->get($fid);
-                    //         $file->location_id = $location->id;
-                    //         $file->moveToPermanentStorage();
-                    //         $file->save();
-                    //     }
-                    // }
+                    if ($upgrade && !$upgrade->isComplete && isset($data['completeUpgrade']))
+                    {
+                        $upgrade->isComplete = true;
+                        $upgrade->save();
+                        $upgrade->addNote('Room upgrade complete', $viewer);
+                    }
 
                     $this->flash('Room saved.');
                     $this->response->redirect('rooms/' . $location->id);
@@ -838,10 +931,11 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         sort($scheduledBy);
         sort($supportedBy);
         ksort($supportedByText);
-        
+
         $this->template->location = $location;
         $this->template->selectedConfiguration = $selectedConfiguration;
         $this->template->customConfigurations = $customConfigurations;
+        $this->template->upgrade = $upgrade;
         $this->template->types = $types->getAll(['orderBy' => 'name']);
         $this->template->buildings = $buildings->getAll(['orderBy' => 'code']);
         $this->template->roomAvEquipment = $location->avEquipment ? unserialize($location->avEquipment) : [];
