@@ -82,7 +82,17 @@ class Classrooms_Communication_ModuleUpgradeHandler extends Bss_ActiveRecord_Bas
                 $def = $this->alterEntityType('classroom_communication_types', 'Classrooms_Communication_Type');
                 $def->addProperty('include_unconfigured_rooms', 'bool');
                 $def->save();
-                break;             
+                break;   
+
+            case 6:
+                $def = $this->alterEntityType('classroom_communication_communications', 'Classrooms_Communication_Communication');
+                $def->addProperty('upgrade_room', 'string');
+                $def->save();
+
+                $def = $this->alterEntityType('classroom_communication_types', 'Classrooms_Communication_Type');
+                $def->addProperty('is_upgrade', 'bool');
+                $def->save();
+                break;
         }
     }
 }

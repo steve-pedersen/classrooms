@@ -26,6 +26,55 @@ class Classrooms_Communication_Manager
     $this->facultyRole = $roleSchema->findOne($roleSchema->name->equals($roleName));
   }
 
+  public function processRoomUpgradeCommunication ($upgrade)
+  {
+    $facultySchema = $this->getSchema('Classrooms_ClassData_User');
+    $scheduleSchema = $this->getSchema('Classrooms_ClassData_CourseSchedule');
+    $eventSchema = $this->getSchema('Classrooms_Communication_Event');
+    $commTypeSchema = $this->getSchema('Classrooms_Communication_Type');
+    $commSchema = $this->getSchema('Classrooms_Communication_Communication');
+
+    $upgradeType = $commTypeSchema->findOne($commTypeSchema->isUpgrade->isTrue());
+    if (!$upgradeType)
+    {
+      $this->app->log('info', 'Upgrade #' . $upgrade->id . ' email not sent due to unconfigured communication type.');
+      return;
+    }
+
+    $communication = $commSchema->findOne($commSchema->type_id->equals($upgradeType->id));
+    if (!$communication)
+    {
+      $this->app->log('info', 'Upgrade #' . $upgrade->id . ' email not sent due to unconfigured upgrade communication.');
+      return;
+    }
+
+    $event = $eventSchema->createInstance();
+    $event->creationDate = $event->sendDate = new DateTime;
+    $event->communication = $communication;
+    $event->termYear = $upgrade->termYear;
+    $event->sent = true; // setting to true so it doesn't get picked up by the cron if something fails
+    $event->save();
+
+    $condition = $scheduleSchema->allTrue(
+      $scheduleSchema->room_id->equals($upgrade->room_id),
+      $scheduleSchema->termYear->equals($upgrade->getTermYear()),
+      $scheduleSchema->userDeleted->isNull()->orIf($scheduleSchema->userDeleted->isFalse())
+    );
+    $schedules = $scheduleSchema->find($condition, ['arrayKey' => 'faculty_id']);
+
+    foreach ($schedules as $username => $schedule)
+    {
+      $faculty = $facultySchema->get($username);
+      $this->processFacultyCommunicationEvent($event, $faculty, $upgrade, true);
+    }
+
+    $event->sent = true;
+    $event->save();
+    $event->logs->save();
+
+    return $event->logs;
+  }
+
   public function processCommunicationEvent (Classrooms_Communication_Event $event)
   {
     if ($event->sent)
@@ -126,7 +175,7 @@ class Classrooms_Communication_Manager
   }
 
 
-  public function processFacultyCommunicationEvent ($event, $faculty, $commData = null)
+  public function processFacultyCommunicationEvent ($event, $faculty, $commData = null, $isUpgrade = false)
   {
     $accountSchema = $this->getSchema('Bss_AuthN_Account');
     if (!($account = $accountSchema->get($faculty->id)))
@@ -160,7 +209,14 @@ class Classrooms_Communication_Manager
     $eventLog->emailAddress = $faculty->emailAddress;
     $eventLog->creationDate = new DateTime;
 
-    $this->sendRoomMasterTemplate($commData, $account, $event);
+    if ($isUpgrade)
+    {
+      $this->sendUpgradeRoomMasterTemplate($commData, $account, $event);
+    }
+    else
+    {
+      $this->sendRoomMasterTemplate($commData, $account, $event);
+    }
 
     $event->logs->add($eventLog);
   }
@@ -181,6 +237,46 @@ class Classrooms_Communication_Manager
     );
 
     $this->sendEmail($user, $params, $communication->roomMasterTemplate);
+  }
+
+  public function sendUpgradeRoomMasterTemplate ($upgrade, $user, $event)
+  { 
+    $communication = $event->communication;
+
+    $params = array(
+      '|%FIRST_NAME%|' => $user->firstName,
+      '|%LAST_NAME%|' => $user->lastName,
+      '|%SEMESTER%|' => $event->formatTermYear(),
+      '|%CONTACT_EMAIL%|' => "<a href='mailto:$this->contactEmail'>$this->contactEmail</a>",
+      '|%UPGRADE_ROOM_WIDGET%|' => $this->getUpgradeRoomWidget($upgrade, $communication->upgradeRoom),
+    );
+
+    $this->sendEmail($user, $params, $communication->roomMasterTemplate);
+  }
+
+  private function getUpgradeRoomWidget($upgrade, $templateText)
+  {
+    if ($upgrade && $templateText)
+    { 
+      $relocatedTo = $this->getSchema('Classrooms_Room_Location')->get($upgrade->relocated_to);
+      $relocatedLink = $relocatedTo ? '<a href="'.$relocatedTo->getRoomUrl().'">'.$relocatedTo->getCodeNumber().'</a>' : 'N/A';
+      $roomLink = '<a href="'.$upgrade->room->getRoomUrl().'">'.$upgrade->room->getCodeNumber().'</a>';
+      
+      $params = [
+        '|%UPGRADE_DATE%|' => $upgrade->upgradeDate->format('m/d/Y'),
+        '|%ROOM_TO_BE_UPGRADED_LINK%|' => $roomLink,
+        '|%RELOCATED_TO_ROOM_LINK%|' => $relocatedLink
+      ];
+
+      $preppedText = strtr($templateText, $params);
+      $template = $this->ctrl->createTemplateInstance();
+      $template->disableMasterTemplate();
+      $template->templateText = $preppedText;
+
+      return trim($template->fetch($this->ctrl->getModule()->getResource('upgradeRoom.email.tpl')));
+    }
+
+    return '';
   }
 
   public function sendEmail($user, $params, $templateText)

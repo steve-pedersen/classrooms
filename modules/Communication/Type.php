@@ -16,8 +16,9 @@ class Classrooms_Communication_Type extends Bss_ActiveRecord_Base
             'id' => 'int',
             'name' => 'string',
             'deleted' => 'bool',
+            'isUpgrade' => ['bool', 'nativeName' => 'is_upgrade'],
             'includeCoursesWithoutRooms' => ['bool', 'nativeName' => 'include_courses_without_rooms'], // e.g. online
-            'includeUnconfiguredRooms' => ['bool', 'nativeName' => 'include_unconfigured_rooms'], // e.g. online
+            'includeUnconfiguredRooms' => ['bool', 'nativeName' => 'include_unconfigured_rooms'],
 
             'communications' => ['1:N', 
                 'to' => 'Classrooms_Communication_Communication', 

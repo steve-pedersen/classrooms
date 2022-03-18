@@ -25,6 +25,17 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label for="semester" class="col-sm-3 control-label">Semester during upgrade</label>
+						<div class="col-sm-9">
+							<select class="form-control" id="semester" name="semester" required>
+								<option value="">Select semester...</option>
+							{foreach $semesters as $key => $semester}
+								<option value="{$key}" {if $upgrade->semester == $key}selected{/if}>{$semester}</option>
+							{/foreach}
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
 						<label for="relocatedTo" class="col-sm-3 control-label">Classes relocated to</label>
 						<div class="col-sm-9">
 							<select class="form-control selectpicker" id="relocatedTo" name="relocatedTo">

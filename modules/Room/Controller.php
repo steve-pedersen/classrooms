@@ -45,90 +45,6 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         ];
     }
 
-    public function editUpgrade ()
-    {
-        $viewer = $this->requireLogin();
-        $this->requirePermission('edit');
-
-        $_locations = $this->schema('Classrooms_Room_Location');
-        $upgrades = $this->schema('Classrooms_Room_Upgrade');
-        $room = $this->requireExists($this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id'));
-        $uid = $this->getRouteVariable('uid');
-        $upgrade = $uid === 'new' ? $upgrades->createInstance() : $upgrades->get($uid);
-        
-        $this->addBreadcrumb('rooms', 'List Rooms');
-        $this->addBreadcrumb('rooms/' . $room->id . '/edit', 'Edit ' . $room->codeNumber);
-        $this->setPageTitle('Upgrade room ' . $room->codeNumber);
-
-        if ($this->request->wasPostedByUser())
-        {
-            switch ($this->getPostCommand())
-            {
-                case 'update':
-                    $existing = $upgrade->inDatasource ? clone $upgrade : null;
-                case 'save':
-                    $upgrade->room = $room;
-                    $upgrade->relocated_to = (int) $this->request->getPostParameter('relocatedTo');
-                    $upgrade->upgradeDate = new DateTime($this->request->getPostParameter('upgradeDate'));
-                    $upgrade->isComplete = $this->request->getPostParameter('isComplete', false);
-                    $upgrade->notificationSent = $this->request->getPostParameter('notificationSent', false);
-                    $upgrade->createdDate = $upgrade->inDatasource ? $upgrade->createdDate : new DateTime;
-                    $upgrade->save();
-
-                    $relocatedTo = $upgrade->relocated_to ? $_locations->get($upgrade->relocated_to) : null;
-                    $message = 'Room '.$room->codeNumber.' scheduled for upgrade on '. $upgrade->upgradeDate->format('m/d/Y').'.'; 
-                    $message .= $relocatedTo ? ' Classes relocated to '.$relocatedTo->codeNumber.'.' : '';
-
-                    if ($existing && $upgrade->hasDiff($existing))
-                    {
-                        $message = '[Updated] ' . $message;
-                        $upgrade->modifiedDate = new DateTime;
-                        $upgrade->save();
-                        $upgrade->addNote($message, $viewer, $upgrade->getDiff($existing));
-                    }
-                    elseif (!$existing)
-                    {
-                        $upgrade->addNote($message, $viewer);
-                    }
-                    else
-                    {
-                        $this->flash('No changes were applied', 'danger');
-                        break;
-                    }
-
-                    // TODO: queue mail for delivery
-
-                    $this->flash($message);
-                    break;
-
-                case 'delete':
-                    $message = 'The upgrade scheduled for Room '.$room->codeNumber.' on '. $upgrade->upgradeDate->format('m/d/Y').' was deleted.'; 
-                    $upgrade->addNote($message, $viewer);
-                    $upgrade->delete();
-                    $this->flash($message);
-                    break;
-            }
-
-            $this->response->redirect($room->roomUrl);
-        }
-
-        $locations = [];
-        $results = $_locations->find(
-            $_locations->deleted->isNull()->orIf($_locations->deleted->isFalse()),
-            ['orderBy' => ['building_id', 'number']]
-        );
-        foreach ($results as $result)
-        {
-            $locations[$result->codeNumber] = $result;
-        }
-        ksort($locations, SORT_NATURAL);
-
-        $this->template->room = $room;
-        $this->template->upgrade = $upgrade;
-        $this->template->viewer = $viewer;
-        $this->template->locations = $locations;
-    }
-
     public function view ()
     {
         $location = $this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id');
@@ -644,6 +560,97 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             ['hours' => '4', 'text' => 'Now +4 hours'],
         ];
     }
+
+    public function editUpgrade ()
+    {
+        $viewer = $this->requireLogin();
+        $this->requirePermission('edit');
+
+        $_locations = $this->schema('Classrooms_Room_Location');
+        $upgrades = $this->schema('Classrooms_Room_Upgrade');
+        $room = $this->requireExists($this->helper('activeRecord')->fromRoute('Classrooms_Room_Location', 'id'));
+        $uid = $this->getRouteVariable('uid');
+        $upgrade = $uid === 'new' ? $upgrades->createInstance() : $upgrades->get($uid);
+        
+        $this->addBreadcrumb('rooms', 'List Rooms');
+        $this->addBreadcrumb('rooms/' . $room->id . '/edit', 'Edit ' . $room->codeNumber);
+        $this->setPageTitle('Upgrade room ' . $room->codeNumber);
+
+        if ($this->request->wasPostedByUser())
+        {
+            switch ($this->getPostCommand())
+            {
+                case 'update':
+                    $existing = $upgrade->inDatasource ? clone $upgrade : null;
+                case 'save':
+                    $upgrade->room = $room;
+                    $upgrade->semester = (int) $this->request->getPostParameter('semester');
+                    $upgrade->relocated_to = (int) $this->request->getPostParameter('relocatedTo');
+                    $upgrade->upgradeDate = new DateTime($this->request->getPostParameter('upgradeDate'));
+                    $upgrade->isComplete = $this->request->getPostParameter('isComplete', false);
+                    $upgrade->notificationSent = $this->request->getPostParameter('notificationSent', false);
+                    $upgrade->createdDate = $upgrade->inDatasource ? $upgrade->createdDate : new DateTime;
+                    $upgrade->save();
+
+                    $relocatedTo = $upgrade->relocated_to ? $_locations->get($upgrade->relocated_to) : null;
+                    $message = 'Room '.$room->codeNumber.' scheduled for upgrade on '. $upgrade->upgradeDate->format('m/d/Y').'.'; 
+                    $message .= $relocatedTo ? ' Classes relocated to '.$relocatedTo->codeNumber.'.' : '';
+
+                    if ($existing && $upgrade->hasDiff($existing))
+                    {
+                        $message = '[Updated] ' . $message;
+                        $upgrade->modifiedDate = new DateTime;
+                        $upgrade->save();
+                        $upgrade->addNote($message, $viewer, $upgrade->getDiff($existing));
+                    }
+                    elseif (!$existing)
+                    {
+                        $upgrade->addNote($message, $viewer);
+                    }
+                    else
+                    {
+                        $this->flash('No changes were applied', 'danger');
+                        break;
+                    }
+
+                    $manager = new Classrooms_Communication_Manager($this->getApplication(), $this);
+                    if ($logs = $manager->processRoomUpgradeCommunication($upgrade))
+                    {
+                        $upgrade->addNote('Upgrade email notification sent to ' . count($logs) . ' instructors.', $viewer);
+                    }
+
+                    $this->flash($message);
+                    break;
+
+                case 'delete':
+                    $message = 'The upgrade scheduled for Room '.$room->codeNumber.' on '. $upgrade->upgradeDate->format('m/d/Y').' was deleted.'; 
+                    $upgrade->addNote($message, $viewer);
+                    $upgrade->delete();
+                    $this->flash($message);
+                    break;
+            }
+
+            $this->response->redirect($room->roomUrl);
+        }
+
+        $locations = [];
+        $results = $_locations->find(
+            $_locations->deleted->isNull()->orIf($_locations->deleted->isFalse()),
+            ['orderBy' => ['building_id', 'number']]
+        );
+        foreach ($results as $result)
+        {
+            $locations[$result->codeNumber] = $result;
+        }
+        ksort($locations, SORT_NATURAL);
+
+        $this->template->room = $room;
+        $this->template->upgrade = $upgrade;
+        $this->template->viewer = $viewer;
+        $this->template->locations = $locations;
+        $this->template->semesters = [1 => 'Winter', 3 => 'Spring', 5 => 'Summer', 7 => 'Fall'];
+    }
+
 
     public function listConfigurations ()
     {

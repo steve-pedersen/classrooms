@@ -53,14 +53,18 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
             switch ($this->getPostCommand())
             {
                 case 'save':
-                    $this->processSubmission($type, ['name', 'includeUnconfiguredRooms', 'includeCoursesWithoutRooms']);
+                    $this->processSubmission($type, ['name', 'isUpgrade', 'includeUnconfiguredRooms', 'includeCoursesWithoutRooms']);
+                    
                     $type->roomTypes->removeAll();
-                    foreach ($this->request->getPostParameter('roomTypes') as $id => $checked)
+                    if ($typeData = $this->request->getPostParameter('roomTypes'))
                     {
-                        if ($roomType = $roomTypeSchema->get($id))
+                        foreach ($typeData as $id => $checked)
                         {
-                            $type->roomTypes->add($roomType);
-                        }
+                            if ($roomType = $roomTypeSchema->get($id))
+                            {
+                                $type->roomTypes->add($roomType);
+                            }
+                        }                        
                     }
                     $type->save();
                     $type->roomTypes->save();
@@ -128,7 +132,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
                     break;
 
                 case 'save':
-                    $this->processSubmission($comm, ['roomMasterTemplate', 'type_id','labRoom', 'nonlabRoom', 'unconfiguredRoom', 'noRoom']);
+                    $this->processSubmission($comm, ['roomMasterTemplate', 'type_id','upgradeRoom','labRoom', 'nonlabRoom', 'unconfiguredRoom', 'noRoom']);
 
                     if ($comm->isValid())
                     {
@@ -145,7 +149,7 @@ class Classrooms_Communication_Controller extends Classrooms_Master_Controller
 
                 case 'send':
                     $viewer = $this->getAccount();
-                    $this->processSubmission($comm, ['roomMasterTemplate', 'type_id','labRoom', 'nonlabRoom', 'unconfiguredRoom', 'noRoom']);
+                    $this->processSubmission($comm, ['roomMasterTemplate', 'type_id','upgradeRoom','labRoom', 'nonlabRoom', 'unconfiguredRoom', 'noRoom']);
                     $command = $this->request->getPostParameter('command');
                     $which = array_keys($command['send']);
                     $which = array_pop($which);

@@ -25,6 +25,7 @@ class Classrooms_ClassData_CourseSchedule extends Bss_ActiveRecord_Base
             'modifiedDate' => ['datetime', 'nativeName' => 'modified_date'],
 
             'faculty' => ['1:1', 'to' => 'Classrooms_ClassData_User', 'keyMap' => ['faculty_id' => 'id']],
+            'user' => ['1:1', 'to' => 'Bss_AuthN_Account', 'keyMap' => ['faculty_id' => 'username']],
             'account' => ['1:1', 'to' => 'Bss_AuthN_Account', 'keyMap' => ['account_id' => 'id']],
             'room' => ['1:1', 'to' => 'Classrooms_Room_Location', 'keyMap' => ['room_id' => 'id']],
             'course' => ['1:1', 'to' => 'Classrooms_ClassData_CourseSection', 'keyMap' => ['course_section_id' => 'id']],

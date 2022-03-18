@@ -23,6 +23,14 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label for="isUpgrade" class="col-sm-3 control-label">
+							Is this a room upgrade notification?
+						</label>
+						<div class="col-sm-9">
+							<input type="checkbox" name="isUpgrade" {if $type->isUpgrade}checked{/if}>
+						</div>
+					</div>
+					<div class="form-group">
 						<label for="includeCoursesWithoutRooms" class="col-sm-3 control-label">
 							Include any courses without rooms (e.g. online)?
 						</label>
@@ -43,6 +51,7 @@
 							<span href="#" data-toggle="tooltip" data-placement="top" title="Communication templates created with this communication-type will include only classrooms of the following specified room-types.">
 								Choose room types for this communication type
 							</span>
+							<small class="help-block text-muted">N/A for upgrades</small>
 						</label>
 						<div class="col-sm-9">
                         <ul class="list-unstyled">

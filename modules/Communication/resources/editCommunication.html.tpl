@@ -22,7 +22,7 @@
 				<textarea name="roomMasterTemplate" id="roomMasterTemplate" class="wysiwyg form-control" rows="12">{$comm->roomMasterTemplate}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
-					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%SEMESTER%|</code>, <code>|%LAB_ROOM_WIDGET%|</code>, <code>|%NONLAB_ROOM_WIDGET%|</code>, <code>|%UNCONFIGURED_ROOM_WIDGET%|</code>, <code>|%NO_ROOM_WIDGET%|</code>, <code>|%CONTACT_EMAIL%|</code>
+					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%SEMESTER%|</code>, <code>|%UPGRADE_ROOM_WIDGET%|</code>, <code>|%LAB_ROOM_WIDGET%|</code>, <code>|%NONLAB_ROOM_WIDGET%|</code>, <code>|%UNCONFIGURED_ROOM_WIDGET%|</code>, <code>|%NO_ROOM_WIDGET%|</code>, <code>|%CONTACT_EMAIL%|</code>
 				</span>
 			</div>
 		</div>
@@ -71,6 +71,20 @@
 				</div>
 			</div>
 			<button type="submit" name="command[send][roomMasterTemplate]" aria-describedby="testroommastertemplate" class="btn btn-light">Send Test</button>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="form-group template-widget">
+				<label for="upgradeRoom">Room Upgrade Notification Widget</label>
+				<p class="lead">Use the tokens to customize the room upgrade notification message.</p>
+				<textarea name="upgradeRoom" id="upgradeRoom" class="wysiwyg form-control" rows="10">{$comm->upgradeRoom}</textarea>
+				<span class="help-block">
+					You can use the following tokens for context replacements to fill out the template widget: 
+					<code>|%UPGRADE_DATE%|</code>, <code>|%ROOM_TO_BE_UPGRADED_LINK%|</code>, <code>|%RELOCATED_TO_ROOM_LINK%|</code>
+				</span>
+			</div>
 		</div>
 	</div>
 

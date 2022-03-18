@@ -67,14 +67,15 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3>{$communicationType->name} - <small>Communication Template</small></h3>
-
 			</div>
 	{if $communicationType->communications->count()}
 		{foreach $communicationType->communications as $comm}
 			<div class="panel-body">
 				<div class="well">
 					Created {$comm->creationDate->format('M j, Y')}
-					{if $communicationType->communications->count()}
+					{if $communicationType->isUpgrade}
+						<span class="pull-right label label-info">Upgrade events are created automatically</span>
+					{else if $communicationType->communications->count()}
 					<a class="btn btn-default btn-sm pull-right" href="admin/communications/{$comm->id}/events/new">
 						<i class="halflings-icon plus"></i> New event
 					</a>

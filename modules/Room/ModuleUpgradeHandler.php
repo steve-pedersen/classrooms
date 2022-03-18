@@ -200,6 +200,7 @@ class Classrooms_Room_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUp
                 $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
                 $def->addProperty('room_id', 'int');
                 $def->addProperty('relocated_to', 'int');
+                $def->addProperty('semester', 'int');
                 $def->addProperty('upgrade_date', 'datetime');
                 $def->addProperty('is_complete', 'bool');
                 $def->addProperty('notification_sent', 'bool');

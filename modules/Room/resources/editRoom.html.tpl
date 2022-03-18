@@ -9,8 +9,9 @@
 	{$upgrade->getSummary()}
 	<br><br>
 	<em>Edit this room to complete the upgrade.</em>
+	<a href="rooms/{$location->id}/upgrades/{$upgrade->id}/edit" class="btn btn-default pull-right" style="margin-bottom:10px;">Edit Upgrade</a>
+	<br><br>
 </p>
-<a href="rooms/{$location->id}/upgrades/{$upgrade->id}/edit" class="btn btn-default pull-right" style="margin-bottom:10px;">Edit Upgrade</a>
 {elseif $location->inDatasource}
 <a href="rooms/{$location->id}/upgrades/new/edit" class="btn btn-default pull-right" style="margin-bottom:10px;">Schedule Upgrade</a>
 {/if}
