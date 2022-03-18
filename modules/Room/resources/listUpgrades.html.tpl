@@ -61,7 +61,7 @@
 		</tr>		
 	{foreachelse}
 		<tr>
-			<td colspan="4">No upgrades found.</td>
+			<td colspan="4">No {$status} upgrades found.</td>
 		</tr>
 	{/foreach}	
 	</tbody>
