@@ -640,10 +640,25 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                         break;
                     }
 
-                    $manager = new Classrooms_Communication_Manager($this->getApplication(), $this);
-                    if ($logs = $manager->processRoomUpgradeCommunication($upgrade))
+                    if ($this->request->getPostParameter('sendNotification'))
                     {
-                        $upgrade->addNote('Upgrade email notification sent to ' . count($logs) . ' instructors.', $viewer);
+                        $manager = new Classrooms_Communication_Manager($this->getApplication(), $this);
+                        if ($logs = $manager->processRoomUpgradeCommunication($upgrade))
+                        {
+                            if (count($logs) > 0)
+                            {
+                                $upgrade->addNote('Upgrade email notification sent to ' . count($logs) . ' instructors.', $viewer);
+                                $message .= ' Email sent to ' . count($logs) . ' instructors.';
+                            }
+                            else
+                            {
+                                $message .= ' No instructors are scheduled in this room.';
+                            }
+                        }
+                    }
+                    else
+                    {
+                        $message .= ' No email notifications sent.';
                     }
 
                     $this->flash($message);

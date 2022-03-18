@@ -53,7 +53,7 @@
 							Send email notification?
 						</label>
 						<div class="col-sm-9">
-							<input type="checkbox" id="sendNotification" name="sendNotification" checked disabled>
+							<input type="checkbox" id="sendNotification" name="sendNotification" checked>
 						</div>
 					</div>
 				</div>
