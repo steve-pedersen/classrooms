@@ -3,9 +3,16 @@
 </h1>
 
 {if $upgrade}
-<p class="alert alert-warning">
-	{$upgrade->getSummary()}
-</p>
+<div class="alert alert-warning">
+	<p class="lead"><strong>{$upgrade->getSummary()}</strong></p>
+	<p>
+	{if $supportText}
+		{$supportText}
+	{else}
+		For more information about this room, contact {if $room->supportedBy}<strong>{$room->supportedBy}</strong> or {/if}Academic Technology at <a href="mailto:at@sfsu.edu">at@sfsu.edu</a> or via phone at (415)405-5555.
+	{/if}
+	</p>
+</div>
 {/if}
 
 {if $room->type->isLab}
