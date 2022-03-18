@@ -68,7 +68,6 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
 
     public function getRoomUrl ()
     {
-        // return $this->getApplication()->baseUrl('rooms/' . $this->id);
         return $this->getApplication()->baseUrl(
             'rooms/' . strtolower($this->building->code) . '/' . strtolower($this->number)
         );
@@ -77,6 +76,24 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
     public function getCodeNumber ($delimiter = ' ')
     {
         return $this->building->code . $delimiter . $this->number;
+    }
+
+    public function hasPendingUpgrade ()
+    {
+        return $this->getPendingUpgrade() !== null;
+    }
+
+    public function getPendingUpgrade ()
+    {
+        foreach ($this->_fetch('upgrades') as $upgrade)
+        {
+            if (!$upgrade->isComplete)
+            {
+                return $upgrade;
+            }
+        }
+
+        return null;
     }
 
     public function hasSoftwareOrHardware ()

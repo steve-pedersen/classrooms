@@ -162,6 +162,13 @@
 	    		{/foreach}
     			</tbody>
     		</table>
+    		{if $room->hasPendingUpgrade()}
+    			{assign var=upgrade value=$room->getPendingUpgrade()}
+    			<strong class="text-warning">
+    				<i class="glyphicon glyphicon-exclamation-sign text-warning"></i>
+    				This room will be upgraded on {$upgrade->upgradeDate->format('m/d/Y')}
+    			</strong>
+    		{/if}
     	</div>
     	
     </div>
