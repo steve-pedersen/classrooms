@@ -24,6 +24,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/rooms/autocomplete' => ['callback' => 'autoComplete'],
             '/rooms/metadata' => ['callback' => 'roomMetadata'],
             '/rooms/unconfigured' => ['callback' => 'listUnconfiguredRooms'],
+            '/rooms/upgrades' => ['callback' => 'listUpgrades'],
             '/rooms/:id' => ['callback' => 'view', ':id' => '[0-9]+'],
             '/rooms/:id/edit' => ['callback' => 'editRoom', ':id' => '[0-9]+|new'],
             '/rooms/:id/upload' => ['callback' => 'uploadImages'],
@@ -559,6 +560,32 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             ['hours' => '3', 'text' => 'Now +3 hours'],
             ['hours' => '4', 'text' => 'Now +4 hours'],
         ];
+    }
+
+    public function listUpgrades ()
+    {
+        $viewer = $this->requireLogin();
+        $this->requirePermission('edit');
+        
+        $this->addBreadcrumb($this->baseUrl(''), 'Home');
+        $this->addBreadcrumb('rooms/metadata', 'Room Settings');
+
+        $status = $this->request->getQueryParameter('status', 'pending');
+        $_upgrades = $this->schema('Classrooms_Room_Upgrade');
+
+        switch ($status)
+        {
+            case 'complete':
+                $condition = $_upgrades->isComplete->isTrue();
+                break;
+            case 'pending':
+            default:
+                $condition = $_upgrades->isComplete->isFalse()->orIf($_upgrades->isComplete->isNull());
+                break;
+        }
+        
+        $this->template->upgrades = $_upgrades->find($condition, ['orderBy' => 'upgradeDate']);
+        $this->template->status = $status;
     }
 
     public function editUpgrade ()
