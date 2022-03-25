@@ -30,6 +30,7 @@
 #require js/blueimp/js/jquery.fileupload.js
 
 #require js/room.js
+#require js/software.js
 
 
 (function ($) {
@@ -147,14 +148,6 @@
         $('#viewImageModal .modal-body img').attr('src', imageSrc);
         $('#viewImageModal .modal-footer').prepend(deleteLink);
       });
-
-      $('.existing-items select').on('change', function (e) {
-        if ($(this).val()) {
-          let link = $('.existing-items .edit > a');
-          link.attr('href', `${link.attr('data-baseurl')}${$(this).val()}/edit`);
-        }
-      });
-
 
       autosize($('textarea.autosize'));
 

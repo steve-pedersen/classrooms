@@ -105,7 +105,8 @@
 					{if $selectedVersion->licenses && $selectedVersion->licenses->count() > 0}
 					<div class="form-group existing-items">
 						<label for="license[existing]" class="col-sm-2 control-label">License</label>
-						<div class="col-sm-9">
+						<div class="col-sm-10">
+							<div class="input-group">
 							<select name="license[existing]" id="existingLicenses" class="form-control">
 								<option value="">Choose License</option>
 						{foreach $title->versions as $version}
@@ -113,25 +114,30 @@
 							{foreach $version->licenses as $license}
 							{if !$license->deleted}
 								<option value="{$license->id}"{if $selectedLicense->id == $license->id} selected{/if}>
-									Title v{$version->number} | 
-									License #{$license->number}
+									License {$license->number} | 
+									Version {$version->number}
 									{if $license->seats} | {$license->seats} seats{/if}
 									{if $license->expirationDate} | Expires {$license->expirationDate->format('m/d/Y')}{/if}
-									{if $license->description} | {$license->description|truncate:100}{/if}
+									{if $license->description} | {$license->description|truncate:50}{/if}
 								</option>
 							{/if}
 							{/foreach}
 						{/if}
 						{/foreach}
 							</select>
+								<span class="input-group-btn">
+									<a href="software/{$title->id}/licenses/{$selectedLicense->id}/edit" data-baseurl="software/{$title->id}/licenses/" class="btn btn-info edit-license" type="button">Edit License</a>
+								</span>
+							</div>
 						</div>
-						<div class="col-sm-1 edit">
-							<a href="software/{$title->id}/licenses/{$selectedLicense->id}/edit" data-baseurl="software/{$title->id}/licenses/" class="btn btn-info pull-right">Edit</a>
-						</div>
+<!-- 						<div class="col-sm-1 edit">
+							<a href="software/{$title->id}/licenses/{$selectedLicense->id}/edit" data-baseurl="software/{$title->id}/licenses/" class="btn btn-info pull-right">Edit License</a>
+						</div> -->
 					</div>	
 					{/if}	
 
-					<h4 class="">Add new license <small>(for selected or new version)</small></h4>
+					<h4 class="">Add new license <small class="text-info">(for selected or new version)</small></h4>
+					<p class=""><em>To update license information for a specific version, click Edit License above.</em></p>
 					<div class="form-group">
 						<label for="license[new][number]" class="col-sm-2 control-label">License Number</label>
 						<div class="col-sm-10">
