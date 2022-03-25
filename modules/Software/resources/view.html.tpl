@@ -36,6 +36,7 @@
 				</thead>
 				<tbody>
 		{foreach $title->versions as $version}
+			{if $version->licenses->count() > 0}
 			{foreach $version->licenses as $license}
 				{assign var=checked value=false}
 				{foreach $config->softwareLicenses as $l}
@@ -55,6 +56,15 @@
 					<td>{$license->description|truncate:100}</td>
 				</tr>
 			{/foreach}
+			{else}
+				<tr>
+					<th>{$version->number}</th>
+					<td>N/A</td>
+					<td>N/A</td>
+					<td>N/A</td>
+					<td>N/A</td>
+				</tr>
+			{/if}
 		{/foreach}
 				</tbody>
 			</table>
