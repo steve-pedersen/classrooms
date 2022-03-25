@@ -51,7 +51,12 @@
 			<table class="table table-bordered table-condensed table-striped">
 				<thead>
 					<tr>
-						<th></th>
+						<th>
+							<input type="checkbox" id="select-all" data-target="software-titles">
+							<label for="select-all" id="select-all-label">
+								Check all
+							</label>
+						</th>
 						<th>Title</th>
 						<th>Version</th>
 						<th>License #</th>
@@ -76,7 +81,7 @@
 					{/if}
 					>
 					<th class="text-center">
-						<input type="checkbox" name="licenses[{$license->id}]" id="licenses[{$license->id}]" {if $checked}checked{/if}>
+						<input type="checkbox" class="software-titles" name="licenses[{$license->id}]" id="licenses[{$license->id}]" {if $checked}checked{/if}>
 					</th>
 					<td>
 						<label for="licenses[{$license->id}]">{$license->version->title->name}</label>

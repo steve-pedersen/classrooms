@@ -13,6 +13,19 @@
   	}
   });
 
+  $('#select-all').on('click', function (e) {
+  	let checkboxes = $(`.${$(this).attr('data-target')}`);
+	  checkboxes.each((i, em) => {
+	  	em.checked = this.checked;
+	  });
+
+	  if (this.checked) {
+	  	$('#select-all-label').text('Uncheck all');
+	  } else {
+	  	$('#select-all-label').text('Check all');
+	  }
+  });
+
     // AUTO-COMPLETE
 	var autoCompleteUrl = document.baseURI + 'rooms/autocomplete';
 	var animationTime = window.innerWidth < 480 ? 0 : 400;
