@@ -610,7 +610,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $configData = $this->request->getPostParameters();
                 
                     $config->addNote(
-                        'Configuration Bundle ' . ($config->id ? 'updated' : 'created'), 
+                        'Configuration Bundle ' . ($config->inDatasource ? 'updated' : 'created'), 
                         $viewer, 
                         $this->request->getPostParameters()
                     );
@@ -638,6 +638,17 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $this->response->redirect('configurations/' . $config->id);
         }
 
+        // $softwareTitles = [];
+        // $available = $titles->find(
+        //     $titles->deleted->isFalse()->orIf($titles->deleted->isNull()),
+        //     ['orderBy' => ['-modifiedDate', '-createdDate']]
+        // );
+        // foreach ($available as $title)
+        // {
+        //     $softwareTitles[$title->name.$title->id] = $title;        
+        // }
+        // ksort($softwareTitles, SORT_NATURAL);
+
         $softwareLicenses = [];
         foreach ($licenses->getAll() as $license)
         {
@@ -651,6 +662,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
         $this->template->config = $config;
         $this->template->softwareLicenses = $softwareLicenses;
+        // $this->template->softwareTitles = $softwareTitles;
     }
 
     public function editRoom ()
@@ -819,23 +831,16 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             }
         }
 
-
-
-        $softwareTitles = [];
-        $available = $titles->find(
-            $titles->deleted->isFalse()->orIf($titles->deleted->isNull()),
-            ['orderBy' => ['-modifiedDate', '-createdDate']]
-        );
-        foreach ($available as $title)
-        {
-            // if (!isset($softwareTitles[$title->name.$title->id]))
-            // {
-            //     $softwareTitles[$title->name.$title->id] = [];
-            // }
-            $softwareTitles[$title->name.$title->id] = $title;        
-        }
-        ksort($softwareTitles, SORT_NATURAL);
-
+        // $softwareTitles = [];
+        // $available = $titles->find(
+        //     $titles->deleted->isFalse()->orIf($titles->deleted->isNull()),
+        //     ['orderBy' => ['-modifiedDate', '-createdDate']]
+        // );
+        // foreach ($available as $title)
+        // {
+        //     $softwareTitles[$title->name.$title->id] = $title;        
+        // }
+        // ksort($softwareTitles, SORT_NATURAL);
 
 
         $softwareLicenses = [];
@@ -873,7 +878,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->roomAvEquipment = $location->avEquipment ? unserialize($location->avEquipment) : [];
         $this->template->allAvEquipment = self::$AllRoomAvEquipment;
         $this->template->softwareLicenses = $softwareLicenses;
-        $this->template->softwareTitles = $softwareTitles;
+        // $this->template->softwareTitles = $softwareTitles;
         $this->template->bundles = $configs->find($configs->isBundle->isTrue(), ['orderBy' => 'model']);
         $notesCondition = $notes->anyTrue(
             $notes->path->equals($location->getNotePath()),

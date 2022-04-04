@@ -48,7 +48,7 @@
 	<div class="form-group">
 		<label for="config" class="col-sm-2 control-label">Available Titles</label>
 		<div class="col-sm-10">
-			<table class="table table-bordered table-condensed table-striped">
+			<table class="table table-bordered table-condensed software-table">
 				<thead>
 					<tr>
 						<th>
@@ -79,6 +79,7 @@
 					{if $needsExpand}
 						class="collapse out" role="tabpanel" id="licenses{$titleKey}"
 					{/if}
+					data-index="{$licenses@index}"
 					>
 					<th class="text-center">
 						<input type="checkbox" class="software-titles" name="licenses[{$license->id}]" id="licenses[{$license->id}]" {if $checked}checked{/if}>
