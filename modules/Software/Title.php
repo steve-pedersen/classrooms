@@ -26,6 +26,7 @@ class Classrooms_Software_Title extends Bss_ActiveRecord_Base
             'developerId' => ['int', 'nativeName' => 'developer_id'],
             'categoryId' => ['int', 'nativeName' => 'category_id'],
             'compatibleSystems' => ['string', 'nativeName' => 'compatible_systems'],
+            'internalNotes' => ['string', 'nativeName' => 'internal_notes'],
 
             'category' => [ '1:1', 'to' => 'Classrooms_Software_Category', 'keyMap' => [ 'category_id' => 'id' ] ],
             'developer' => [ '1:1', 'to' => 'Classrooms_Software_Developer', 'keyMap' => [ 'developer_id' => 'id' ] ],

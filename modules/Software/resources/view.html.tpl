@@ -29,6 +29,10 @@
 		{/foreach}
 		</dd>
 	{/if}
+	{if $pEdit && $title->internalNotes}
+		<dt class="text-muted">Internal Notes</dt>
+		<dd class="text-muted">{$title->internalNotes}</dd>
+	{/if}
 		<br>
 		<dt>Versions & Licenses</dt>
 		<dd>

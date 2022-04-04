@@ -103,6 +103,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                     $title->description = $data['title']['description'];
                     $title->compatibleSystems = isset($data['title']['compatibleSystems']) ? 
                         serialize(array_keys($data['title']['compatibleSystems'])) : '';
+                    $title->internalNotes = trim($data['title']['internalNotes']);
                     $title->createdDate = $title->createdDate ?? new DateTime;
                     $title->modifiedDate = new DateTime;
                     $title->save();

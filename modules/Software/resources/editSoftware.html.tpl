@@ -81,6 +81,12 @@
 						{/foreach}
 						</div>
 					</div>
+					<div class="form-group">
+						<label for="title[internalNotes]" class="col-sm-2 control-label">Internal Notes</label>
+						<div class="col-sm-10">
+							<textarea name="title[internalNotes]" id="title[internalNotes]" class="form-control" rows="3">{$title->internalNotes|trim}</textarea>
+						</div>
+					</div>
 				</div>
 
 				<hr>
