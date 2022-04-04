@@ -60,7 +60,6 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                     $data = $this->request->getPostParameters();
                     $alertClass = 'success';
                     $alertDetails = '';
-                    // echo "<pre>"; var_dump($data); die;
 
                     // DEVELOPER
                     if ($data['developer']['new'] !== '')
@@ -91,7 +90,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                     $category->createdDate = $category->createdDate ?? new DateTime;
                     $category->modifiedDate = new DateTime;
                     $category->save();
-                     
+
                     // TITLE
                     $new = !$title->inDatasource;
                     if (!$new && $title->hasDiff($data['title']))
@@ -102,6 +101,8 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                     $title->category_id = $category->id;
                     $title->name = $data['title']['name'];
                     $title->description = $data['title']['description'];
+                    $title->compatibleSystems = isset($data['title']['compatibleSystems']) ? 
+                        serialize(array_keys($data['title']['compatibleSystems'])) : '';
                     $title->createdDate = $title->createdDate ?? new DateTime;
                     $title->modifiedDate = new DateTime;
                     $title->save();
@@ -198,6 +199,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         $this->template->selectedLicense = $selectedLicense;
         $this->template->categories = $categories->getAll(['orderBy' => 'name']);
         $this->template->developers = $developers->getAll(['orderBy' => 'name']);
+        $this->template->operatingSystems = Classrooms_Software_Title::$OperatingSystems;
         $notesCondition = $notes->anyTrue(
             $notes->path->equals($title->getNotePath()),
             $notes->path->like($title->getNotePath().'/%')

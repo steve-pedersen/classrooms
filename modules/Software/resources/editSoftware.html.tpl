@@ -63,6 +63,24 @@
 							<input type="text" class="form-control" name="title[description]" value="{$title->description}" placeholder="Brief description of software">
 						</div>
 					</div>
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">Compatible Operating Systems</label>
+						<div class="col-sm-10">
+						{foreach $operatingSystems as $system}
+							<div class="col-sm-12">
+							{assign var=checked value=false}
+							{if is_array($title->compatibleSystems) && in_array($system, $title->compatibleSystems)}
+								{assign var=checked value=true}
+							{/if}
+							<label for="system-{$system}">
+								<input type="checkbox" id="system-{$system}" name="title[compatibleSystems][{$system}]" {if $checked}checked{/if}> 
+								{$system}
+							</label>
+							</div>
+						{/foreach}
+						</div>
+					</div>
 				</div>
 
 				<hr>

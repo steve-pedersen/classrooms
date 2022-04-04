@@ -20,7 +20,15 @@
 		<dt>Category</dt>
 		<dd>{if $title->parentCategory}{$title->parentCategory->name} > {/if}{$title->category->name}</dd>
 		<dt>Description</dt>
-		<dd>{$title->description}</dd>
+		<dd>{if $title->description}{$title->description}{else}--{/if}</dd>
+	{if $title->compatibleSystems}
+		<dt>Compatible Operating Systems</dt>
+		<dd>
+		{foreach $title->compatibleSystems as $system}
+			{$system}{if !$system@last}<br>{/if}
+		{/foreach}
+		</dd>
+	{/if}
 		<br>
 		<dt>Versions & Licenses</dt>
 		<dd>

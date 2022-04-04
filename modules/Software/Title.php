@@ -9,6 +9,10 @@ class Classrooms_Software_Title extends Bss_ActiveRecord_Base
 {
     use Notes_Provider;
 
+    public static $OperatingSystems = [
+        'Windows', 'MacOS', 'Linux'
+    ];
+
     public static function SchemaInfo ()
     {
         return [
@@ -21,6 +25,7 @@ class Classrooms_Software_Title extends Bss_ActiveRecord_Base
             'deleted' => 'bool',
             'developerId' => ['int', 'nativeName' => 'developer_id'],
             'categoryId' => ['int', 'nativeName' => 'category_id'],
+            'compatibleSystems' => ['string', 'nativeName' => 'compatible_systems'],
 
             'category' => [ '1:1', 'to' => 'Classrooms_Software_Category', 'keyMap' => [ 'category_id' => 'id' ] ],
             'developer' => [ '1:1', 'to' => 'Classrooms_Software_Developer', 'keyMap' => [ 'developer_id' => 'id' ] ],
@@ -60,7 +65,7 @@ class Classrooms_Software_Title extends Bss_ActiveRecord_Base
 
     public function getVersions ()
     {
-        return $this->_fetch('versions');
+        return $this->_fetch('versions', []);
     }
 
     public function getNotePath ()
@@ -78,13 +83,41 @@ class Classrooms_Software_Title extends Bss_ActiveRecord_Base
         return '/software/titles/' . $this->id;
     }
 
+    public function getCompatibleSystems ()
+    {
+        $systems = $this->_fetch('compatibleSystems');
+        return $systems ? unserialize($systems) : [];
+    }
+
     public function hasDiff ($data)
     {
         $updated = false;
+
         foreach ($this->getData() as $key => $value)
         {
             if ($updated) break;
-            if (isset($data[$key]) && !is_object($value))
+            if (isset($data[$key]) && (is_array($this->$key) || is_array($data[$key])))
+            {
+                // item removed
+                foreach ($this->$key as $item)
+                {
+                    $haystack = is_array($data[$key]) ? $data[$key] : unserialize($data[$key]);
+                    if (!in_array($item, array_keys($haystack)) || empty($haystack))
+                    {
+                        $updated = true;
+                    }
+                }
+
+                // item added
+                foreach ($data[$key] as $item => $i)
+                {
+                    if (!in_array($item, $this->$key) || empty($this->$key))
+                    {
+                        $updated = true;
+                    }
+                }
+            }
+            elseif (isset($data[$key]) && !is_object($value))
             {
                 if ($this->$key != $data[$key])
                 {   
@@ -101,7 +134,13 @@ class Classrooms_Software_Title extends Bss_ActiveRecord_Base
         $updated = ['old' => [], 'new' => []];
         foreach ($this->getData() as $key => $value)
         {
-            if (isset($data[$key]) && !is_object($value))
+
+            if (isset($data[$key]) && (is_array($this->$key) || is_array($data[$key])))
+            {
+                $updated['old'][$key] = $this->$key;
+                $updated['new'][$key] = array_keys($data[$key]);
+            }
+            elseif (isset($data[$key]) && !is_object($value))
             {
                 if ($this->$key != $data[$key])
                 {   

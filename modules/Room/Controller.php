@@ -664,6 +664,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $types = $this->schema('Classrooms_Room_Type');
         $buildings = $this->schema('Classrooms_Room_Building');
         $licenses = $this->schema('Classrooms_Software_License');
+        $titles = $this->schema('Classrooms_Software_Title');
         $notes = $this->schema('Classrooms_Notes_Entry');
         $siteSettings = $this->getApplication()->siteSettings;
 
@@ -818,8 +819,31 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             }
         }
 
+
+
+        $softwareTitles = [];
+        $available = $titles->find(
+            $titles->deleted->isFalse()->orIf($titles->deleted->isNull()),
+            ['orderBy' => ['-modifiedDate', '-createdDate']]
+        );
+        foreach ($available as $title)
+        {
+            // if (!isset($softwareTitles[$title->name.$title->id]))
+            // {
+            //     $softwareTitles[$title->name.$title->id] = [];
+            // }
+            $softwareTitles[$title->name.$title->id] = $title;        
+        }
+        ksort($softwareTitles, SORT_NATURAL);
+
+
+
         $softwareLicenses = [];
-        foreach ($licenses->getAll(['orderBy' => ['-modifiedDate', '-createdDate']]) as $license)
+        $available = $licenses->find(
+            $licenses->deleted->isFalse()->orIf($licenses->deleted->isNull()),
+            ['orderBy' => ['-modifiedDate', '-createdDate']]
+        );
+        foreach ($available as $license)
         {
             if (!isset($softwareLicenses[$license->version->title->name.$license->version->title->id]))
             {
@@ -828,6 +852,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $softwareLicenses[$license->version->title->name.$license->version->title->id][] = $license;
         }
         ksort($softwareLicenses, SORT_NATURAL);
+
+
  
         $tuts = $this->schema('Classrooms_Tutorial_Page');
         $tutorials = $tuts->find($tuts->deleted->isFalse()->orIf($tuts->deleted->isNull()),['orderBy' => ['name', 'id']]);
@@ -847,6 +873,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->roomAvEquipment = $location->avEquipment ? unserialize($location->avEquipment) : [];
         $this->template->allAvEquipment = self::$AllRoomAvEquipment;
         $this->template->softwareLicenses = $softwareLicenses;
+        $this->template->softwareTitles = $softwareTitles;
         $this->template->bundles = $configs->find($configs->isBundle->isTrue(), ['orderBy' => 'model']);
         $notesCondition = $notes->anyTrue(
             $notes->path->equals($location->getNotePath()),
@@ -1131,7 +1158,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $configs = $this->schema('Classrooms_Room_Configuration');
         $notes = $this->schema('Classrooms_Notes_Entry');
         $licenses = $this->schema('Classrooms_Software_License');
-        $room = $rooms->get($this->getRouteVariable('id'));
+        $room = $location = $rooms->get($this->getRouteVariable('id'));
         $config = $configs->get($this->getRouteVariable('cid'));
         
         $this->addBreadcrumb('rooms', 'List Rooms');
@@ -1176,7 +1203,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         }
         ksort($softwareLicenses, SORT_NATURAL);
 
-        $this->template->room = $room;
+        $this->template->room = $location;
         $this->template->config = $config;
         $this->template->softwareLicenses = $softwareLicenses;
         $notesCondition = $notes->anyTrue(

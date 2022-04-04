@@ -28,6 +28,10 @@
 									<i class="glyphicon glyphicon-ok text-success"></i>
 								{elseif $value == 'unchecked'}
 									<i class="glyphicon glyphicon-remove text-danger"></i>
+								{elseif is_array($value)}
+									{foreach $value as $item}
+										{$item}{if !$item@last}<br>{/if}
+									{/foreach}
 								{else}
 									{if $value}{$value}{else}--{/if}
 								{/if}
@@ -37,6 +41,10 @@
 									<i class="glyphicon glyphicon-ok text-success"></i>
 								{elseif $note->newValues[$key] == 'unchecked'}
 									<i class="glyphicon glyphicon-remove text-danger"></i>
+								{elseif is_array($note->newValues[$key])}
+									{foreach $note->newValues[$key] as $item}
+										{$item}{if !$item@last}<br>{/if}
+									{/foreach}
 								{else}
 									{$note->newValues[$key]}
 								{/if}
