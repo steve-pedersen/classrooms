@@ -124,7 +124,6 @@
 
 				<div class="form-horizontal">
 					<h3>License</h3>
-					<p>Note, licenses are associated with version numbers.</p>
 
 					{if $selectedVersion->licenses && $selectedVersion->licenses->count() > 0}
 					<div class="form-group existing-items">
@@ -154,14 +153,16 @@
 								</span>
 							</div>
 						</div>
-<!-- 						<div class="col-sm-1 edit">
-							<a href="software/{$title->id}/licenses/{$selectedLicense->id}/edit" data-baseurl="software/{$title->id}/licenses/" class="btn btn-info pull-right">Edit License</a>
-						</div> -->
 					</div>	
 					{/if}	
 
 					<h4 class="">Add new license <small class="text-info">(for selected or new version)</small></h4>
-					<p class=""><em>To update license information for a specific version, click Edit License above.</em></p>
+					<p class=""><em>
+						Note, licenses are associated with version numbers. If there is text in the "Add new version number..." field, it will take precedence over a selected existing version. So, any new license info will be associated with the new version number if that field is filled out, otherwise the license will be added to the selected existing version. 
+						{if $selectedVersion->licenses && $selectedVersion->licenses->count() > 0}
+							To update license information for a specific version, click Edit License above.
+						{/if}
+					</em></p>
 					<div class="form-group">
 						<label for="license[new][number]" class="col-sm-2 control-label">License Number</label>
 						<div class="col-sm-10">
