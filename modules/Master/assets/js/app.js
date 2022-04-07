@@ -64,19 +64,22 @@
           return (usePound?"#":"") + (g | (b << 8) | (r << 16)).toString(16);
         
       }
-      const rgba2hex = (rgba) => `#${rgba.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+\.{0,1}\d*))?\)$/).slice(1).map((n, i) => (i === 3 ? Math.round(parseFloat(n) * 255) : parseFloat(n)).toString(16).padStart(2, '0').replace('NaN', '')).join('')}`
+      if ($('.software-table').length) {
+        const rgba2hex = (rgba) => `#${rgba.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+\.{0,1}\d*))?\)$/).slice(1).map((n, i) => (i === 3 ? Math.round(parseFloat(n) * 255) : parseFloat(n)).toString(16).padStart(2, '0').replace('NaN', '')).join('')}`;
       
-      var interval = 0;
-      var increment = 6;
-      var first = $('.software-table tbody tr').first();
-      var masterColor = rgba2hex(first.css('background-color'));
+        var interval = 0;
+        var increment = 6;
+        var first = $('.software-table tbody tr').first();
+        var masterColor = rgba2hex(first.css('background-color'));
+        
+        $('.software-table tbody tr').each((i, em) => {
+          if (i > 0) {
+            interval = ($(em).attr('data-index') % increment) * increment;
+            $(em).css('background-color', LightenDarkenColor(masterColor, interval));
+          }
+        });
+      }
       
-      $('.software-table tbody tr').each((i, em) => {
-        if (i > 0) {
-          interval = ($(em).attr('data-index') % increment) * increment;
-          $(em).css('background-color', LightenDarkenColor(masterColor, interval));
-        }
-      });
 
       $(document).ready(function(){
         $('[data-toggle="tooltip"]').tooltip();
