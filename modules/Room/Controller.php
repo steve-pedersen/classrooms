@@ -940,16 +940,16 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                 {
                     if ($selectedDow && !$sched['info'][$selectedDow]) continue;
 
-                    if (!isset($courses[$courseSchedule->course->classNumber.$courseSchedule->course->sectionNumber]))
+                    if (!isset($courses[$courseSchedule->course->shortName]))
                     {
-                        $courses[$courseSchedule->course->classNumber.$courseSchedule->course->sectionNumber] = [
+                        $courses[$courseSchedule->course->shortName] = [
                             'course' => $courseSchedule->course, 'schedules' => []
                         ];
                     }
                     $info = $sched['info']['stnd_mtg_pat'] .' '. $sched['info']['start_time'] .' – '. $sched['info']['end_time'];
-                    if (!in_array($info, $courses[$courseSchedule->course->classNumber.$courseSchedule->course->sectionNumber]['schedules']))
+                    if (!in_array($info, $courses[$courseSchedule->course->shortName]['schedules']))
                     {
-                        $courses[$courseSchedule->course->classNumber.$courseSchedule->course->sectionNumber]['schedules'][] = $info;    
+                        $courses[$courseSchedule->course->shortName]['schedules'][] = $info;    
                     }
 
                     if (!$selectedDow)
