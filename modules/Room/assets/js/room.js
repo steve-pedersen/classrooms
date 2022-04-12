@@ -1,5 +1,39 @@
 (function ($) {
   $(function () {
+
+  	// chart.js stuff - 
+		if ($('.canvas-chart').length) {
+			$('.canvas-chart').each((i, em) => {
+				let title = $(em).attr('data-title');
+				let labels = $(em).attr('data-labels') ?? '';
+				let data = $(em).attr('data-data') ?? '';
+				let type = $(em).attr('data-type') ?? 'bar';
+				let color = $(em).attr('data-color') ?? '#000000';
+
+				let chart = new Chart(em, {
+				    type: (type ? type : 'bar'),
+				    data: {
+				        labels: JSON.parse(labels),
+				        datasets: [{
+				            label: title,
+				            data: JSON.parse(data),
+				            backgroundColor: color,
+				            borderColor: color,
+				            borderWidth: 1
+				        }]
+				    },
+				    options: {
+				        scales: {
+				            y: {
+				                beginAtZero: true
+				            }
+				        }
+				    }
+				});
+			});
+		}
+
+
     $('.room-pills a').on('click', function(e) {
       window.history.replaceState({}, null, ($(e.target).attr('href')));
     });

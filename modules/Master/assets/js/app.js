@@ -28,6 +28,7 @@
 #require js/blueimp/js/vendor/jquery.ui.widget.js
 #require js/blueimp/js/jquery.iframe-transport.js
 #require js/blueimp/js/jquery.fileupload.js
+#require js/chart.min.js
 
 #require js/room.js
 #require js/software.js

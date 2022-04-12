@@ -42,6 +42,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/configurations/:id/edit' => ['callback' => 'editConfigurationBundle'],
             '/schedules' => ['callback' => 'schedules'],
             '/schedules/autocomplete' => ['callback' => 'autoCompleteAccounts'],
+            '/report' => ['callback' => 'report'],
         ];
     }
 
@@ -891,6 +892,110 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->supportedBy = $supportedBy;
         $this->template->supportedByText = $supportedByText;
         $this->template->tutorials = $tutorials;
+    }
+
+    public function report ()
+    {
+        $viewer = $this->requireLogin();
+        $scheduleSchema = $this->schema('Classrooms_ClassData_CourseSchedule');
+        $locationSchema = $this->schema('Classrooms_Room_Location');
+
+        $this->setPageTitle('Room report');
+        $this->addBreadcrumb('rooms', 'View All Rooms');
+
+        $semesters = $this->guessRelevantSemesters();
+        $termYear = $this->request->getQueryParameter('t', $semesters['curr']['code']);
+        $selectedDow = $this->request->getQueryParameter('dow');
+        $includeOnline = $this->request->getQueryParameter('includeOnline', false);
+        
+        // Classes in a room
+        $condition = $scheduleSchema->allTrue(
+            $scheduleSchema->termYear->equals($termYear),
+            $scheduleSchema->userDeleted->isNull()->orIf(
+                $scheduleSchema->userDeleted->isFalse()
+            )
+        );
+
+        if (!$includeOnline)
+        {
+            $condition = $condition->andIf($scheduleSchema->room_id->isNotNull());
+        }
+
+        $result = $scheduleSchema->find($condition);
+
+        $courses = [];
+        $dowCount = ['monday'=>0, 'tuesday'=>0, 'wednesday'=>0, 'thursday'=>0, 'friday'=>0, 'saturday'=>0, 'sunday'=>0];
+        $hoursCount = ['07'=>0,'08'=>0,'09'=>0,'10'=>0,'11'=>0,'12'=>0,'13'=>0,'14'=>0,'15'=>0,'17'=>0,'18'=>0,'19'=>0,'20'=>0,'21'=>0,'22'=>0,'23'=>0,'24'=>0];
+
+        foreach ($result as $courseSchedule)
+        {
+            set_time_limit(0);
+            ini_set('memory_limit', '-1'); 
+
+            $savedScheduleInfo = unserialize($courseSchedule->schedules);
+            
+            if (!empty($savedScheduleInfo))
+            {
+                foreach ($savedScheduleInfo as $sched)
+                {
+                    if ($selectedDow && !$sched['info'][$selectedDow]) continue;
+
+                    if (!isset($courses[$courseSchedule->course->classNumber.$courseSchedule->course->sectionNumber]))
+                    {
+                        $courses[$courseSchedule->course->classNumber.$courseSchedule->course->sectionNumber] = [
+                            'course' => $courseSchedule->course, 'schedules' => []
+                        ];
+                    }
+                    $info = $sched['info']['stnd_mtg_pat'] .' '. $sched['info']['start_time'] .' – '. $sched['info']['end_time'];
+                    if (!in_array($info, $courses[$courseSchedule->course->classNumber.$courseSchedule->course->sectionNumber]['schedules']))
+                    {
+                        $courses[$courseSchedule->course->classNumber.$courseSchedule->course->sectionNumber]['schedules'][] = $info;    
+                    }
+
+                    if (!$selectedDow)
+                    {
+                        foreach ($dowCount as $day => $count)
+                        {
+                            $dowCount[$day] += $sched['info'][$day] ? 1 : 0;
+                        }
+                    }
+
+                    if (!isset($sched['info']['start_time']) && !isset($sched['info']['end_time'])) continue;
+
+                    $startHour = $sched['info']['start_time'][0] . $sched['info']['start_time'][1];
+                    $endHour = $sched['info']['end_time'][0] . $sched['info']['end_time'][1];
+
+                    foreach ($hoursCount as $hour => $count)
+                    {
+                        if ($startHour === $endHour && $startHour === $hour)
+                        {
+                            $hoursCount[$hour] += 1;
+                            break;
+                        }
+                        elseif ($hour === $startHour)
+                        {
+                            $hoursCount[$hour]++;
+                        }
+                        elseif ($hour > $startHour && $hour <= $endHour)
+                        {
+                            $hoursCount[$hour]++;
+                        }
+                    }
+                }
+            }
+        }
+
+        ksort($courses, SORT_NATURAL);
+
+        $this->template->selectedSemester = $this->codeToDisplay($termYear);
+        $this->template->selectedDow = $selectedDow;
+        $this->template->includeOnline = $includeOnline;
+        $this->template->semesters = $semesters;
+        $this->template->selectedTerm = $termYear;
+        $this->template->dowCount = $dowCount;
+        $this->template->hoursCount = $hoursCount;
+        $this->template->courseCount = count($courses);
+        $this->template->courses = $courses;
     }
 
     public function roomMetadata ()
