@@ -11,7 +11,7 @@
 	<h2>Filter</h2>
 
 	<div class="row" style="padding:0;margin:1em 0 1em 0;">
-	  <div class="col-sm-12" style="padding:0;margin:0;">
+	  <div class="col-sm-9" style="padding:0;margin:0;">
 			
 	    {if !$pFaculty}
 	    <div class="form-group" id="autcompleteContainer">
@@ -47,15 +47,25 @@
 				</select>  
 	    </div>
 
-	    <div class="form-group">
+	    <div class="row checkboxes">
+	    	<div class="col-sm-12">
 				<div class="checkbox">
 					<label>
 						<input name="showEmptyRooms" type="checkbox" {if $showEmptyRooms}checked{/if}> Show empty rooms only
 					</label>
 				</div>
+				<div class="checkbox">
+					<label>
+						<input name="showAll" type="checkbox" {if $showAll}checked{/if}> Show me everything
+					</label>
+				</div>
+	    	</div>
 	    </div>
 	    {/if}	
 
+
+	  </div>
+	  <div class="col-sm-3">
 	    <div class="form-group pull-right">    
 	        <button type="submit" class="btn btn-info filter-col">
 	            Apply
@@ -65,6 +75,7 @@
 	        </a> 
 	    </div>
 	  </div>
+
 	</div>
 
 <!-- 	<div class="row" style="padding:0;margin:1em 0 1em 0;">
@@ -83,11 +94,14 @@
 	  </div>
 	</div> -->
 
+	{if $scheduledRooms}
+		<span class="search-results"><em>Displaying {$scheduledRooms|count} room(s)</em></span>
+	{/if}
+	
 </div>	
 </div>
 </div>
 </form>
-
 <div id="userResultMessage" style="display:none;">
 	Showing rooms for the following users:
 	<span id="userResultList"></span>

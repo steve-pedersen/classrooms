@@ -325,6 +325,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->addBreadcrumb('rooms', 'View All Rooms');
 
         $semesters = $this->guessRelevantSemesters();
+        $showAll = $this->hasPermission('view schedules') ? $this->request->getQueryParameter('showAll', false) : false;
         $userId = $this->request->getQueryParameter('u', $this->request->getQueryParameter('auto'));
         $roomQuery = $this->request->getQueryParameter('s');
         $exactRoom = (int) $this->request->getQueryParameter('room');
@@ -350,7 +351,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $hasSearch = ($this->hasPermission('view schedules') || $this->hasPermission('edit')) && ($exactRoom || $userId || $roomQuery || $windowQuery !== null);
         
         $condition = null;
-        if ($hasSearch || $restrictResults)
+        if ($hasSearch || $restrictResults || $showAll)
         {
             $condition = $scheduleSchema->allTrue(
                 $scheduleSchema->termYear->equals($termYear),
@@ -391,9 +392,10 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $this->addBreadcrumb($room->roomUrl, $room->codeNumber);
             $roomQuery = $room->codeNumber;
         }
-        elseif ($roomQuery)
+        elseif ($roomQuery || $showAll)
         {
-            $rooms = $this->autoComplete($roomQuery);
+            $query = $showAll ? '%' : $roomQuery;
+            $rooms = $this->autoComplete($query);
             $roomIds = [];
             foreach ($rooms as $room)
             {
@@ -541,6 +543,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->selectedTerm = $termYear;
         $this->template->selectedUser = $userId;
         $this->template->roomQuery = $roomQuery;
+        $this->template->showAll = $showAll;
         $this->template->pFaculty = $restrictResults;
         $this->template->onlineCourses = $onlineCourses;
         $this->template->selectedWindow = $windowQuery;
@@ -924,6 +927,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $result = $scheduleSchema->find($condition);
 
         $courses = [];
+        $courseCount = 0;
         $dowCount = ['monday'=>0, 'tuesday'=>0, 'wednesday'=>0, 'thursday'=>0, 'friday'=>0, 'saturday'=>0, 'sunday'=>0];
         $hoursCount = ['07'=>0,'08'=>0,'09'=>0,'10'=>0,'11'=>0,'12'=>0,'13'=>0,'14'=>0,'15'=>0,'17'=>0,'18'=>0,'19'=>0,'20'=>0,'21'=>0,'22'=>0,'23'=>0,'24'=>0];
 
@@ -942,6 +946,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
                     if (!isset($courses[$courseSchedule->course->shortName]))
                     {
+                        $courseCount++;
                         $courses[$courseSchedule->course->shortName] = [
                             'course' => $courseSchedule->course, 'schedules' => []
                         ];
@@ -994,7 +999,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->selectedTerm = $termYear;
         $this->template->dowCount = $dowCount;
         $this->template->hoursCount = $hoursCount;
-        $this->template->courseCount = count($courses);
+        $this->template->courseCount = $courseCount;
         $this->template->courses = $courses;
     }
 
