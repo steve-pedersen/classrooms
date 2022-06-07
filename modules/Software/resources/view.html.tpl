@@ -20,7 +20,19 @@
 		<dt>Category</dt>
 		<dd>{if $title->parentCategory}{$title->parentCategory->name} > {/if}{$title->category->name}</dd>
 		<dt>Description</dt>
-		<dd>{$title->description}</dd>
+		<dd>{if $title->description}{$title->description}{else}--{/if}</dd>
+	{if $title->compatibleSystems}
+		<dt>Compatible Operating Systems</dt>
+		<dd>
+		{foreach $title->compatibleSystems as $system}
+			{$system}{if !$system@last}<br>{/if}
+		{/foreach}
+		</dd>
+	{/if}
+	{if $pEdit && $title->internalNotes}
+		<dt class="text-muted">Internal Notes</dt>
+		<dd class="text-muted">{$title->internalNotes}</dd>
+	{/if}
 		<br>
 		<dt>Versions & Licenses</dt>
 		<dd>
@@ -36,6 +48,7 @@
 				</thead>
 				<tbody>
 		{foreach $title->versions as $version}
+			{if $version->licenses->count() > 0}
 			{foreach $version->licenses as $license}
 				{assign var=checked value=false}
 				{foreach $config->softwareLicenses as $l}
@@ -55,6 +68,15 @@
 					<td>{$license->description|truncate:100}</td>
 				</tr>
 			{/foreach}
+			{else}
+				<tr>
+					<th>{$version->number}</th>
+					<td>N/A</td>
+					<td>N/A</td>
+					<td>N/A</td>
+					<td>N/A</td>
+				</tr>
+			{/if}
 		{/foreach}
 				</tbody>
 			</table>

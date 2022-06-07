@@ -28,12 +28,59 @@
 #require js/blueimp/js/vendor/jquery.ui.widget.js
 #require js/blueimp/js/jquery.iframe-transport.js
 #require js/blueimp/js/jquery.fileupload.js
+#require js/chart.min.js
 
 #require js/room.js
+#require js/software.js
 
 
 (function ($) {
     $(function () {
+      function LightenDarkenColor(col, amt) {
+        
+          var usePound = false;
+        
+          if (col[0] == "#") {
+              col = col.slice(1);
+              usePound = true;
+          }
+       
+          var num = parseInt(col,16);
+       
+          var r = (num >> 16) + amt;
+       
+          if (r > 255) r = 255;
+          else if  (r < 0) r = 0;
+       
+          var b = ((num >> 8) & 0x00FF) + amt;
+       
+          if (b > 255) b = 255;
+          else if  (b < 0) b = 0;
+       
+          var g = (num & 0x0000FF) + amt;
+       
+          if (g > 255) g = 255;
+          else if (g < 0) g = 0;
+       
+          return (usePound?"#":"") + (g | (b << 8) | (r << 16)).toString(16);
+        
+      }
+      if ($('.software-table').length) {
+        const rgba2hex = (rgba) => `#${rgba.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+\.{0,1}\d*))?\)$/).slice(1).map((n, i) => (i === 3 ? Math.round(parseFloat(n) * 255) : parseFloat(n)).toString(16).padStart(2, '0').replace('NaN', '')).join('')}`;
+      
+        var interval = 0;
+        var increment = 6;
+        var first = $('.software-table tbody tr').first();
+        var masterColor = rgba2hex(first.css('background-color'));
+        
+        $('.software-table tbody tr').each((i, em) => {
+          if (i > 0) {
+            interval = ($(em).attr('data-index') % increment) * increment;
+            $(em).css('background-color', LightenDarkenColor(masterColor, interval));
+          }
+        });
+      }
+      
 
       $(document).ready(function(){
         $('[data-toggle="tooltip"]').tooltip();
@@ -147,14 +194,6 @@
         $('#viewImageModal .modal-body img').attr('src', imageSrc);
         $('#viewImageModal .modal-footer').prepend(deleteLink);
       });
-
-      $('.existing-items select').on('change', function (e) {
-        if ($(this).val()) {
-          let link = $('.existing-items .edit > a');
-          link.attr('href', `${link.attr('data-baseurl')}${$(this).val()}/edit`);
-        }
-      });
-
 
       autosize($('textarea.autosize'));
 

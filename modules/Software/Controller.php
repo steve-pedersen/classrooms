@@ -58,14 +58,14 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
             {
                 case 'save':
                     $data = $this->request->getPostParameters();
-                    
-                    if (isset($data['developer']['new']) && $developers->findOne($developers->name->equals($data['developer']['new'])))
+                    $alertClass = 'success';
+                    $alertDetails = '';
+
+                    // DEVELOPER
+                    if ($data['developer']['new'] !== '')
                     {
-                        $developer = $developers->findOne($developers->name->equals($data['developer']['new']));
-                    }
-                    elseif (isset($data['developer']['new']) && $data['developer']['new'] !== '')
-                    {
-                        $developer = $developers->createInstance();
+                        $existing = $developers->findOne($developers->name->equals($data['developer']['new']));
+                        $developer = $existing ?? $developers->createInstance();
                         $developer->name = $data['developer']['new'];
                     }
                     else
@@ -76,25 +76,23 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                     $developer->modifiedDate = new DateTime;
                     $developer->save();
 
-                    if (isset($data['category']['new']) && $categories->findOne($categories->name->equals($data['category']['new'])))
+                    // CATEGORY
+                    if ($data['category']['new'] !== '')
                     {
-                        $category = $categories->findOne($categories->name->equals($data['category']['new']));
-                    }
-                    elseif (isset($data['category']['new']) && $data['category']['new'] !== '')
-                    {
-                        $category = $categories->createInstance();
+                        $existing = $categories->findOne($categories->name->equals($data['category']['new']));
+                        $category = $existing ?? $categories->createInstance();
                         $category->name = $data['category']['new'];
                     }
                     else
                     {
                         $category = $categories->get($data['category']['existing']);
                     }
-                    // $category->parent_category_id = $data['category']['parent'];
                     $category->createdDate = $category->createdDate ?? new DateTime;
                     $category->modifiedDate = new DateTime;
                     $category->save();
-                     
-                    $new = (bool) !$title->id;
+
+                    // TITLE
+                    $new = !$title->inDatasource;
                     if (!$new && $title->hasDiff($data['title']))
                     {
                         $title->addNote('Software title updated', $viewer, $title->getDiff($data['title']));
@@ -103,6 +101,9 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                     $title->category_id = $category->id;
                     $title->name = $data['title']['name'];
                     $title->description = $data['title']['description'];
+                    $title->compatibleSystems = isset($data['title']['compatibleSystems']) ? 
+                        serialize(array_keys($data['title']['compatibleSystems'])) : '';
+                    $title->internalNotes = trim($data['title']['internalNotes']);
                     $title->createdDate = $title->createdDate ?? new DateTime;
                     $title->modifiedDate = new DateTime;
                     $title->save();
@@ -111,53 +112,67 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                         $title->addNote('Software title created', $viewer);
                     }
                     
+                    // VERSION
                     $new = false;
-                    if (isset($data['version']['new']) && $data['version']['new'] !== '')
+                    $version = null;
+                    if ($data['version']['new'] !== '')
                     {
+                        $new = true;
                         $version = $versions->createInstance();
                         $version->number = $data['version']['new'];
-                        $version->addNote('Version created for ' . $version->title->name, $viewer);
                     }
-                    elseif (isset($data['version']['existing']) && $data['version']['existing'])
+                    elseif (isset($data['version']['existing']) && $data['version']['existing'] !== '')
                     {
-                        $version = $versions->get($data['version']['existing']);
+                        $existing = $versions->get($data['version']['existing']);
+                        $version = $existing ?? $versions->createInstance();
+                        $version->number = $existing ? $existing->number : 'N/A';
                     }
-                    else
+                    if ($version) 
                     {
-                        $version = $versions->createInstance();
-                        $version->number = 'N/A';
+                        $version->title_id = $title->id;
+                        $version->createdDate = $version->createdDate ?? new DateTime;
+                        $version->modifiedDate = new DateTime;
+                        $version->save();
+                        if ($new)
+                        {
+                            $version->addNote('Version created for ' . $version->title->name, $viewer);
+                        }
                     }
-                    $version->title_id = $title->id;
-                    $version->save();
 
-                    if (isset($data['license']['new']) && isset($data['license']['new']['number']) && $data['license']['new']['number'] !== '')
+                    // LICENSE
+                    $license = null;
+                    if ($version && $data['license']['new']['number'] !== '')
                     {
                         $license = $licenses->createInstance();
                         $license->number = $data['license']['new']['number'];
                         $license->description = $data['license']['new']['description'];
                         $license->seats = $data['license']['new']['seats'];
                         $license->expirationDate = isset($data['license']['new']['expirationDate']) ? 
-                            new DateTime($data['license']['new']['expirationDate']) : '';
-                        $version->addNote('License #'. $license->number .' added to version ' . $version->number, $viewer);
+                            new DateTime($data['license']['new']['expirationDate']) : null;
+                        $version->addNote('License '. $license->number .' added to version ' . $version->number, $viewer);
                     }
-                    elseif (isset($data['license']['existing']) && $data['license']['existing'])
+                    elseif ($version && isset($data['license']['existing']) && $data['license']['existing'] !== '')
                     {
-                        $license = $licenses->get($data['license']['existing']);
-                    }
-                    else
-                    {
-                        $license = $licenses->createInstance();
-                        $license->number = 'N/A';
+                        $existing = $licenses->get($data['license']['existing']);
+                        $license = $existing ?? $licenses->createInstance();
+                        $license->number = $existing ? $existing->number : 'N/A';
                         $license->expirationDate = null;
                     }
-                    $license->version_id = $version->id;
-                    $license->createdDate = $license->createdDate ?? new DateTime;
-                    $license->modifiedDate = new DateTime;
-                    $license->save();                   
-                    
-                    $this->flash('Software saved.');
+                    elseif (isset($data['version']['existing']) && $data['license']['new']['number'] !== '')
+                    {
+                        $alertClass = 'warning';
+                        $alertDetails .= " License information can't be saved without selecting or entering a version number.";
+                    }
+                    if ($version && $license) 
+                    {
+                        $license->version_id = $version->id;
+                        $license->createdDate = $license->createdDate ?? new DateTime;
+                        $license->modifiedDate = new DateTime;
+                        $license->save();
+                    }
+               
+                    $this->flash('Software saved.' . $alertDetails, $alertClass);
                     $this->response->redirect('software/' . $title->id);
-
                     break;
 
     			case 'delete':
@@ -185,6 +200,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         $this->template->selectedLicense = $selectedLicense;
         $this->template->categories = $categories->getAll(['orderBy' => 'name']);
         $this->template->developers = $developers->getAll(['orderBy' => 'name']);
+        $this->template->operatingSystems = Classrooms_Software_Title::$OperatingSystems;
         $notesCondition = $notes->anyTrue(
             $notes->path->equals($title->getNotePath()),
             $notes->path->like($title->getNotePath().'/%')
@@ -199,9 +215,10 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
         $this->requirePermission('edit');
         $this->addBreadcrumb('software/settings', 'Software Settings');
         $this->setPageTitle('List software developers');
-        $schema = $this->schema('Classrooms_Software_Developer');
-        $this->template->developers = $schema->find(
-            $schema->deleted->isNull()->orIf($schema->deleted->isFalse())
+        $developers = $this->schema('Classrooms_Software_Developer');
+        
+        $this->template->developers = $developers->find(
+            $developers->deleted->isNull()->orIf($developers->deleted->isFalse())
         );
     }
     public function editDeveloper () 
@@ -296,12 +313,10 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
     {
         $this->requirePermission('edit');
     	$this->addBreadcrumb('software', 'List Software Titles');
-    	$title = $this->helper('activeRecord')->fromRoute('Classrooms_Software_Title', 'id');
         $notes = $this->schema('Classrooms_Notes_Entry');
-        
+    	$title = $this->helper('activeRecord')->fromRoute('Classrooms_Software_Title', 'id');    
         $this->setPageTitle('View software ' . $title->name);
 
-        // $this->template->pEdit = true ?? $this->hasPermission('edit software');
     	$this->template->title = $title;
         $notesCondition = $notes->anyTrue(
             $notes->path->equals($title->getNotePath()),
@@ -412,7 +427,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
                     if ($license->hasDiff($this->request->getPostParameters()))
                     {
                         $license->version->addNote(
-                            'License #'. $license->number .' updated for version '. $license->version->number, 
+                            'License '. $license->number .' updated for version '. $license->version->number, 
                             $viewer, 
                             $license->getDiff($this->request->getPostParameters())
                         );
@@ -425,7 +440,7 @@ class Classrooms_Software_Controller extends Classrooms_Master_Controller
    				case 'delete':
    					$license->deleted = true;
    					$license->save();
-                    $license->version->addNote('License #'. $license->number .' deleted from version '. $license->version->number, $viewer);
+                    $license->version->addNote('License '. $license->number .' deleted from version '. $license->version->number, $viewer);
 
    					$this->flash('Deleted');
    					break;

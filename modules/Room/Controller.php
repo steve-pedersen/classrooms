@@ -43,6 +43,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             '/configurations/:id/edit' => ['callback' => 'editConfigurationBundle'],
             '/schedules' => ['callback' => 'schedules'],
             '/schedules/autocomplete' => ['callback' => 'autoCompleteAccounts'],
+            '/report' => ['callback' => 'report'],
         ];
     }
 
@@ -333,6 +334,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->addBreadcrumb('rooms', 'View All Rooms');
 
         $semesters = $this->guessRelevantSemesters();
+        $showAll = $this->hasPermission('view schedules') ? $this->request->getQueryParameter('showAll', false) : false;
         $userId = $this->request->getQueryParameter('u', $this->request->getQueryParameter('auto'));
         $roomQuery = $this->request->getQueryParameter('s');
         $exactRoom = (int) $this->request->getQueryParameter('room');
@@ -358,7 +360,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $hasSearch = ($this->hasPermission('view schedules') || $this->hasPermission('edit')) && ($exactRoom || $userId || $roomQuery || $windowQuery !== null);
         
         $condition = null;
-        if ($hasSearch || $restrictResults)
+        if ($hasSearch || $restrictResults || $showAll)
         {
             $condition = $scheduleSchema->allTrue(
                 $scheduleSchema->termYear->equals($termYear),
@@ -399,9 +401,10 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $this->addBreadcrumb($room->roomUrl, $room->codeNumber);
             $roomQuery = $room->codeNumber;
         }
-        elseif ($roomQuery)
+        elseif ($roomQuery || $showAll)
         {
-            $rooms = $this->autoComplete($roomQuery);
+            $query = $showAll ? '%' : $roomQuery;
+            $rooms = $this->autoComplete($query);
             $roomIds = [];
             foreach ($rooms as $room)
             {
@@ -549,6 +552,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->selectedTerm = $termYear;
         $this->template->selectedUser = $userId;
         $this->template->roomQuery = $roomQuery;
+        $this->template->showAll = $showAll;
         $this->template->pFaculty = $restrictResults;
         $this->template->onlineCourses = $onlineCourses;
         $this->template->selectedWindow = $windowQuery;
@@ -751,7 +755,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
                     $configData = $this->request->getPostParameters();
                 
                     $config->addNote(
-                        'Configuration Bundle ' . ($config->id ? 'updated' : 'created'), 
+                        'Configuration Bundle ' . ($config->inDatasource ? 'updated' : 'created'), 
                         $viewer, 
                         $this->request->getPostParameters()
                     );
@@ -779,6 +783,17 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $this->response->redirect('configurations/' . $config->id);
         }
 
+        // $softwareTitles = [];
+        // $available = $titles->find(
+        //     $titles->deleted->isFalse()->orIf($titles->deleted->isNull()),
+        //     ['orderBy' => ['-modifiedDate', '-createdDate']]
+        // );
+        // foreach ($available as $title)
+        // {
+        //     $softwareTitles[$title->name.$title->id] = $title;        
+        // }
+        // ksort($softwareTitles, SORT_NATURAL);
+
         $softwareLicenses = [];
         foreach ($licenses->getAll() as $license)
         {
@@ -792,6 +807,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
 
         $this->template->config = $config;
         $this->template->softwareLicenses = $softwareLicenses;
+        // $this->template->softwareTitles = $softwareTitles;
     }
 
     public function editRoom ()
@@ -805,6 +821,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $types = $this->schema('Classrooms_Room_Type');
         $buildings = $this->schema('Classrooms_Room_Building');
         $licenses = $this->schema('Classrooms_Software_License');
+        $titles = $this->schema('Classrooms_Software_Title');
         $notes = $this->schema('Classrooms_Notes_Entry');
         $upgrades = $this->schema('Classrooms_Room_Upgrade');
         $siteSettings = $this->getApplication()->siteSettings;
@@ -960,8 +977,24 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             }
         }
 
+        // $softwareTitles = [];
+        // $available = $titles->find(
+        //     $titles->deleted->isFalse()->orIf($titles->deleted->isNull()),
+        //     ['orderBy' => ['-modifiedDate', '-createdDate']]
+        // );
+        // foreach ($available as $title)
+        // {
+        //     $softwareTitles[$title->name.$title->id] = $title;        
+        // }
+        // ksort($softwareTitles, SORT_NATURAL);
+
+
         $softwareLicenses = [];
-        foreach ($licenses->getAll(['orderBy' => ['-modifiedDate', '-createdDate']]) as $license)
+        $available = $licenses->find(
+            $licenses->deleted->isFalse()->orIf($licenses->deleted->isNull()),
+            ['orderBy' => ['-modifiedDate', '-createdDate']]
+        );
+        foreach ($available as $license)
         {
             if (!isset($softwareLicenses[$license->version->title->name.$license->version->title->id]))
             {
@@ -970,6 +1003,8 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
             $softwareLicenses[$license->version->title->name.$license->version->title->id][] = $license;
         }
         ksort($softwareLicenses, SORT_NATURAL);
+
+
  
         $tuts = $this->schema('Classrooms_Tutorial_Page');
         $tutorials = $tuts->find($tuts->deleted->isFalse()->orIf($tuts->deleted->isNull()),['orderBy' => ['name', 'id']]);
@@ -990,6 +1025,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->roomAvEquipment = $location->avEquipment ? unserialize($location->avEquipment) : [];
         $this->template->allAvEquipment = self::$AllRoomAvEquipment;
         $this->template->softwareLicenses = $softwareLicenses;
+        // $this->template->softwareTitles = $softwareTitles;
         $this->template->bundles = $configs->find($configs->isBundle->isTrue(), ['orderBy' => 'model']);
         $notesCondition = $notes->anyTrue(
             $notes->path->equals($location->getNotePath()),
@@ -1002,6 +1038,112 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $this->template->supportedBy = $supportedBy;
         $this->template->supportedByText = $supportedByText;
         $this->template->tutorials = $tutorials;
+    }
+
+    public function report ()
+    {
+        $viewer = $this->requireLogin();
+        $scheduleSchema = $this->schema('Classrooms_ClassData_CourseSchedule');
+        $locationSchema = $this->schema('Classrooms_Room_Location');
+
+        $this->setPageTitle('Room report');
+        $this->addBreadcrumb('rooms', 'View All Rooms');
+
+        $semesters = $this->guessRelevantSemesters();
+        $termYear = $this->request->getQueryParameter('t', $semesters['curr']['code']);
+        $selectedDow = $this->request->getQueryParameter('dow');
+        $includeOnline = $this->request->getQueryParameter('includeOnline', false);
+        
+        // Classes in a room
+        $condition = $scheduleSchema->allTrue(
+            $scheduleSchema->termYear->equals($termYear),
+            $scheduleSchema->userDeleted->isNull()->orIf(
+                $scheduleSchema->userDeleted->isFalse()
+            )
+        );
+
+        if (!$includeOnline)
+        {
+            $condition = $condition->andIf($scheduleSchema->room_id->isNotNull());
+        }
+
+        $result = $scheduleSchema->find($condition);
+
+        $courses = [];
+        $courseCount = 0;
+        $dowCount = ['monday'=>0, 'tuesday'=>0, 'wednesday'=>0, 'thursday'=>0, 'friday'=>0, 'saturday'=>0, 'sunday'=>0];
+        $hoursCount = ['07'=>0,'08'=>0,'09'=>0,'10'=>0,'11'=>0,'12'=>0,'13'=>0,'14'=>0,'15'=>0,'17'=>0,'18'=>0,'19'=>0,'20'=>0,'21'=>0,'22'=>0,'23'=>0,'24'=>0];
+
+        foreach ($result as $courseSchedule)
+        {
+            set_time_limit(0);
+            ini_set('memory_limit', '-1'); 
+
+            $savedScheduleInfo = unserialize($courseSchedule->schedules);
+            
+            if (!empty($savedScheduleInfo))
+            {
+                foreach ($savedScheduleInfo as $sched)
+                {
+                    if ($selectedDow && !$sched['info'][$selectedDow]) continue;
+
+                    if (!isset($courses[$courseSchedule->course->shortName]))
+                    {
+                        $courseCount++;
+                        $courses[$courseSchedule->course->shortName] = [
+                            'course' => $courseSchedule->course, 'schedules' => []
+                        ];
+                    }
+                    $info = $sched['info']['stnd_mtg_pat'] .' '. $sched['info']['start_time'] .' – '. $sched['info']['end_time'];
+                    if (!in_array($info, $courses[$courseSchedule->course->shortName]['schedules']))
+                    {
+                        $courses[$courseSchedule->course->shortName]['schedules'][] = $info;    
+                    }
+
+                    if (!$selectedDow)
+                    {
+                        foreach ($dowCount as $day => $count)
+                        {
+                            $dowCount[$day] += $sched['info'][$day] ? 1 : 0;
+                        }
+                    }
+
+                    if (!isset($sched['info']['start_time']) && !isset($sched['info']['end_time'])) continue;
+
+                    $startHour = $sched['info']['start_time'][0] . $sched['info']['start_time'][1];
+                    $endHour = $sched['info']['end_time'][0] . $sched['info']['end_time'][1];
+
+                    foreach ($hoursCount as $hour => $count)
+                    {
+                        if ($startHour === $endHour && $startHour === $hour)
+                        {
+                            $hoursCount[$hour] += 1;
+                            break;
+                        }
+                        elseif ($hour === $startHour)
+                        {
+                            $hoursCount[$hour]++;
+                        }
+                        elseif ($hour > $startHour && $hour <= $endHour)
+                        {
+                            $hoursCount[$hour]++;
+                        }
+                    }
+                }
+            }
+        }
+
+        ksort($courses, SORT_NATURAL);
+
+        $this->template->selectedSemester = $this->codeToDisplay($termYear);
+        $this->template->selectedDow = $selectedDow;
+        $this->template->includeOnline = $includeOnline;
+        $this->template->semesters = $semesters;
+        $this->template->selectedTerm = $termYear;
+        $this->template->dowCount = $dowCount;
+        $this->template->hoursCount = $hoursCount;
+        $this->template->courseCount = $courseCount;
+        $this->template->courses = $courses;
     }
 
     public function roomMetadata ()
@@ -1274,7 +1416,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         $configs = $this->schema('Classrooms_Room_Configuration');
         $notes = $this->schema('Classrooms_Notes_Entry');
         $licenses = $this->schema('Classrooms_Software_License');
-        $room = $rooms->get($this->getRouteVariable('id'));
+        $room = $location = $rooms->get($this->getRouteVariable('id'));
         $config = $configs->get($this->getRouteVariable('cid'));
         
         $this->addBreadcrumb('rooms', 'List Rooms');
@@ -1319,7 +1461,7 @@ class Classrooms_Room_Controller extends Classrooms_Master_Controller
         }
         ksort($softwareLicenses, SORT_NATURAL);
 
-        $this->template->room = $room;
+        $this->template->room = $location;
         $this->template->config = $config;
         $this->template->softwareLicenses = $softwareLicenses;
         $notesCondition = $notes->anyTrue(

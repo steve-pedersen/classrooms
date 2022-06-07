@@ -97,6 +97,18 @@ class Classrooms_Software_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModu
                 );
 
                 break;
+
+            case 1:
+                $def = $this->alterEntityType('classroom_software_titles', 'Classrooms_Software_Title');
+                $def->addProperty('compatible_systems', 'string');
+                $def->save();
+                break;
+
+            case 2:
+                $def = $this->alterEntityType('classroom_software_titles', 'Classrooms_Software_Title');
+                $def->addProperty('internal_notes', 'string');
+                $def->save();
+                break;              
         }
     }
 }

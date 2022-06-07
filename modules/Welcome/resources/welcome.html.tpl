@@ -125,6 +125,20 @@
 			</a>
 		</div>	
 	</div>
+	<div class="row">
+		<div class="col-md-3 col-sm-6 col-xs-12">
+			<a href="{$app->baseUrl('/report')}" class="">
+			<div class="panel panel-default">
+				<div class="panel-heading text-center">
+					<h2 style="font-size:2rem">Classrooms Report</h2>
+				</div>
+				<div class="panel-body">
+					<img style="max-width:100px;margin-left:auto;margin-right:auto;" src="assets/images/chart.png" class="img-responsive">
+				</div>
+			</div>
+			</a>			
+		</div>
+	</div>
 	{/if}
 
 </div>

@@ -63,6 +63,30 @@
 							<input type="text" class="form-control" name="title[description]" value="{$title->description}" placeholder="Brief description of software">
 						</div>
 					</div>
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">Compatible Operating Systems</label>
+						<div class="col-sm-10">
+						{foreach $operatingSystems as $system}
+							<div class="col-sm-12">
+							{assign var=checked value=false}
+							{if is_array($title->compatibleSystems) && in_array($system, $title->compatibleSystems)}
+								{assign var=checked value=true}
+							{/if}
+							<label for="system-{$system}">
+								<input type="checkbox" id="system-{$system}" name="title[compatibleSystems][{$system}]" {if $checked}checked{/if}> 
+								{$system}
+							</label>
+							</div>
+						{/foreach}
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="title[internalNotes]" class="col-sm-2 control-label">Internal Notes</label>
+						<div class="col-sm-10">
+							<textarea name="title[internalNotes]" id="title[internalNotes]" class="form-control" rows="3">{$title->internalNotes|trim}</textarea>
+						</div>
+					</div>
 				</div>
 
 				<hr>
@@ -100,12 +124,12 @@
 
 				<div class="form-horizontal">
 					<h3>License</h3>
-					<p>Note, licenses are associated with version numbers.</p>
 
 					{if $selectedVersion->licenses && $selectedVersion->licenses->count() > 0}
 					<div class="form-group existing-items">
 						<label for="license[existing]" class="col-sm-2 control-label">License</label>
-						<div class="col-sm-9">
+						<div class="col-sm-10">
+							<div class="input-group">
 							<select name="license[existing]" id="existingLicenses" class="form-control">
 								<option value="">Choose License</option>
 						{foreach $title->versions as $version}
@@ -113,25 +137,32 @@
 							{foreach $version->licenses as $license}
 							{if !$license->deleted}
 								<option value="{$license->id}"{if $selectedLicense->id == $license->id} selected{/if}>
-									Title v{$version->number} | 
-									License #{$license->number}
+									License {$license->number} | 
+									Version {$version->number}
 									{if $license->seats} | {$license->seats} seats{/if}
 									{if $license->expirationDate} | Expires {$license->expirationDate->format('m/d/Y')}{/if}
-									{if $license->description} | {$license->description|truncate:100}{/if}
+									{if $license->description} | {$license->description|truncate:50}{/if}
 								</option>
 							{/if}
 							{/foreach}
 						{/if}
 						{/foreach}
 							</select>
-						</div>
-						<div class="col-sm-1 edit">
-							<a href="software/{$title->id}/licenses/{$selectedLicense->id}/edit" data-baseurl="software/{$title->id}/licenses/" class="btn btn-info pull-right">Edit</a>
+								<span class="input-group-btn">
+									<a href="software/{$title->id}/licenses/{$selectedLicense->id}/edit" data-baseurl="software/{$title->id}/licenses/" class="btn btn-info edit-license" type="button">Edit License</a>
+								</span>
+							</div>
 						</div>
 					</div>	
 					{/if}	
 
-					<h4 class="">Add new license <small>(for selected or new version)</small></h4>
+					<h4 class="">Add new license <small class="text-info">(for selected or new version)</small></h4>
+					<p class=""><em>
+						Note, licenses are associated with version numbers. If there is text in the "Add new version number..." field, it will take precedence over a selected existing version. So, any new license info will be associated with the new version number if that field is filled out, otherwise the license will be added to the selected existing version. 
+						{if $selectedVersion->licenses && $selectedVersion->licenses->count() > 0}
+							To update license information for a specific version, click Edit License above.
+						{/if}
+					</em></p>
 					<div class="form-group">
 						<label for="license[new][number]" class="col-sm-2 control-label">License Number</label>
 						<div class="col-sm-10">

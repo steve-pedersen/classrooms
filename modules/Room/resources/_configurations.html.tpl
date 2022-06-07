@@ -77,9 +77,9 @@
 	<br>
 	<h5>Software for this configuration {if $selectedConfiguration->id}- <span class="text-info">{$selectedConfiguration->model}</span>{/if}</h5>
 	<div class="form-group">
-		<label for="config" class="col-sm-2 control-label">Available Titles</label>
+		<label for="config" class="col-sm-2 control-label">Available Licensed Titles</label>
 		<div class="col-sm-10">
-			<table class="table table-condensed">
+			<table class="table table-condensed software-table">
 				<thead>
 					<tr>
 						
@@ -107,6 +107,7 @@
 					{if $needsExpand}
 						class="collapse out" role="tabpanel" id="licenses{$titleKey}"
 					{/if}
+					data-index="{$licenses@index}"
 					>
 					<td>
 						<input type="checkbox" name="config[existing][licenses][{$license->id}]" {if $checked}checked{/if} id="config[existing][licenses][{$license->id}]">
@@ -220,9 +221,9 @@
 			<br>
 			<h5>Software for this configuration (new)</h5>
 			<div class="form-group">
-				<label for="config" class="col-sm-2 control-label">Available Titles</label>
+				<label for="config" class="col-sm-2 control-label">Available Licensed Titles</label>
 				<div class="col-sm-10">
-					<table class="table table-condensed">
+					<table class="table table-condensed software-table">
 						<thead>
 							<tr>
 								<th></th>
@@ -242,6 +243,7 @@
 							{if $needsExpand}
 								class="collapse out" role="tabpanel" id="licensesNew{$titleKey}"
 							{/if}
+							data-index="{$licenses@index}"
 							>
 							<td class="text-center">
 								<input type="checkbox" name="config[new][licenses][{$license->id}]" id="config[new][licenses][{$license->id}]">

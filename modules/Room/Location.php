@@ -44,6 +44,7 @@ class Classrooms_Room_Location extends Bss_ActiveRecord_BaseWithAuthorization
                 'via' => 'classroom_room_configurations_map', 
                 'toPrefix' => 'configuration', 
                 'fromPrefix' => 'location',
+                'orderBy' => ['-modifiedDate', '-createdDate']
             ],
             'internalNotes' => ['1:N', 
                 'to' => 'Classrooms_Room_InternalNote', 
